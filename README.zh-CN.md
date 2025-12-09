@@ -1,6 +1,10 @@
+[English](./README.md) | [日本語](./README.ja-JP.md)
+
 # Suzic 的博客系统
 
 > **声明**：此系统的所有代码均系 AI 生成。
+
+[在线预览](https://s-blog.suzichen.me/)
 
 这是一个基于 React、Vite 和 TypeScript 构建的现代化静态博客系统。
 
@@ -65,5 +69,14 @@ title: 我的文章标题
 date: 2024-01-01 12:00:00
 tags: [技术, React]
 categories: [编程]
+preview: 文章预览内容...
 ---
 ```
+
+## 如何贡献
+
+本项目严禁手工编码，所有代码必须由 AI 生成。
+
+## AI 贡献者
+
+- Gemini 3 Pro
