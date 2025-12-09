@@ -1,0 +1,32 @@
+{
+  "name": "new-blog",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:posts && vite",
+    "build:posts": "npx tsx scripts/generate-posts-data.ts",
+    "build": "npm run build:posts && tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/prismjs": "^1.26.5",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "gray-matter": "^4.0.3",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "prismjs": "^1.30.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.10.1",
+    "remark-gfm": "^4.0.1"
+  }
+}
