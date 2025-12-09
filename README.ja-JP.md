@@ -1,6 +1,10 @@
+[English](./README.md) | [中文](./README.zh-CN.md)
+
 # Suzic ブログシステム
 
 > **免責事項**：このシステムのすべてのコードは AI によって生成されました。
+
+[デモ](https://s-blog.suzichen.me/)
 
 React、Vite、TypeScript で構築されたモダンな静的ブログシステムです。
 
@@ -65,5 +69,14 @@ title: 記事のタイトル
 date: 2024-01-01 12:00:00
 tags: [Tech, React]
 categories: [プログラミング]
+preview: 記事のプレビュー...
 ---
 ```
+
+## 貢献方法
+
+このプロジェクトでは手動でのコーディングは禁止されています。すべてのコードは AI によって生成される必要があります。
+
+## AI コントリビューター
+
+- Gemini 3 Pro
