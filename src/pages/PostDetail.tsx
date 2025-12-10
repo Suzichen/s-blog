@@ -39,9 +39,8 @@ const PostDetail: React.FC = () => {
         
         if (matchKey) {
             const rawContent = await modules[matchKey]() as string;
-            // Strip frontmatter - more robust regex handling newlines
-            // Matches start of file --- ... --- with any amount of whitespace/newlines around
-            const contentBody = rawContent.replace(/^---[\r\n]+[\s\S]*?[\r\n]+---[\r\n]*/, '');
+            // Strip frontmatter - handle BOM and robust newline support
+            const contentBody = rawContent.replace(/^[\uFEFF]?---[\s\S]*?---[\r\n]*/, '');
             setContent(contentBody);
         } else {
             console.error('Post file not found');
