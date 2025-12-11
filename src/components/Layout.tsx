@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { siteConfig } from '../config';
+import BackToTop from './BackToTop';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer>
         &copy; {new Date().getFullYear()} {siteConfig.title}
       </footer>
+      <BackToTop />
     </div>
   );
 };
