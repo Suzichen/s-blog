@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import TableOfContents from '@/components/TableOfContents';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.css'; // You might want a different theme
 import postsData from '@/generated/manifest.json';
@@ -88,7 +90,8 @@ const PostDetail: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  return (
+
+  const ArticleContent = (
     <article>
       <header style={{ marginBottom: '2rem', borderBottom: 'none' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{post.title}</h1>
@@ -99,8 +102,19 @@ const PostDetail: React.FC = () => {
           </span>
         </div>
       </header>
+      
+      {/* Mobile TOC - simplified version, maybe just show at top if needed, 
+          but for now only desktop sidebar is requested/safer to start with. 
+          Actually, let's put a collapsible or static TOC at top for mobile? 
+          No, let's stick to Desktop Sidebar first as per user request "TOC module".
+       */}
       <div className="markdown-body">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeSlug]}
+        >
+            {content}
+        </ReactMarkdown>
       </div>
       
       <hr style={{ margin: '3rem 0' }} />
@@ -123,7 +137,71 @@ const PostDetail: React.FC = () => {
           )}
         </div>
       </nav>
+
     </article>
+  );
+  
+  return (
+    <div style={{ position: 'relative', width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
+      {/* Main Container: Relative for absolute positioning of TOC, limited to article width */}
+      
+      {ArticleContent}
+      
+      {/* 
+        TOC Wrapper: Absolute 
+        - Takes it out of document flow (Article stays 800px).
+        - Height 100% matches Article height (so sticky stops correctly).
+        - Right: negative value pushes it outside the 800px box.
+      */}
+      <aside 
+        className="desktop-toc"
+        style={{ 
+            position: 'absolute', 
+            top: 0, 
+            right: '-360px', /* Push out by TOC width (300) + Gap (60) */
+            height: '100%',  /* Match article height for scroll boundary */
+            width: '300px'
+        }}
+      >
+        {/* Sticky Inner: Pins to viewport */}
+        <div style={{ 
+            position: 'sticky', 
+            top: '120px', 
+            maxHeight: 'calc(100vh - 140px)', 
+            overflowY: 'auto',
+            paddingRight: '10px'
+        }}>
+            <TableOfContents content={content} />
+        </div>
+      </aside>
+
+      {/* Responsive Style Injection */}
+      <style>{`
+        /* Hide TOC if there isn't enough space on the right: (Screen - 800) / 2 < 360  => Screen < 1520px ideally for generous space, but ~1200px minimum to not overlap. 
+           Let's say we hide it if screen < 1400px to be safe and clean. 
+        */
+        @media (max-width: 1400px) {
+            .desktop-toc {
+                display: none !important;
+            }
+        }
+        
+        /* Custom Scrollbar for TOC */
+        .desktop-toc div::-webkit-scrollbar {
+            width: 4px;
+        }
+        .desktop-toc div::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        .desktop-toc div::-webkit-scrollbar-thumb {
+            background: #e0e0e0; 
+            border-radius: 4px;
+        }
+        .desktop-toc div::-webkit-scrollbar-thumb:hover {
+            background: #bdbdbd; 
+        }
+      `}</style>
+    </div>
   );
 };
 
