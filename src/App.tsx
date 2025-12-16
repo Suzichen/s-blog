@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { siteConfig } from './config';
 import Layout from './components/Layout';
@@ -9,6 +10,13 @@ import CategoryList from './pages/CategoryList';
 import TagList from './pages/TagList';
 
 const App: React.FC = () => {
+  const { i18n } = useTranslation();
+
+  // Effect to update lang on change (for switcher)
+  React.useEffect(() => {
+    document.documentElement.lang = i18n.resolvedLanguage || 'en';
+  }, [i18n.resolvedLanguage]);
+
   React.useEffect(() => {
     // Update title
     document.title = siteConfig.title;
