@@ -142,27 +142,17 @@ const PostDetail: React.FC = () => {
   );
   
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
+    <div className="post-container">
       {/* Main Container: Relative for absolute positioning of TOC, limited to article width */}
       
       {ArticleContent}
       
       {/* 
         TOC Wrapper: Absolute 
-        - Takes it out of document flow (Article stays 800px).
+        - Takes it out of document flow
         - Height 100% matches Article height (so sticky stops correctly).
-        - Right: negative value pushes it outside the 800px box.
       */}
-      <aside 
-        className="desktop-toc"
-        style={{ 
-            position: 'absolute', 
-            top: 0, 
-            right: '-360px', /* Push out by TOC width (300) + Gap (60) */
-            height: '100%',  /* Match article height for scroll boundary */
-            width: '300px'
-        }}
-      >
+      <aside className="desktop-toc">
         {/* Sticky Inner: Pins to viewport */}
         <div style={{ 
             position: 'sticky', 
@@ -177,12 +167,40 @@ const PostDetail: React.FC = () => {
 
       {/* Responsive Style Injection */}
       <style>{`
-        /* Hide TOC if there isn't enough space on the right: (Screen - 800) / 2 < 360  => Screen < 1520px ideally for generous space, but ~1200px minimum to not overlap. 
-           Let's say we hide it if screen < 1400px to be safe and clean. 
-        */
+        .post-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 2rem;
+        }
+
+        .desktop-toc {
+            position: absolute;
+            top: 0;
+            right: -360px; /* Default: 60px gap + 300px width */
+            height: 100%;
+            width: 300px;
+        }
+
+        /* Responsive adjustments for 1440px screens */
+        @media (max-width: 1560px) {
+            .post-container {
+                max-width: 720px; /* Reduce content width slightly */
+            }
+            .desktop-toc {
+                right: -340px; /* Reduce to 40px gap + 300px width */
+            }
+        }
+
+        /* Hide TOC if screen is too narrow (< 1400px) */
         @media (max-width: 1400px) {
             .desktop-toc {
                 display: none !important;
+            }
+            .post-container {
+                max-width: 800px; /* Restore width when TOC is gone */
+                padding: 0 1rem; /* Add some padding for mobile/tablet */
             }
         }
         
