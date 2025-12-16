@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import postsData from '@/generated/manifest.json';
 import type { PostMetadata } from '@/types/blog';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 const posts: PostMetadata[] = postsData as PostMetadata[];
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div>
       <ul className="post-list">
@@ -23,7 +25,7 @@ const Home: React.FC = () => {
               )}
             </div>
             <p className="post-summary">{post.summary}</p>
-            <Link to={`/post/${post.slug}`} className="read-more">Read more &rarr;</Link>
+            <Link to={`/post/${post.slug}`} className="read-more">{t('common.readMore')} &rarr;</Link>
           </li>
         ))}
       </ul>

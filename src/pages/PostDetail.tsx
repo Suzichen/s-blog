@@ -10,10 +10,12 @@ import 'prismjs/themes/prism.css'; // You might want a different theme
 import postsData from '@/generated/manifest.json';
 import type { PostMetadata } from '@/types/blog';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 const posts: PostMetadata[] = postsData as PostMetadata[];
 
 const PostDetail: React.FC = () => {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -83,11 +85,11 @@ const PostDetail: React.FC = () => {
   }, [content]);
 
   if (!post) {
-    return <div>Post not found</div>;
+    return <div>{t('common.postNotFound')}</div>;
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
 
@@ -98,7 +100,7 @@ const PostDetail: React.FC = () => {
         <div className="post-meta">
           <span>{format(new Date(post.date), 'MMMM dd, yyyy')}</span>
           <span style={{ marginLeft: '1rem' }}>
-             Tags: {post.tags.join(', ')}
+             {t('common.tags')}: {post.tags.join(', ')}
           </span>
         </div>
       </header>
@@ -123,7 +125,7 @@ const PostDetail: React.FC = () => {
         <div className="nav-previous" style={{ flex: 1, minWidth: '200px' }}>
           {prevPost && (
             <Link to={`/post/${prevPost.slug}`} style={{ display: 'block', textDecoration: 'none' }}>
-              <div style={{ fontSize: '0.875rem', color: '#666' }}>Previous Post</div>
+              <div style={{ fontSize: '0.875rem', color: '#666' }}>{t('common.prevPost')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>&laquo; {prevPost.title}</div>
             </Link>
           )}
@@ -131,7 +133,7 @@ const PostDetail: React.FC = () => {
         <div className="nav-next" style={{ flex: 1, minWidth: '200px', textAlign: 'right' }}>
           {nextPost && (
             <Link to={`/post/${nextPost.slug}`} style={{ display: 'block', textDecoration: 'none' }}>
-              <div style={{ fontSize: '0.875rem', color: '#666' }}>Next Post</div>
+              <div style={{ fontSize: '0.875rem', color: '#666' }}>{t('common.nextPost')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{nextPost.title} &raquo;</div>
             </Link>
           )}
