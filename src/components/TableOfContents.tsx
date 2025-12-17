@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import GithubSlugger from 'github-slugger';
 
 interface TableOfContentsProps {
@@ -79,13 +80,15 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     setHeadings(matches);
   }, [content]);
 
+  const { t } = useTranslation();
+
   if (headings.length === 0) {
     return null;
   }
 
   return (
     <nav className="toc" aria-label="Table of Contents">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 'bold' }}>Table of Contents</h2>
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 'bold' }}>{t('common.toc')}</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {headings.map((heading) => (
           <li 
