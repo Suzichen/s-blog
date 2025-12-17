@@ -1,4 +1,3 @@
-
 import React from 'react';
 import postsData from '@/generated/manifest.json';
 import type { PostMetadata } from '@/types/blog';
@@ -9,16 +8,20 @@ const posts: PostMetadata[] = postsData as PostMetadata[];
 
 const TagList: React.FC = () => {
   const { t } = useTranslation();
-  // Extract unique tags
   const tags = Array.from(new Set(posts.flatMap(p => p.tags)));
 
   return (
-    <div>
-      <h1>{t('titles.tags')}</h1>
-      <ul>
+    <div className="max-w-[800px] mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-primary">{t('titles.tags')}</h1>
+      <ul className="list-none p-0 flex flex-wrap gap-3">
         {tags.map(tag => (
           <li key={tag}>
-            <Link to={`/tags/${tag}`}>{tag}</Link>
+            <Link 
+              to={`/tags/${tag}`}
+              className="inline-block text-sm text-accent hover:text-primary transition-colors no-underline"
+            >
+              #{tag}
+            </Link>
           </li>
         ))}
       </ul>

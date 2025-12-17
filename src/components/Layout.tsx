@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -6,36 +5,42 @@ import { siteConfig } from '../config';
 import BackToTop from './BackToTop';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  useScrollToTop();
   const { t } = useTranslation();
   return (
-    <div className="layout">
-      <header className="layout-header">
-        <div className="header-branding">
-          <img src={siteConfig.logo} alt="Logo" className="site-logo" />
-          <div>
-            <h1 className="site-title">
-              <Link to="/">{siteConfig.title}</Link>
-            </h1>
-            <p className="site-description">{siteConfig.description}</p>
+    <div className="flex flex-col min-h-screen">
+      <header className="p-4 md:p-8 bg-bg border-b border-border">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+            <img src={siteConfig.logo} alt="Logo" className="h-20 w-20 object-cover rounded-full" />
+            <div>
+              <h1 className="m-0 font-light text-3xl">
+                <Link to="/" className="text-primary hover:text-primary no-underline font-main">
+                  {siteConfig.title}
+                </Link>
+              </h1>
+              <p className="m-0 text-sm opacity-80">{siteConfig.description}</p>
+            </div>
+            <LanguageSwitcher />
           </div>
-          <LanguageSwitcher />
+          <nav className="flex gap-6">
+            <Link to="/" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.home')}</Link>
+            <Link to="/tags" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.tags')}</Link>
+            <Link to="/categories" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.categories')}</Link>
+          </nav>
         </div>
-        <nav className="header-nav">
-          <Link to="/">{t('nav.home')}</Link>
-          <Link to="/tags">{t('nav.tags')}</Link>
-          <Link to="/categories">{t('nav.categories')}</Link>
-        </nav>
       </header>
-      <main>
+      <main className="flex-1 w-full max-w-[800px] mx-auto p-4 md:p-8">
         {children}
       </main>
-      <footer>
+      <footer className="py-8 text-center text-secondary text-sm border-t border-border">
         &copy; {new Date().getFullYear()} {siteConfig.title}
       </footer>
       <BackToTop />

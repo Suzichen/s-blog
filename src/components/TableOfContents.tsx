@@ -15,25 +15,21 @@ interface Heading {
 const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const slugger = new GithubSlugger();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // Reset slugger for new content
     slugger.reset();
 
     const lines = content.split(/\r?\n/);
     const matches: Heading[] = [];
     let inCodeBlock = false;
 
-    // Helper to strip markdown formatting for slug generation matches rehype-slug
+    // Helper to strip markdown formatting
     const stripMarkdown = (markdown: string) => {
         return markdown
-            // Strip links: [text](url) -> text
             .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
-            // Strip bold/italic: **text** or __text__ -> text
             .replace(/(\*\*|__)(.*?)\1/g, '$2')
-            // Strip code: `text` -> text
             .replace(/`([^`]+)`/g, '$1')
-            // Strip *text* or _text_
             .replace(/(\*|_)(.*?)\1/g, '$2');
     };
 
@@ -41,7 +37,6 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
         const line = lines[i];
         const trimmedLine = line.trim();
 
-        // Code block detection
         if (trimmedLine.startsWith('```')) {
             inCodeBlock = !inCodeBlock;
             continue;
@@ -52,13 +47,11 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
         let level = 0;
         let text = '';
 
-        // ATX Headings (e.g. # Title)
         const atxMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
         if (atxMatch) {
             level = atxMatch[1].length;
             text = atxMatch[2].trim();
         } 
-        // Setext Headings
         else if (i < lines.length - 1) {
             const nextLine = lines[i + 1].trim();
             if (nextLine.match(/^=+$/) && trimmedLine.length > 0) {
@@ -80,34 +73,23 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     setHeadings(matches);
   }, [content]);
 
-  const { t } = useTranslation();
-
   if (headings.length === 0) {
     return null;
   }
 
   return (
     <nav className="toc" aria-label="Table of Contents">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 'bold' }}>{t('common.toc')}</h2>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <h2 className="text-xl font-bold mb-4 text-primary">{t('common.toc')}</h2>
+      <ul className="list-none p-0 m-0">
         {headings.map((heading) => (
           <li 
             key={heading.id} 
-            style={{ 
-              marginBottom: '0', 
-              marginLeft: `${(heading.level - 1) * 1}rem`,
-              lineHeight: '1.2'
-            }}
+            className="mb-0 leading-tight"
+            style={{ marginLeft: `${(heading.level - 1) * 1}rem` }}
           >
             <a 
                 href={`#${heading.id}`}
-                style={{ 
-                    textDecoration: 'none', 
-                    color: '#007bff',
-                    fontSize: '0.85rem',
-                    display: 'block',
-                    padding: '1px 0'
-                }}
+                className="block py-[2px] text-sm text-accent hover:text-blue-600 hover:underline transition-colors no-underline"
             >
               {heading.text}
             </a>
