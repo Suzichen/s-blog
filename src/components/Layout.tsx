@@ -5,12 +5,14 @@ import { siteConfig } from '../config';
 import BackToTop from './BackToTop';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  useScrollToTop();
   const { t } = useTranslation();
   return (
     <div className="flex flex-col min-h-screen">
