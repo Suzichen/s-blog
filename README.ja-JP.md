@@ -54,9 +54,24 @@ npm run build
 
 サイトの設定は `src/config.ts` で変更できます：
 
-- サイトタイトル
-- 説明文
-- ロゴとファビコンのパス
+- **title**: サイトタイトル
+- **description**: サイト説明文
+- **logo**: ロゴ画像のパス
+- **favicon**: ファビコンのパス
+- **siteUrl**（オプション）: 本番環境の URL（例：`https://s-blog.suzichen.me`）
+  - SEO 機能に必要（sitemap.xml、RSS フィード、Open Graph タグなど）
+  - 設定しない場合、URL 依存の SEO 機能はスキップされます
+- **author**（オプション）: SEO メタデータ用の著者名
+- **language**（オプション）: デフォルト言語コード（例：`en`、`zh-CN`、`ja`）
+
+### SEO 機能
+
+`siteUrl` を設定すると、ビルドプロセスで自動生成されます：
+
+- **SEO HTML ファイル**（`dist/posts/*.html`）- メタタグ、Open Graph タグ、Twitter Cards、JSON-LD 構造化データを含む検索エンジンフレンドリーなページ
+- **sitemap.xml** - 検索エンジン用の XML サイトマップ
+- **rss.xml** - RSS 2.0 フィード
+- **robots.txt** - Web クローラー向けの指示
 
 ## 記事の執筆
 
@@ -80,3 +95,4 @@ preview: 記事のプレビュー...
 ## AI コントリビューター
 
 - Gemini 3 Pro
+- Claude Sonnet 4.5
