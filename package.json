@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npm run build:posts && vite",
     "build:posts": "npx tsx scripts/generate-posts-data.ts",
-    "build": "npm run build:posts && tsc && vite build",
+    "build:seo": "npx tsx scripts/generate-seo.ts && npx tsx scripts/generate-sitemap.ts && npx tsx scripts/generate-rss.ts && npx tsx scripts/generate-robots.ts",
+    "build": "npm run build:posts && tsc && vite build && npm run build:seo",
     "preview": "vite preview"
   },
   "devDependencies": {
