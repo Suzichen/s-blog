@@ -95,3 +95,4 @@ preview: 文章预览内容...
 ## AI 贡献者
 
 - Gemini 3 Pro
+- Claude Sonnet 4.5

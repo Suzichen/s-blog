@@ -95,3 +95,4 @@ preview: 記事のプレビュー...
 ## AI コントリビューター
 
 - Gemini 3 Pro
+- Claude Sonnet 4.5
