@@ -3,6 +3,7 @@ import path from 'path';
 
 const MANIFEST_FILE = path.join(process.cwd(), 'src/generated/manifest.json');
 const CONFIG_FILE = path.join(process.cwd(), 'src/config.ts');
+const TEMPLATE_FILE = path.join(process.cwd(), 'dist/index.html');
 const OUTPUT_DIR = path.join(process.cwd(), 'dist/post');
 
 interface PostMetadata {
@@ -22,11 +23,9 @@ interface SiteConfig {
   language?: string;
 }
 
-// Parse config from TypeScript file (simple extraction)
 function getSiteConfig(): SiteConfig {
   const configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
   
-  // Extract values using regex (simple parser)
   const titleMatch = configContent.match(/title:\s*["'](.+?)["']/);
   const descMatch = configContent.match(/description:\s*["'](.+?)["']/);
   const urlMatch = configContent.match(/siteUrl:\s*["'](.+?)["']/);
@@ -53,13 +52,12 @@ function escapeHtml(text: string): string {
 
 function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   const { slug, title, summary, tags, categories, date } = post;
-  const { siteUrl, author, language } = config;
+  const { siteUrl, author } = config;
   
   const postUrl = siteUrl ? `${siteUrl}/post/${slug}/` : '';
   const keywords = [...tags, ...categories].join(', ');
   const publishDate = date || new Date().toISOString();
   
-  // JSON-LD structured data
   const jsonLd = siteUrl ? {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -74,13 +72,7 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
     "keywords": keywords
   } : null;
 
-  return `<!DOCTYPE html>
-<html lang="${language || 'zh-CN'}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Primary Meta Tags -->
+  return `
   <title>${escapeHtml(title)}</title>
   <meta name="title" content="${escapeHtml(title)}">
   <meta name="description" content="${escapeHtml(summary)}">
@@ -89,8 +81,7 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   <meta name="robots" content="index, follow">
   ${postUrl ? `<link rel="canonical" href="${postUrl}">` : ''}
   
-  ${siteUrl ? `<!-- Open Graph / Facebook -->
-  <meta property="og:type" content="article">
+  ${siteUrl ? `<meta property="og:type" content="article">
   <meta property="og:url" content="${postUrl}">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(summary)}">
@@ -99,23 +90,14 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   ${author ? `<meta property="article:author" content="${escapeHtml(author)}">` : ''}
   ${tags.map(tag => `<meta property="article:tag" content="${escapeHtml(tag)}">`).join('\n  ')}
   
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:url" content="${postUrl}">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(summary)}">` : ''}
   
-  ${jsonLd ? `<!-- JSON-LD Structured Data -->
-  <script type="application/ld+json">
+  ${jsonLd ? `<script type="application/ld+json">
 ${JSON.stringify(jsonLd, null, 2)}
-  </script>` : ''}
-</head>
-<body>
-  <h1>${escapeHtml(title)}</h1>
-  <p>${escapeHtml(summary)}</p>
-  ${postUrl ? `<p><a href="${postUrl}">阅读全文 / Read more</a></p>` : ''}
-</body>
-</html>`;
+  </script>` : ''}`;
 }
 
 function main() {
@@ -125,17 +107,27 @@ function main() {
     process.exit(1);
   }
 
+  if (!fs.existsSync(TEMPLATE_FILE)) {
+    console.error(`Template file not found: ${TEMPLATE_FILE}`);
+    console.error('Please run "npm run build" first.');
+    process.exit(1);
+  }
+
   const config = getSiteConfig();
   const posts: PostMetadata[] = JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf-8'));
+  const template = fs.readFileSync(TEMPLATE_FILE, 'utf-8');
 
-  // Ensure output directory exists
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
   let generated = 0;
   for (const post of posts) {
-    const htmlContent = generateSEOHtml(post, config);
+    const seoTags = generateSEOHtml(post, config);
+    
+    let htmlContent = template;
+    htmlContent = htmlContent.replace(/<title>.*?<\/title>/, '');
+    htmlContent = htmlContent.replace('</head>', `${seoTags}\n</head>`);
     
     const postDir = path.join(OUTPUT_DIR, post.slug);
     if (!fs.existsSync(postDir)) {
