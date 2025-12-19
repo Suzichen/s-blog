@@ -68,7 +68,7 @@ npm run build
 
 当配置了 `siteUrl` 后，构建过程会自动生成：
 
-- **SEO HTML 文件**（`dist/posts/*.html`）- 包含完整 meta 标签、Open Graph 标签、Twitter Cards 和 JSON-LD 结构化数据的搜索引擎友好页面
+- **SEO HTML 文件**（`dist/post/*.html`）- 包含完整 meta 标签、Open Graph 标签、Twitter Cards 和 JSON-LD 结构化数据的搜索引擎友好页面
 - **sitemap.xml** - 搜索引擎站点地图
 - **rss.xml** - RSS 2.0 订阅源
 - **robots.txt** - 网络爬虫指令

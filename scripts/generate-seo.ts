@@ -3,7 +3,7 @@ import path from 'path';
 
 const MANIFEST_FILE = path.join(process.cwd(), 'src/generated/manifest.json');
 const CONFIG_FILE = path.join(process.cwd(), 'src/config.ts');
-const OUTPUT_DIR = path.join(process.cwd(), 'dist/posts');
+const OUTPUT_DIR = path.join(process.cwd(), 'dist/post');
 
 interface PostMetadata {
   slug: string;
@@ -147,7 +147,7 @@ function main() {
     generated++;
   }
 
-  console.log(`✓ Generated ${generated} SEO HTML files in dist/posts/`);
+  console.log(`✓ Generated ${generated} SEO HTML files in dist/post/`);
   if (!config.siteUrl) {
     console.warn('⚠ Warning: siteUrl not configured. Some SEO features are limited.');
   }

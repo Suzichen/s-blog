@@ -68,7 +68,7 @@ npm run build
 
 `siteUrl` を設定すると、ビルドプロセスで自動生成されます：
 
-- **SEO HTML ファイル**（`dist/posts/*.html`）- メタタグ、Open Graph タグ、Twitter Cards、JSON-LD 構造化データを含む検索エンジンフレンドリーなページ
+- **SEO HTML ファイル**（`dist/post/*.html`）- メタタグ、Open Graph タグ、Twitter Cards、JSON-LD 構造化データを含む検索エンジンフレンドリーなページ
 - **sitemap.xml** - 検索エンジン用の XML サイトマップ
 - **rss.xml** - RSS 2.0 フィード
 - **robots.txt** - Web クローラー向けの指示
