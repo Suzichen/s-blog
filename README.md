@@ -68,7 +68,7 @@ Site configuration can be modified in `src/config.ts`:
 
 When `siteUrl` is configured, the build process automatically generates:
 
-- **SEO HTML files** (`dist/posts/*.html`) - Search engine friendly pages with meta tags, Open Graph tags, Twitter Cards, and JSON-LD structured data
+- **SEO HTML files** (`dist/post/*.html`) - Search engine friendly pages with meta tags, Open Graph tags, Twitter Cards, and JSON-LD structured data
 - **sitemap.xml** - XML sitemap for search engines
 - **rss.xml** - RSS 2.0 feed for subscribers
 - **robots.txt** - Web crawler instructions
