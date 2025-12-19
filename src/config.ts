@@ -9,11 +9,11 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  title: "Suzic's Blog",
-  description: "A personal blog about technology, coding, and more.",
+  title: "S-blog",
+  description: "Simple writing. Super performance. A blog system.",
   logo: "/logo.png",
   favicon: "/favicon.ico",
   siteUrl: "https://s-blog.suzichen.me",
-  author: "Suzic",
-  language: "zh-CN",
+  author: "Suzichen",
+  language: "en",
 };
