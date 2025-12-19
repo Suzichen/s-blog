@@ -13,7 +13,7 @@ export const siteConfig: SiteConfig = {
   description: "Simple writing. Super performance. A blog system.",
   logo: "/logo.png",
   favicon: "/favicon.ico",
-  siteUrl: "https://s-blog.suzichen.me",
+  siteUrl: "https://s-blog.me",
   author: "Suzichen",
   language: "en",
 };
