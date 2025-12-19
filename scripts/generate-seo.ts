@@ -55,7 +55,7 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   const { slug, title, summary, tags, categories, date } = post;
   const { siteUrl, author, language } = config;
   
-  const postUrl = siteUrl ? `${siteUrl}/post/${slug}` : '';
+  const postUrl = siteUrl ? `${siteUrl}/post/${slug}/` : '';
   const keywords = [...tags, ...categories].join(', ');
   const publishDate = date || new Date().toISOString();
   
@@ -136,7 +136,13 @@ function main() {
   let generated = 0;
   for (const post of posts) {
     const htmlContent = generateSEOHtml(post, config);
-    const outputFile = path.join(OUTPUT_DIR, `${post.slug}.html`);
+    
+    const postDir = path.join(OUTPUT_DIR, post.slug);
+    if (!fs.existsSync(postDir)) {
+      fs.mkdirSync(postDir, { recursive: true });
+    }
+
+    const outputFile = path.join(postDir, 'index.html');
     fs.writeFileSync(outputFile, htmlContent, 'utf-8');
     generated++;
   }
