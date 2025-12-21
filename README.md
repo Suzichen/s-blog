@@ -12,6 +12,11 @@ A modern, static blog system built with React, Vite, and TypeScript.
 
 - **Tech Stack**: React 19, Vite, TypeScript
 - **Content**: Markdown-based posts (Hexo-compatible frontmatter)
+- **Features**:
+  - Instant Search
+  - Archives (Year/Month)
+  - Tags & Categories
+  - i18n Support
 - **Styling**: Clean, responsive design
 - **Performance**: Static site generation for posts data
 
