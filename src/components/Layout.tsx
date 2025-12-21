@@ -32,8 +32,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <nav className="flex gap-6">
             <Link to="/" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.home')}</Link>
-            <Link to="/tags" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.tags')}</Link>
-            <Link to="/categories" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.categories')}</Link>
           </nav>
         </div>
       </header>
