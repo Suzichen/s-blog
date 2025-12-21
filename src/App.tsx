@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
 import CategoryDetail from './pages/CategoryDetail';
 import TagDetail from './pages/TagDetail';
+import Archives from './pages/Archives';
 
 const App: React.FC = () => {
   const { i18n } = useTranslation();
@@ -37,6 +38,9 @@ const App: React.FC = () => {
           <Route path="/post/:slug" element={<PostDetail />} />
           <Route path="/categories/:category" element={<CategoryDetail />} />
           <Route path="/tags/:tag" element={<TagDetail />} />
+          <Route path="/archives" element={<Archives />} />
+          <Route path="/archives/:year" element={<Archives />} />
+          <Route path="/archives/:year/:month" element={<Archives />} />
         </Routes>
       </Layout>
     </Router>
