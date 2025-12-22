@@ -18,7 +18,14 @@ const resources = {
         "toc": "Table of Contents",
         "prevPost": "Previous Post",
         "nextPost": "Next Post",
-        "tags": "Tags"
+        "tags": "Tags",
+        "archives": "Archives",
+        "year": "Year",
+        "month": "Month",
+        "noPosts": "No posts found.",
+        "searchPlaceholder": "Type to search...",
+        "noResults": "No matching posts found.",
+        "categories": "Categories"
       },
       "titles": {
         "categories": "Categories",
@@ -40,7 +47,14 @@ const resources = {
         "toc": "目录",
         "prevPost": "上一篇",
         "nextPost": "下一篇",
-        "tags": "标签"
+        "tags": "标签",
+        "archives": "归档",
+        "year": "年",
+        "month": "月",
+        "noPosts": "暂无文章。",
+        "searchPlaceholder": "输入关键字搜索...",
+        "noResults": "未找到匹配的文章。",
+        "categories": "分类"
       },
       "titles": {
         "categories": "文章分类",
@@ -62,7 +76,14 @@ const resources = {
         "toc": "目次",
         "prevPost": "前の記事",
         "nextPost": "次の記事",
-        "tags": "タグ"
+        "tags": "タグ",
+        "archives": "アーカイブ",
+        "year": "年",
+        "month": "月",
+        "noPosts": "記事が見つかりません。",
+        "searchPlaceholder": "検索キーワードを入力...",
+        "noResults": "一致する記事が見つかりません。",
+        "categories": "カテゴリー"
       },
       "titles": {
         "categories": "カテゴリー",
