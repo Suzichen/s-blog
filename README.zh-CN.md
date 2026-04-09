@@ -93,6 +93,56 @@ preview: 文章预览内容...
 ---
 ```
 
+## 相册模块
+
+博客包含一个可选的相册模块，可以按相册组织和展示照片。
+
+### 配置
+
+编辑 `src/album.config.ts` 来管理相册：
+
+```typescript
+export const albumConfig: AlbumConfig = {
+  enabled: true,
+  albums: [
+    { dir: 'travel-2024', name: '2024 旅行', cover: 'cover.jpg' },
+    { dir: '做饭', cover: 'braised-pork.jpg' }, // 支持中文目录名，未设置 name 时显示目录名
+  ],
+};
+```
+
+- **enabled**：开启/关闭整个相册模块
+- **dir**：`public/albums/` 下的目录名（支持字母、数字、连字符、下划线；支持中文等 Unicode 字符；不允许空格或路径分隔符）
+- **name**（可选）：相册显示名称
+- **cover**（可选）：封面照片文件名
+
+### 添加照片
+
+将照片放入 `public/albums/{dirname}/` 目录：
+
+```
+public/albums/travel-2024/
+  photo1.jpg
+  photo2.png
+  cover.jpg
+```
+
+支持格式：`.jpg`、`.jpeg`、`.png`、`.webp`、`.heic`
+
+### 构建相册数据
+
+```bash
+npm run build:albums
+```
+
+此命令会：
+1. 扫描已配置的相册目录
+2. 在 `thumbs/` 子目录中生成 WebP 缩略图（长边不超过 1080px）
+3. 提取 EXIF 元数据（相机型号、焦距、光圈、快门速度、ISO）
+4. 在 `public/generated/` 中输出 JSON 索引文件
+
+缩略图支持增量构建——未修改的照片会自动跳过。
+
 ## 如何贡献
 
 本项目严禁手工编码，所有代码必须由 AI 生成。
@@ -100,4 +150,6 @@ preview: 文章预览内容...
 ## AI 贡献者
 
 - Gemini 3 Pro
+- Gemini 3.1 Pro
 - Claude Sonnet 4.5
+- Claude Opus 4.6

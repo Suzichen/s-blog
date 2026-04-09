@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { siteConfig } from '../config';
+import { albumConfig } from '../album.config';
 import BackToTop from './BackToTop';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchOverlay from './SearchOverlay';
@@ -37,6 +38,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <nav className="flex gap-6 items-center">
               <Link to="/" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.home')}</Link>
               <Link to="/archives" className="text-secondary font-medium hover:text-primary transition-colors">{t('common.archives', 'Archives')}</Link>
+              {albumConfig.enabled && (
+                <Link to="/albums" className="text-secondary font-medium hover:text-primary transition-colors">{t('nav.albums')}</Link>
+              )}
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="text-secondary hover:text-primary transition-colors focus:outline-none"

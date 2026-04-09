@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { siteConfig } from './config';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -9,6 +9,9 @@ import PostDetail from './pages/PostDetail';
 import CategoryDetail from './pages/CategoryDetail';
 import TagDetail from './pages/TagDetail';
 import Archives from './pages/Archives';
+import Albums from './pages/Albums';
+import AlbumDetail from './pages/AlbumDetail';
+import { albumConfig } from './album.config';
 
 const App: React.FC = () => {
   const { i18n } = useTranslation();
@@ -41,6 +44,8 @@ const App: React.FC = () => {
           <Route path="/archives" element={<Archives />} />
           <Route path="/archives/:year" element={<Archives />} />
           <Route path="/archives/:year/:month" element={<Archives />} />
+          <Route path="/albums" element={albumConfig.enabled ? <Albums /> : <Navigate to="/" replace />} />
+          <Route path="/albums/:dirname" element={albumConfig.enabled ? <AlbumDetail /> : <Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </Router>

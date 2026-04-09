@@ -1,4 +1,4 @@
-﻿---
+---
 title: About This Blog System
 date: 2025-12-19 12:00:00
 tags: [blog-system, static-site, react]

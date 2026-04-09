@@ -9,7 +9,8 @@ const resources = {
       "nav": {
         "home": "Home",
         "tags": "Tags",
-        "categories": "Categories"
+        "categories": "Categories",
+        "albums": "Albums"
       },
       "common": {
         "readMore": "Read more",
@@ -30,6 +31,13 @@ const resources = {
       "titles": {
         "categories": "Categories",
         "tags": "Tags"
+      },
+      "albums": {
+        "title": "Albums",
+        "noAlbums": "No albums yet.",
+        "photoCount": "{{count}} photos",
+        "backToAlbums": "← Back to Albums",
+        "albumNotFound": "Album not found"
       }
     }
   },
@@ -38,7 +46,8 @@ const resources = {
       "nav": {
         "home": "首页",
         "tags": "标签",
-        "categories": "分类"
+        "categories": "分类",
+        "albums": "相册"
       },
       "common": {
         "readMore": "阅读更多",
@@ -59,6 +68,13 @@ const resources = {
       "titles": {
         "categories": "文章分类",
         "tags": "文章标签"
+      },
+      "albums": {
+        "title": "相册",
+        "noAlbums": "暂无相册。",
+        "photoCount": "{{count}} 张照片",
+        "backToAlbums": "← 返回相册",
+        "albumNotFound": "相册未找到"
       }
     }
   },
@@ -67,7 +83,8 @@ const resources = {
       "nav": {
         "home": "ホーム",
         "tags": "タグ",
-        "categories": "カテゴリー"
+        "categories": "カテゴリー",
+        "albums": "アルバム"
       },
       "common": {
         "readMore": "続きを読む",
@@ -88,6 +105,13 @@ const resources = {
       "titles": {
         "categories": "カテゴリー",
         "tags": "タグ"
+      },
+      "albums": {
+        "title": "アルバム",
+        "noAlbums": "アルバムはまだありません。",
+        "photoCount": "{{count}} 枚の写真",
+        "backToAlbums": "← アルバムに戻る",
+        "albumNotFound": "アルバムが見つかりません"
       }
     }
   }
