@@ -93,6 +93,56 @@ preview: 記事のプレビュー...
 ---
 ```
 
+## アルバムモジュール
+
+ブログにはオプションのアルバム（フォトギャラリー）モジュールが含まれており、写真をアルバムごとに整理して表示できます。
+
+### 設定
+
+`src/album.config.ts` を編集してアルバムを管理します：
+
+```typescript
+export const albumConfig: AlbumConfig = {
+  enabled: true,
+  albums: [
+    { dir: 'travel-2024', name: '2024 旅行', cover: 'cover.jpg' },
+    { dir: '春', cover: 'sakura.jpg' }, // 日本語ディレクトリ名も可、name 未設定時はディレクトリ名を表示
+  ],
+};
+```
+
+- **enabled**：アルバムモジュール全体のオン/オフ切り替え
+- **dir**：`public/albums/` 配下のディレクトリ名（文字・数字・ハイフン・アンダースコア；日本語等の Unicode 文字に対応；スペースやパス区切り文字は不可）
+- **name**（オプション）：アルバムの表示名
+- **cover**（オプション）：カバー写真のファイル名
+
+### 写真の追加
+
+写真を `public/albums/{dirname}/` に配置します：
+
+```
+public/albums/travel-2024/
+  photo1.jpg
+  photo2.png
+  cover.jpg
+```
+
+対応フォーマット：`.jpg`、`.jpeg`、`.png`、`.webp`、`.heic`
+
+### アルバムデータのビルド
+
+```bash
+npm run build:albums
+```
+
+このコマンドは以下を実行します：
+1. 設定済みのアルバムディレクトリをスキャン
+2. `thumbs/` サブディレクトリに WebP サムネイルを生成（長辺最大 1080px）
+3. EXIF メタデータを抽出（カメラ機種、焦点距離、絞り、シャッタースピード、ISO）
+4. `public/generated/` に JSON インデックスファイルを出力
+
+サムネイルはインクリメンタルビルドに対応 — 変更のない写真はスキップされます。
+
 ## 貢献方法
 
 このプロジェクトでは手動でのコーディングは禁止されています。すべてのコードは AI によって生成される必要があります。
@@ -100,4 +150,6 @@ preview: 記事のプレビュー...
 ## AI コントリビューター
 
 - Gemini 3 Pro
+- Gemini 3.1 Pro
 - Claude Sonnet 4.5
+- Claude Opus 4.6
