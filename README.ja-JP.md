@@ -20,28 +20,39 @@ React、Vite、TypeScript で構築されたモダンな静的ブログシステ
 - **デザイン**: シンプルでレスポンシブなデザイン
 - **パフォーマンス**: 記事データの静的生成による高速な読み込み
 
-## 使い方
+## クイックスタート
 
-### 前提条件
-
-- Node.js (v18 以上推奨)
-- Yarn または npm
-
-### インストール
+新しいブログを作成する最速の方法：
 
 ```bash
-yarn install
-# または
-npm install
+npm create s-blog@latest
 ```
 
-### 開発モード
-
-開発サーバーを起動します：
+CLI がプロジェクトの設定をガイドします。初期化が完了したら：
 
 ```bash
-yarn dev
-# または
+cd my-blog
+npm run dev
+```
+
+### フレームワークの更新
+
+最新の機能とバグ修正を取得：
+
+```bash
+npm update @s-blog/core
+```
+
+ユーザーはコンテンツファイル（`src/posts/`、`src/config.ts`、`src/album.config.ts`、`public/albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
+
+### 手動インストール（代替方法）
+
+手動で設定したい場合：
+
+```bash
+git clone https://github.com/Suzichen/s-blog.git
+cd s-blog
+npm install
 npm run dev
 ```
 
@@ -50,8 +61,6 @@ npm run dev
 本番環境用にビルドします：
 
 ```bash
-yarn build
-# または
 npm run build
 ```
 

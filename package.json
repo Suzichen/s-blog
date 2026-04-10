@@ -3,11 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "npm run build:posts && vite",
     "build:posts": "npx tsx scripts/generate-posts-data.ts",
     "build:albums": "npx tsx scripts/generate-albums-data.ts",
     "build:seo": "npx tsx scripts/generate-seo.ts && npx tsx scripts/generate-sitemap.ts && npx tsx scripts/generate-rss.ts && npx tsx scripts/generate-robots.ts",
+    "build:core": "npm run build -w packages/core",
+    "build:all": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npm run build:seo",
     "build": "npm run build:albums && npm run build:posts && tsc && vite build && npm run build:seo",
     "preview": "vite preview"
   },
@@ -26,6 +29,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@s-blog/core": "workspace:*",
     "@types/github-slugger": "^1.3.0",
     "date-fns": "^4.1.0",
     "exifr": "^7.1.3",
