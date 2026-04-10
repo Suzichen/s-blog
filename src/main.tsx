@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { SBlogApp } from '@s-blog/core'
+import '@s-blog/core/style.css'
 import { siteConfig } from './config'
 import { albumConfig } from './album.config'
 
