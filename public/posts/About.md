@@ -18,145 +18,159 @@ If you are reading this page on the live site, you are already looking at a real
 
 ## Quick Start
 
-If you just want to get the system running, this is all you need.
-
-### 1. Install dependencies
+Create a new blog in one command:
 
 ```bash
-npm install
+npm create s-blog@latest
 ```
 
-### 2. Start the development server
+The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
+
+Then:
 
 ```bash
+cd my-blog
 npm run dev
 ```
 
-Open your browser at the local address shown in the terminal.
+That's it. Your blog is running.
 
-### 3. Write a post
+---
 
-Create a Markdown file under: `src/posts/`
-Use any Markdown editor you like.
-Each post is a simple Markdown file with frontmatter metadata.
+## Writing Posts
 
-### 4. Build for production
+Create a Markdown file under `src/posts/`:
+
+```markdown
+---
+title: My First Post
+date: 2025-01-01
+tags: [hello, blog]
+categories: [General]
+---
+
+Your content here...
+```
+
+Posts are automatically picked up by the build system — no manual registration needed.
+
+---
+
+## Building & Deploying
 
 ```bash
 npm run build
 ```
 
-The output is a fully static site.
+This single command handles the full pipeline:
 
-### 5. Deploy
+1. **Album processing** — generates thumbnails and metadata
+2. **Posts processing** — generates the posts manifest and copies files
+3. **Type checking** — validates TypeScript
+4. **Vite build** — bundles the application with code splitting
+5. **SEO generation** — creates per-post HTML, sitemap.xml, rss.xml, robots.txt
 
-Deploy the generated files to any static hosting environment,
-or pull the build output on your server and serve it with a standard web server.
+The output is a fully static site in `dist/`. Deploy it anywhere:
 
----
+- Any CDN or static hosting (Vercel, Netlify, Cloudflare Pages, etc.)
+- GitHub Pages via CI/CD
+- Self-hosted with Nginx or any static file server
 
-## What This Blog System Is
-
-This is a **static blog system** built with:
-
-- React
-- Vite
-- TypeScript
-- Markdown-based content
-
-The system is designed around a simple idea:
-
-> All content is processed at build time and served as static files.
-
-There is no backend service, no database, and no runtime content processing.  
-Once the site is built, it can be hosted anywhere that can serve static files.
+No Node.js runtime or backend required after build.
 
 ---
 
-## How Content Works
+## Features
 
-### Markdown as Source Files
+### 📝 Markdown Blogging
+- Frontmatter metadata (title, date, tags, categories)
+- Syntax highlighting with PrismJS
+- Table of contents generation
+- Previous/next post navigation
 
-All posts are written as Markdown files under:
-src/posts/
+### 📸 Photo Albums
+- Drop photos into `public/albums/` directories
+- Auto-generated WebP thumbnails
+- EXIF metadata extraction
+- Full-screen photo viewer
+- Configurable via `src/album.config.ts`
 
-These files use frontmatter metadata (title, date, tags, categories, summary) and are treated as **source material**, not runtime content.
+### 🔍 SEO Optimization
+- Per-post HTML pages with Open Graph and Twitter Card meta tags
+- Structured data (JSON-LD)
+- Auto-generated `sitemap.xml`, `rss.xml`, and `robots.txt`
+- Configure `siteUrl` in `src/config.ts` to enable all SEO features
 
-### Build-Time Data Generation
+### 🌐 i18n
+- Built-in language switcher (Chinese, English, Japanese)
+- All UI text is translatable
 
-During the build process:
-
-- Markdown files are parsed
-- A posts manifest (`manifest.json`) is generated
-- SEO-related files are created when configured:
-  - `sitemap.xml`
-  - `rss.xml`
-  - `robots.txt`
-  - Pre-rendered SEO HTML for posts
-
-At runtime, the site does **not** read Markdown files.  
-It only consumes the generated static data.
-
-### What Gets Deployed
-
-Only static assets are deployed:
-
-- HTML
-- CSS
-- JavaScript
-- Generated metadata and SEO files
-
-No Node.js runtime or server-side logic is required after build.
+### ⚡ Performance
+- Route-level code splitting via React.lazy
+- Static site — no runtime server overhead
+- Optimized asset bundling with Vite
 
 ---
 
-## The Role of This Blog
+## Architecture
 
-This site is an **independent deployment** of the blog system.
+S-blog is published as two npm packages:
 
-All articles published here are related to the system itself—its design, usage, and evolution.  
-Personal writing and unrelated content live elsewhere and are intentionally kept separate.
+| Package | Purpose |
+|---------|---------|
+| `@s-blog/core` | The blog framework — UI components, routing, hooks, build scripts |
+| `create-s-blog` | The CLI scaffold — `npm create s-blog` |
 
----
+Your project only contains your content and configuration:
 
-## Deployment Overview
+```
+my-blog/
+├── src/
+│   ├── posts/          # Your Markdown posts
+│   ├── config.ts       # Site configuration
+│   ├── album.config.ts # Album configuration
+│   └── main.tsx        # Entry point
+├── public/
+│   └── albums/         # Photo album directories
+├── index.html
+└── package.json
+```
 
-Because the system is purely static, deployment is intentionally flexible.
+All framework code lives in `@s-blog/core`. To update the framework:
 
-### One Practical Deployment Approach
-
-One simple and effective setup looks like this:
-
-- The site is built locally or in CI
-- The generated output is managed as a separate Git repository
-- A server pulls updates via `git pull`
-- A standard web server (such as Nginx) serves the static files
-- SPA routing is handled at the web server level
-
-This approach allows updates without rebuilding on the server and keeps runtime dependencies minimal.
-
-### Other Common Options
-
-Depending on preference, the same site can also be deployed using:
-
-- GitHub Actions + static hosting
-- Any CDN-backed static hosting service
-- Self-hosted static file servers
-
-Since there is no backend, none of these options require platform-specific features.
+```bash
+npm update @s-blog/core
+```
 
 ---
 
-## Why It Is Built This Way
+## Configuration
 
-This system favors:
+### Site Config (`src/config.ts`)
 
-- Predictable builds
-- Minimal runtime complexity
-- Easy migration between hosting providers
-- Long-term maintainability
+```typescript
+export const siteConfig: SiteConfig = {
+  title: "My Blog",
+  description: "A personal blog",
+  logo: "/logo.png",
+  favicon: "/favicon.ico",
+  siteUrl: "https://example.com",  // Enables SEO features
+  author: "Your Name",
+  language: "en",
+};
+```
 
-By keeping all logic at build time, deployment remains simple and resilient.
+### Album Config (`src/album.config.ts`)
+
+```typescript
+export const albumConfig: AlbumConfig = {
+  enabled: true,
+  albums: [
+    { dir: 'travel', name: 'Travel Photos' },
+    { dir: 'food', name: 'Food Gallery', cover: 'best-dish.jpg' },
+  ],
+};
+```
 
 ---
 
@@ -167,6 +181,7 @@ By keeping all logic at build time, deployment remains simple and resilient.
 - Personal blogs
 - Technical writing
 - Documentation-style sites
+- Photo portfolios
 - Projects that value simplicity and portability
 
 **Not intended for:**
