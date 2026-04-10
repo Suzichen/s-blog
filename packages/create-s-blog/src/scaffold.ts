@@ -18,7 +18,7 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
     description: input.description,
     author: input.author,
     scripts: {
-      dev: 'npm run build:posts && vite',
+      dev: 'npm run build:albums && npm run build:posts && vite',
       'build:posts': 'npx tsx node_modules/@s-blog/core/scripts/generate-posts-data.ts',
       'build:albums': 'npx tsx node_modules/@s-blog/core/scripts/generate-albums-data.ts',
       'build:seo': 'npx tsx node_modules/@s-blog/core/scripts/generate-seo.ts && npx tsx node_modules/@s-blog/core/scripts/generate-sitemap.ts && npx tsx node_modules/@s-blog/core/scripts/generate-rss.ts && npx tsx node_modules/@s-blog/core/scripts/generate-robots.ts',
