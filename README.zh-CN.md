@@ -20,28 +20,39 @@
 - **样式**: 整洁、响应式的设计
 - **性能**: 文章数据静态生成，加载迅速
 
-## 使用指南
+## 快速开始
 
-### 前置要求
-
-- Node.js (建议 v18+)
-- Yarn 或 npm
-
-### 安装依赖
+创建新博客的最快方式：
 
 ```bash
-yarn install
-# 或
-npm install
+npm create s-blog@latest
 ```
 
-### 开发模式
-
-启动开发服务器：
+CLI 会引导你完成项目设置。初始化完成后：
 
 ```bash
-yarn dev
-# 或
+cd my-blog
+npm run dev
+```
+
+### 更新框架
+
+获取最新功能和修复：
+
+```bash
+npm update @s-blog/core
+```
+
+你只需维护内容层文件（`src/posts/`、`src/config.ts`、`src/album.config.ts`、`public/albums/`），框架更新通过 `@s-blog/core` 包自动交付。
+
+### 手动安装（备选方案）
+
+如果你更喜欢手动设置：
+
+```bash
+git clone https://github.com/Suzichen/s-blog.git
+cd s-blog
+npm install
 npm run dev
 ```
 
@@ -50,8 +61,6 @@ npm run dev
 构建生产环境代码：
 
 ```bash
-yarn build
-# 或
 npm run build
 ```
 

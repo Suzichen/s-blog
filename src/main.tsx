@@ -1,11 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
-import './i18n';
-import './styles/index.css' // We will create this
+import { SBlogApp } from '@s-blog/core'
+import { siteConfig } from './config'
+import { albumConfig } from './album.config'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} />
   </React.StrictMode>,
 )

@@ -20,28 +20,39 @@ A modern, static blog system built with React, Vite, and TypeScript.
 - **Styling**: Clean, responsive design
 - **Performance**: Static site generation for posts data
 
-## usage
+## Quick Start
 
-### Prerequisites
-
-- Node.js (v18+ recommended)
-- Yarn or npm
-
-### Installation
+The fastest way to create a new blog:
 
 ```bash
-yarn install
-# or
-npm install
+npm create s-blog@latest
 ```
 
-### Development
-
-Start the development server:
+The CLI will guide you through project setup. After initialization:
 
 ```bash
-yarn dev
-# or
+cd my-blog
+npm run dev
+```
+
+### Update Framework
+
+Get the latest features and bug fixes:
+
+```bash
+npm update @s-blog/core
+```
+
+You only maintain your content files (`src/posts/`, `src/config.ts`, `src/album.config.ts`, `public/albums/`). Framework updates are delivered through the `@s-blog/core` package.
+
+### Manual Installation (Alternative)
+
+If you prefer to set up manually:
+
+```bash
+git clone https://github.com/Suzichen/s-blog.git
+cd s-blog
+npm install
 npm run dev
 ```
 
@@ -50,8 +61,6 @@ npm run dev
 Build for production:
 
 ```bash
-yarn build
-# or
 npm run build
 ```
 

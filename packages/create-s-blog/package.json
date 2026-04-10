@@ -1,0 +1,35 @@
+{
+  "name": "create-s-blog",
+  "version": "0.1.6",
+  "type": "module",
+  "bin": {
+    "create-s-blog": "./dist/index.js"
+  },
+  "files": ["dist/", "template/"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2",
+    "kolorist": "^1.8.0",
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.9",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3"
+  },
+  "keywords": ["blog", "scaffold", "create", "s-blog"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suzichen/s-blog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Suzichen/s-blog/issues"
+  },
+  "homepage": "https://s-blog.me"
+}
