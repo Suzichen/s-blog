@@ -27,7 +27,7 @@ export function usePost(slug: string | undefined) {
       setError(null);
       try {
         // Fetch the markdown file from public/posts/ (copied there by build:posts)
-        const response = await fetch(`/posts/${slug}.md`);
+        const response = await fetch(`/posts/${slug}.md`, { cache: 'no-cache' });
         if (!response.ok) {
           throw new Error(`Failed to load post: ${response.status}`);
         }
