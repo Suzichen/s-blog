@@ -19,7 +19,7 @@ export function useAlbum(dirname: string): UseAlbumResult {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`/generated/album-${dirname}.json`);
+        const response = await fetch(`/generated/album-${dirname}.json`, { cache: 'no-cache' });
         if (!response.ok) {
           throw new Error(`Failed to load album "${dirname}": ${response.status}`);
         }

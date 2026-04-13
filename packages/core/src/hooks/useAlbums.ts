@@ -17,7 +17,7 @@ export function useAlbums(): UseAlbumsResult {
 
     async function fetchAlbums() {
       try {
-        const response = await fetch('/generated/albums-index.json');
+        const response = await fetch('/generated/albums-index.json', { cache: 'no-cache' });
         if (!response.ok) {
           throw new Error(`Failed to load albums index: ${response.status}`);
         }

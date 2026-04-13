@@ -17,7 +17,7 @@ export function usePosts(): UsePostsResult {
 
     async function fetchPosts() {
       try {
-        const response = await fetch('/generated/manifest.json');
+        const response = await fetch('/generated/manifest.json', { cache: 'no-cache' });
         if (!response.ok) {
           throw new Error(`Failed to load posts manifest: ${response.status}`);
         }
