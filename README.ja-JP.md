@@ -1,10 +1,12 @@
 [English](./README.md) | [中文](./README.zh-CN.md)
 
-# Suzic ブログシステム
+# S-Blog
 
 > **免責事項**：このシステムのすべてのコードは AI によって生成されました。
 
-[デモ](https://s-blog.suzichen.me/)
+**デモ:**
+- [公式サイト](https://s-blog.me)
+- [著者の個人サイト](https://s-blog.suzichen.me/)
 
 React、Vite、TypeScript で構築されたモダンな静的ブログシステムです。
 
@@ -77,6 +79,7 @@ npm run build
   - 設定しない場合、URL 依存の SEO 機能はスキップされます
 - **author**（オプション）: SEO メタデータ用の著者名
 - **language**（オプション）: デフォルト言語コード（例：`en`、`zh-CN`、`ja`）
+- **timezone**（オプション）: IANA タイムゾーン識別子（例：`Asia/Shanghai`、`Asia/Tokyo`）。特定のタイムゾーンで記事を作成し、CI（デフォルトが UTC の GitHub Actions など）でビルドする場合、この設定によりビルド時に記事の公開日が正しく処理され、日付が1日ずれる問題を防ぎます。
 
 ### SEO 機能
 
@@ -96,6 +99,7 @@ npm run build
 ---
 title: 記事のタイトル
 date: 2024-01-01 12:00:00
+# date: 2026-01-01 12:00:00+00:00 # グローバル設定をバイパスして、タイムゾーンを個別に宣言できます。
 tags: [Tech, React]
 categories: [プログラミング]
 preview: 記事のプレビュー...

@@ -1,10 +1,12 @@
 [English](./README.md) | [日本語](./README.ja-JP.md)
 
-# Suzic 的博客系统
+# S-Blog
 
 > **声明**：此系统的所有代码均系 AI 生成。
 
-[在线预览](https://s-blog.suzichen.me/)
+**演示站点:**
+- [官方站点](https://s-blog.me)
+- [作者个人站点](https://s-blog.suzichen.me/)
 
 这是一个基于 React、Vite 和 TypeScript 构建的现代化静态博客系统。
 
@@ -77,6 +79,7 @@ npm run build
   - 如不设置，依赖 URL 的 SEO 功能将自动跳过
 - **author**（可选）: 作者名称，用于 SEO 元数据
 - **language**（可选）: 默认语言代码（如：`en`、`zh-CN`、`ja`）
+- **timezone**（可选）: IANA 时区标识符（如：`Asia/Shanghai`、`Asia/Tokyo`）。如果你的博客文章是在特定时区编写的，而你使用 CI（如 GitHub Actions，默认为 UTC）构建网站，此配置可以确保文章日期在构建时被正确处理，避免日期因时区差异而偏差一天。
 
 ### SEO 功能
 
@@ -96,6 +99,7 @@ npm run build
 ---
 title: 我的文章标题
 date: 2024-01-01 12:00:00
+# date: 2026-01-01 12:00:00+00:00 # 允许绕过全局配置并单独声明时区。
 tags: [技术, React]
 categories: [编程]
 preview: 文章预览内容...

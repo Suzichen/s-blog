@@ -8,4 +8,5 @@ export const siteConfig: SiteConfig = {
   siteUrl: "https://s-blog.me",
   author: "Suzichen",
   language: "en",
+  timezone: "Asia/Tokyo",
 };
