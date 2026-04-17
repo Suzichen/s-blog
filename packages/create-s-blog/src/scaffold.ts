@@ -26,7 +26,7 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
       preview: 'vite preview',
     },
     dependencies: {
-      '@s-blog/core': '^0.1.0',
+      '@s-blog/core': '^0.1.10',
       'react': '^19.2.1',
       'react-dom': '^19.2.1',
     },
@@ -59,6 +59,12 @@ export function injectConfigValues(template: string, input: UserInput): string {
     result = result.replace('__SITEURL__', input.siteUrl);
   } else {
     result = result.replace(/\s*siteUrl:.*__SITEURL__.*,?\n/, '\n');
+  }
+
+  if (input.timezone) {
+    result = result.replace('// __TIMEZONE__', `timezone: "${input.timezone}",`);
+  } else {
+    result = result.replace('// __TIMEZONE__', `// timezone: "Asia/Shanghai", // IANA timezone`);
   }
 
   return result;

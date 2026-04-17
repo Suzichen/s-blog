@@ -45,6 +45,8 @@ Create a Markdown file under `src/posts/`:
 ---
 title: My First Post
 date: 2025-01-01
+# You can bypass global settings and declare the time zone
+# date: 2025-01-01 18:00:00+00:00
 tags: [hello, blog]
 categories: [General]
 ---
@@ -157,6 +159,7 @@ export const siteConfig: SiteConfig = {
   siteUrl: "https://example.com",  // Enables SEO features
   author: "Your Name",
   language: "en",
+  timezone: "Asia/Tokyo", // IANA timezone identifier to ensure correct build dates on CI
 };
 ```
 

@@ -8,4 +8,5 @@ export const siteConfig: SiteConfig = {
   siteUrl: "__SITEURL__",
   author: "__AUTHOR__",
   language: "en",
+  // __TIMEZONE__
 };

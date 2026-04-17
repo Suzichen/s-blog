@@ -1,4 +1,4 @@
-import type { SiteConfig } from '@s-blog/core';
+import type { SiteConfig } from "@s-blog/core";
 
 export const siteConfig: SiteConfig = {
   title: "S-blog",
@@ -8,4 +8,5 @@ export const siteConfig: SiteConfig = {
   siteUrl: "https://s-blog.me",
   author: "Suzichen",
   language: "en",
+  timezone: "Asia/Tokyo",
 };

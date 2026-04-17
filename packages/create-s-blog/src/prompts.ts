@@ -6,6 +6,7 @@ export interface UserInput {
   description: string;
   author: string;
   siteUrl: string;
+  timezone?: string;
   packageManager: 'npm' | 'yarn' | 'pnpm';
   skipInstall: boolean;
 }
@@ -48,6 +49,30 @@ export async function collectUserInput(args: CliArgs): Promise<UserInput> {
     initial: '',
   });
 
+  const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (systemTimezone) {
+    questions.push({
+      type: 'confirm',
+      name: 'useSystemTimezone',
+      message: `Detected system timezone: ${systemTimezone}. Use this for your blog?`,
+      initial: true,
+    });
+
+    questions.push({
+      type: prev => prev ? null : 'text',
+      name: 'customTimezone',
+      message: 'Enter IANA timezone identifier (leave empty to skip):',
+      initial: '',
+    });
+  } else {
+    questions.push({
+      type: 'text',
+      name: 'customTimezone',
+      message: 'Enter IANA timezone identifier (leave empty to skip):',
+      initial: '',
+    });
+  }
+
   if (!args.pm) {
     questions.push({
       type: 'select',
@@ -73,11 +98,19 @@ export async function collectUserInput(args: CliArgs): Promise<UserInput> {
     throw new Error('USER_CANCELLED');
   }
 
+  let timezone: string | undefined = undefined;
+  if (response.useSystemTimezone) {
+    timezone = systemTimezone;
+  } else if (response.customTimezone && response.customTimezone.trim() !== '') {
+    timezone = response.customTimezone.trim();
+  }
+
   return {
     name: args.name || response.name || 'my-blog',
     description: args.description || response.description || 'A blog powered by S-blog',
     author: args.author !== undefined ? args.author : (response.author || ''),
     siteUrl: response.siteUrl || '',
+    timezone: timezone,
     packageManager: args.pm || response.packageManager || 'npm',
     skipInstall: args['skip-install'] || false,
   };
