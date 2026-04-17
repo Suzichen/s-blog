@@ -6,6 +6,20 @@ import matter from 'gray-matter';
 const POSTS_DIR = path.join(process.cwd(), 'src/posts');
 const OUTPUT_FILE = path.join(process.cwd(), 'public/generated/manifest.json');
 const PUBLIC_POSTS_DIR = path.join(process.cwd(), 'public/posts');
+const CONFIG_FILE = path.join(process.cwd(), 'src/config.ts');
+
+interface SiteConfig {
+  timezone?: string;
+}
+
+function getSiteConfig(): SiteConfig {
+  if (!fs.existsSync(CONFIG_FILE)) return {};
+  const configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
+  const tzMatch = configContent.match(/(?:timezone|'timezone'|"timezone")\s*:\s*["']([^"']+)["']/);
+  return {
+    timezone: tzMatch?.[1],
+  };
+}
 
 interface PostMetadata {
   slug: string;
@@ -27,7 +41,7 @@ function getSummary(content: string, length: number = 140): string {
     .replace(/(\*|_)(.*?)\1/g, '$2') // Remove italic
     .replace(/\n+/g, ' ') // Collapse newlines
     .trim();
-  
+
   return plainText.substring(0, length) + (plainText.length > length ? '...' : '');
 }
 
@@ -39,6 +53,8 @@ function normalizeArray(input: string | string[] | undefined): string[] {
 }
 
 function main() {
+  const siteConfig = getSiteConfig();
+
   if (!fs.existsSync(POSTS_DIR)) {
     console.error(`Posts directory not found: ${POSTS_DIR}`);
     process.exit(1);
@@ -61,8 +77,45 @@ function main() {
     let dateStr = '';
     if (data.date) {
         try {
-            const dateObj = new Date(data.date);
-            dateStr = dateObj.toISOString();
+            const d = data.date instanceof Date ? data.date : new Date(data.date);
+            if (isNaN(d.getTime())) throw new Error('Invalid date');
+            const p = (n: number) => String(n).padStart(2, '0');
+
+            // Check if the original date string explicitly contains a timezone offset
+            const rawDateMatch = fileContent.match(/^date:\s*(.+)$/m);
+            let hasTimezone = false;
+            if (rawDateMatch) {
+                let rawDate = rawDateMatch[1].trim();
+                // Remove quotes if present
+                if (/^["'].*["']$/.test(rawDate)) {
+                    rawDate = rawDate.slice(1, -1).trim();
+                }
+                hasTimezone = /(Z|[+-]\d{2}:?\d{2})$/i.test(rawDate);
+            }
+
+            if (siteConfig.timezone && hasTimezone) {
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: siteConfig.timezone,
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hourCycle: 'h23',
+                    });
+                    const parts = formatter.formatToParts(d);
+                    const v = (type: string) => parts.find(part => part.type === type)?.value;
+                    dateStr = `${v('year')}-${v('month')}-${v('day')}T${v('hour')}:${v('minute')}:${v('second')}`;
+                } catch (e) {
+                    console.warn(`Invalid timezone configuration: ${siteConfig.timezone}. Falling back to default behavior.`);
+                    dateStr = `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+                }
+            } else {
+                // Fallback for timezone-less or unconfigured timezone
+                dateStr = `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+            }
         } catch (e) {
             console.warn(`Invalid date in ${file}: ${data.date}`);
         }

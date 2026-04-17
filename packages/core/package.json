@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/core",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,6 +14,7 @@
   "files": ["dist/", "scripts/"],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
+    "prepublishOnly": "npm run build",
     "build:posts": "npx tsx ../../scripts/generate-posts-data.ts",
     "build:albums": "npx tsx ../../scripts/generate-albums-data.ts"
   },
