@@ -44,6 +44,7 @@
     "react-router-dom": "^7.10.1",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
-    "sharp": "^0.34.5"
+    "heic-decode": "^2.1.0",
+    "wasm-vips": "^0.0.17"
   }
 }

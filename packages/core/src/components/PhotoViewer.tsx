@@ -1,10 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { PhotoItem, ExifData } from '../types/album';
 
 interface PhotoViewerProps {
   photos: PhotoItem[];
   initialIndex: number;
   onClose: () => void;
+}
+
+// Check if a URL points to a HEIC file (browsers can't display HEIC natively)
+function isHeicFile(url: string): boolean {
+  return url.toLowerCase().endsWith('.heic');
+}
+
+// Get the display URL for a photo (use thumbnail for HEIC since browsers can't display it)
+function getDisplayUrl(photo: PhotoItem): string {
+  return isHeicFile(photo.originalUrl) ? photo.thumbnailUrl : photo.originalUrl;
 }
 
 // Pure function for navigation index calculation (exported for testing)
@@ -24,6 +34,9 @@ const PhotoViewer: React.FC<PhotoViewerProps> = ({ photos, initialIndex, onClose
 
   const currentPhoto = photos[currentIndex];
   const total = photos.length;
+  
+  // Get the URL to display (use thumbnail for HEIC files)
+  const displayUrl = useMemo(() => getDisplayUrl(currentPhoto), [currentPhoto]);
 
   // Reset imageLoaded when photo changes
   useEffect(() => {
@@ -148,7 +161,7 @@ const PhotoViewer: React.FC<PhotoViewerProps> = ({ photos, initialIndex, onClose
             />
           )}
           <img
-            src={currentPhoto.originalUrl}
+            src={displayUrl}
             alt={currentPhoto.filename}
             className="max-w-[90vw] max-h-[80vh] object-contain"
             style={{
