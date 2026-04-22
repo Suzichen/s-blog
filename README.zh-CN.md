@@ -30,6 +30,8 @@
 npm create s-blog@latest
 ```
 
+> **提示：** 如果你使用 bun 环境，请直接使用 `bunx create-s-blog my-blog`，后续在命令中用 `bun` 替代 `npm` 即可。
+
 CLI 会引导你完成项目设置。初始化完成后：
 
 ```bash

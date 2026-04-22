@@ -30,6 +30,8 @@ React、Vite、TypeScript で構築されたモダンな静的ブログシステ
 npm create s-blog@latest
 ```
 
+> **ヒント:** bun環境を使用している場合は、`bunx create-s-blog my-blog`を使用し、以降のコマンドでは`npm`を`bun`に置き換えてください。
+
 CLI がプロジェクトの設定をガイドします。初期化が完了したら：
 
 ```bash

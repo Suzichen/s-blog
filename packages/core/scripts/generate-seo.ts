@@ -25,13 +25,13 @@ interface SiteConfig {
 
 function getSiteConfig(): SiteConfig {
   const configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
-  
+
   const titleMatch = configContent.match(/title:\s*["'](.+?)["']/);
   const descMatch = configContent.match(/description:\s*["'](.+?)["']/);
   const urlMatch = configContent.match(/siteUrl:\s*["'](.+?)["']/);
   const authorMatch = configContent.match(/author:\s*["'](.+?)["']/);
   const langMatch = configContent.match(/language:\s*["'](.+?)["']/);
-  
+
   return {
     title: titleMatch?.[1] || 'Blog',
     description: descMatch?.[1] || '',
@@ -53,11 +53,11 @@ function escapeHtml(text: string): string {
 function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   const { slug, title, summary, tags, categories, date } = post;
   const { siteUrl, author } = config;
-  
+
   const postUrl = siteUrl ? `${siteUrl}/post/${slug}/` : '';
   const keywords = [...tags, ...categories].join(', ');
   const publishDate = date || new Date().toISOString();
-  
+
   const jsonLd = siteUrl ? {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -80,7 +80,7 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   ${author ? `<meta name="author" content="${escapeHtml(author)}">` : ''}
   <meta name="robots" content="index, follow">
   ${postUrl ? `<link rel="canonical" href="${postUrl}">` : ''}
-  
+
   ${siteUrl ? `<meta property="og:type" content="article">
   <meta property="og:url" content="${postUrl}">
   <meta property="og:title" content="${escapeHtml(title)}">
@@ -89,12 +89,12 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig): string {
   <meta property="article:published_time" content="${publishDate}">
   ${author ? `<meta property="article:author" content="${escapeHtml(author)}">` : ''}
   ${tags.map(tag => `<meta property="article:tag" content="${escapeHtml(tag)}">`).join('\n  ')}
-  
+
   <meta name="twitter:card" content="summary">
   <meta name="twitter:url" content="${postUrl}">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(summary)}">` : ''}
-  
+
   ${jsonLd ? `<script type="application/ld+json">
 ${JSON.stringify(jsonLd, null, 2)}
   </script>` : ''}`;
@@ -103,13 +103,13 @@ ${JSON.stringify(jsonLd, null, 2)}
 function main() {
   if (!fs.existsSync(MANIFEST_FILE)) {
     console.error(`Manifest file not found: ${MANIFEST_FILE}`);
-    console.error('Please run "npm run build:posts" first.');
+    console.error('Please run the "build:posts" script first.');
     process.exit(1);
   }
 
   if (!fs.existsSync(TEMPLATE_FILE)) {
     console.error(`Template file not found: ${TEMPLATE_FILE}`);
-    console.error('Please run "npm run build" first.');
+    console.error('Please run the "build" script first.');
     process.exit(1);
   }
 
@@ -124,11 +124,11 @@ function main() {
   let generated = 0;
   for (const post of posts) {
     const seoTags = generateSEOHtml(post, config);
-    
+
     let htmlContent = template;
     htmlContent = htmlContent.replace(/<title>.*?<\/title>/, '');
     htmlContent = htmlContent.replace('</head>', `${seoTags}\n</head>`);
-    
+
     const postDir = path.join(OUTPUT_DIR, post.slug);
     if (!fs.existsSync(postDir)) {
       fs.mkdirSync(postDir, { recursive: true });

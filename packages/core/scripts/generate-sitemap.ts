@@ -35,10 +35,10 @@ function escapeXml(text: string): string {
 
 function generateSitemap(posts: PostMetadata[], siteUrl: string): string {
   const now = new Date().toISOString().split('T')[0];
-  
+
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-  
+
   // Homepage
   xml += '  <url>\n';
   xml += `    <loc>${escapeXml(siteUrl)}/</loc>\n`;
@@ -46,12 +46,12 @@ function generateSitemap(posts: PostMetadata[], siteUrl: string): string {
   xml += '    <changefreq>daily</changefreq>\n';
   xml += '    <priority>1.0</priority>\n';
   xml += '  </url>\n';
-  
+
   // Posts
   for (const post of posts) {
     const postUrl = `${siteUrl}/post/${post.slug}`;
     const lastmod = post.date ? post.date.split('T')[0] : now;
-    
+
     xml += '  <url>\n';
     xml += `    <loc>${escapeXml(postUrl)}</loc>\n`;
     xml += `    <lastmod>${lastmod}</lastmod>\n`;
@@ -59,14 +59,14 @@ function generateSitemap(posts: PostMetadata[], siteUrl: string): string {
     xml += '    <priority>0.8</priority>\n';
     xml += '  </url>\n';
   }
-  
+
   xml += '</urlset>';
   return xml;
 }
 
 function main() {
   const siteUrl = getSiteUrl();
-  
+
   if (!siteUrl) {
     console.log('⊘ Skipping sitemap.xml generation (siteUrl not configured)');
     return;
@@ -74,19 +74,19 @@ function main() {
 
   if (!fs.existsSync(MANIFEST_FILE)) {
     console.error(`Manifest file not found: ${MANIFEST_FILE}`);
-    console.error('Please run "npm run build:posts" first.');
+    console.error('Please run the "build:posts" script first.');
     process.exit(1);
   }
 
   const posts: PostMetadata[] = JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf-8'));
   const sitemapContent = generateSitemap(posts, siteUrl);
-  
+
   // Ensure output directory exists
   const outputDir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(OUTPUT_FILE, sitemapContent, 'utf-8');
   console.log(`✓ Generated sitemap.xml with ${posts.length + 1} URLs`);
 }

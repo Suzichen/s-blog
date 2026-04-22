@@ -7,7 +7,7 @@ export interface UserInput {
   author: string;
   siteUrl: string;
   timezone?: string;
-  packageManager: 'npm' | 'yarn' | 'pnpm';
+  packageManager: 'npm' | 'yarn' | 'pnpm' | 'bun';
   skipInstall: boolean;
 }
 
@@ -82,6 +82,7 @@ export async function collectUserInput(args: CliArgs): Promise<UserInput> {
         { title: 'npm', value: 'npm' },
         { title: 'yarn', value: 'yarn' },
         { title: 'pnpm', value: 'pnpm' },
+        { title: 'bun', value: 'bun' },
       ],
       initial: 0,
     });
