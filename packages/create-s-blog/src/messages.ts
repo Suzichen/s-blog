@@ -14,7 +14,7 @@ export function printSuccess(input: UserInput): void {
   console.log(`  ${cyan(`${input.packageManager} run build`)}`);
   console.log();
   console.log(`  ${dim('Update framework:')}`);
-  console.log(`  ${cyan(`${input.packageManager === 'npm' ? 'npm update' : input.packageManager + ' upgrade'} @s-blog/core`)}`);
+  console.log(`  ${cyan(`${input.packageManager === 'yarn' ? 'yarn upgrade' : input.packageManager + ' update'} @s-blog/core`)}`);
   console.log();
   console.log(`  ${dim('Happy blogging! 🎉')}`);
   console.log();

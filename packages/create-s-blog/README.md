@@ -4,9 +4,12 @@ The official scaffolding CLI tool for creating an **s-blog** project.
 
 ## Usage
 
-You can create a new blog project instantly using `create-s-blog` via `npx` (which comes with npm), `yarn`, or `pnpm`. There is no need to manually install this package globally.
+You can create a new blog project instantly using `create-s-blog` via `npx` (which comes with npm), `yarn`, `pnpm`, or `bun`. There is no need to manually install this package globally.
 
 ```bash
+# Using bun
+bunx create-s-blog my-blog
+
 # Using npx
 npx create-s-blog@latest my-blog
 
@@ -29,6 +32,11 @@ After the scaffolding is complete, install the dependencies and start the develo
 
 ```bash
 cd my-blog
+# If you used bun
+bun install
+bun run dev
+
+# Or with npm
 npm install
 npm run dev
 ```

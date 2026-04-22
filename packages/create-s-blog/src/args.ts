@@ -7,7 +7,7 @@ export interface CliArgs {
   name?: string;
   description?: string;
   author?: string;
-  pm?: 'npm' | 'yarn' | 'pnpm';
+  pm?: 'npm' | 'yarn' | 'pnpm' | 'bun';
   'skip-install'?: boolean;
   help?: boolean;
   version?: boolean;
@@ -20,7 +20,7 @@ Options:
   --name <name>           Project name (default: my-blog)
   --description <desc>    Project description (default: A blog powered by S-blog)
   --author <author>       Author name (default: "")
-  --pm <npm|yarn|pnpm>    Package manager (default: npm)
+  --pm <npm|yarn|pnpm|bun>    Package manager (default: npm)
   --skip-install          Skip dependency installation
   --help                  Show this help message
   --version               Show version number
@@ -37,7 +37,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): CliArgs {
   });
 
   return {
-    name: args.name || undefined,
+    name: args._[0] || args.name || undefined,
     description: args.description || undefined,
     author: args.author !== undefined ? args.author : undefined,
     pm: validatePm(args.pm),
@@ -47,8 +47,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): CliArgs {
   };
 }
 
-function validatePm(pm: unknown): 'npm' | 'yarn' | 'pnpm' | undefined {
-  if (pm === 'npm' || pm === 'yarn' || pm === 'pnpm') return pm;
+function validatePm(pm: unknown): 'npm' | 'yarn' | 'pnpm' | 'bun' | undefined {
+  if (pm === 'npm' || pm === 'yarn' || pm === 'pnpm' || pm === 'bun') return pm;
   if (pm) {
     console.warn(`Warning: Invalid package manager "${pm}", will use npm as default.`);
   }

@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
  */
 export function installDependencies(
   targetDir: string,
-  pm: 'npm' | 'yarn' | 'pnpm',
+  pm: 'npm' | 'yarn' | 'pnpm' | 'bun',
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const command = pm;

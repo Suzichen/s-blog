@@ -21,7 +21,10 @@ If you are reading this page on the live site, you are already looking at a real
 Create a new blog in one command:
 
 ```bash
-npm create s-blog@latest
+# Using bun
+bunx create-s-blog my-blog
+# Or using npx
+npx create-s-blog@latest my-blog
 ```
 
 The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
@@ -30,6 +33,9 @@ Then:
 
 ```bash
 cd my-blog
+# Using bun
+bun run dev
+# Or using npm
 npm run dev
 ```
 

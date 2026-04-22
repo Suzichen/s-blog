@@ -4,7 +4,7 @@ The core engine and React components for **s-blog**, a lightweight, fast, and el
 
 ## Usage
 
-> **Note:** The easiest and recommended way to get started with `s-blog` is by using the official scaffolding tool: `npx create-s-blog my-blog`.
+> **Note:** The easiest and recommended way to get started with `s-blog` is by using the official scaffolding tool: `bunx create-s-blog my-blog` or `npx create-s-blog my-blog`.
 
 If you are setting up manually or need to update the core engine in an existing project, you can install it via your package manager:
 
