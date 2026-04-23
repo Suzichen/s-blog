@@ -12,6 +12,20 @@ export interface UserInput {
 }
 
 export async function collectUserInput(args: CliArgs): Promise<UserInput> {
+  const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (args.yes) {
+    return {
+      name: args.name || 'my-blog',
+      description: args.description || 'A blog powered by S-blog',
+      author: args.author !== undefined ? args.author : '',
+      siteUrl: args.siteUrl || '',
+      timezone: args.timezone || systemTimezone || undefined,
+      packageManager: args.pm || 'npm',
+      skipInstall: args['skip-install'] || false,
+    };
+  }
+
   const questions: prompts.PromptObject[] = [];
 
   if (!args.name) {
@@ -41,36 +55,39 @@ export async function collectUserInput(args: CliArgs): Promise<UserInput> {
     });
   }
 
-  // siteUrl for SEO (sitemap, rss, og tags)
-  questions.push({
-    type: 'text',
-    name: 'siteUrl',
-    message: 'Site URL (for SEO, leave empty to skip):',
-    initial: '',
-  });
-
-  const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  if (systemTimezone) {
-    questions.push({
-      type: 'confirm',
-      name: 'useSystemTimezone',
-      message: `Detected system timezone: ${systemTimezone}. Use this for your blog?`,
-      initial: true,
-    });
-
-    questions.push({
-      type: prev => prev ? null : 'text',
-      name: 'customTimezone',
-      message: 'Enter IANA timezone identifier (leave empty to skip):',
-      initial: '',
-    });
-  } else {
+  if (args.siteUrl === undefined) {
+    // siteUrl for SEO (sitemap, rss, og tags)
     questions.push({
       type: 'text',
-      name: 'customTimezone',
-      message: 'Enter IANA timezone identifier (leave empty to skip):',
+      name: 'siteUrl',
+      message: 'Site URL (for SEO, leave empty to skip):',
       initial: '',
     });
+  }
+
+  if (args.timezone === undefined) {
+    if (systemTimezone) {
+      questions.push({
+        type: 'confirm',
+        name: 'useSystemTimezone',
+        message: `Detected system timezone: ${systemTimezone}. Use this for your blog?`,
+        initial: true,
+      });
+
+      questions.push({
+        type: prev => prev ? null : 'text',
+        name: 'customTimezone',
+        message: 'Enter IANA timezone identifier (leave empty to skip):',
+        initial: '',
+      });
+    } else {
+      questions.push({
+        type: 'text',
+        name: 'customTimezone',
+        message: 'Enter IANA timezone identifier (leave empty to skip):',
+        initial: '',
+      });
+    }
   }
 
   if (!args.pm) {
@@ -89,28 +106,34 @@ export async function collectUserInput(args: CliArgs): Promise<UserInput> {
   }
 
   let cancelled = false;
-  const response = await prompts(questions, {
-    onCancel: () => {
-      cancelled = true;
-    },
-  });
+  // If there are no questions to ask, we can skip prompts
+  let response: any = {};
+  if (questions.length > 0) {
+    response = await prompts(questions, {
+      onCancel: () => {
+        cancelled = true;
+      },
+    });
 
-  if (cancelled) {
-    throw new Error('USER_CANCELLED');
+    if (cancelled) {
+      throw new Error('USER_CANCELLED');
+    }
   }
 
-  let timezone: string | undefined = undefined;
-  if (response.useSystemTimezone) {
-    timezone = systemTimezone;
-  } else if (response.customTimezone && response.customTimezone.trim() !== '') {
-    timezone = response.customTimezone.trim();
+  let timezone: string | undefined = args.timezone;
+  if (args.timezone === undefined) {
+    if (response.useSystemTimezone) {
+      timezone = systemTimezone;
+    } else if (response.customTimezone && response.customTimezone.trim() !== '') {
+      timezone = response.customTimezone.trim();
+    }
   }
 
   return {
     name: args.name || response.name || 'my-blog',
     description: args.description || response.description || 'A blog powered by S-blog',
     author: args.author !== undefined ? args.author : (response.author || ''),
-    siteUrl: response.siteUrl || '',
+    siteUrl: args.siteUrl !== undefined ? args.siteUrl : (response.siteUrl || ''),
     timezone: timezone,
     packageManager: args.pm || response.packageManager || 'npm',
     skipInstall: args['skip-install'] || false,
