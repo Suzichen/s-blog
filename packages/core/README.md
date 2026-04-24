@@ -1,6 +1,6 @@
 # @s-blog/core
 
-The core engine and React components for **s-blog**, a lightweight, fast, and elegant static blog framework.
+The core engine and pre-built App Shell for **s-blog**, a lightweight, fast, and elegant static blog framework.
 
 ## Usage
 
@@ -16,28 +16,29 @@ yarn add @s-blog/core
 pnpm add @s-blog/core
 ```
 
-### Basic Integration
+### Architecture
 
-This package exposes the main application layout, React components, and styles needed to run your blog. You typically mount the app in your entry point (e.g., `src/main.tsx`):
+Starting with the App Shell architecture, `@s-blog/core` provides a pre-built React frontend and data generation scripts. Instead of compiling React yourself via Vite, you only need to provide `config.json`, `album.config.json`, and Markdown posts. The core engine will load your configurations at runtime.
 
-```tsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { SBlogApp } from '@s-blog/core'
-import '@s-blog/core/style.css'
-import { siteConfig } from './config'
-import { albumConfig } from './album.config'
+### Basic Scripts
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} />
-  </React.StrictMode>,
-)
+You can use the built-in scripts to generate static data and prepare the App Shell for your blog:
+
+```bash
+# Copy the pre-built App Shell to your dist folder
+npx tsx node_modules/@s-blog/core/scripts/copy-shell.ts
+
+# Generate posts manifest and copy markdown files
+npx tsx node_modules/@s-blog/core/scripts/generate-posts-data.ts
+
+# Process photos and generate albums metadata
+npx tsx node_modules/@s-blog/core/scripts/generate-albums-data.ts
 ```
 
 ## Features
 
-- **Built-in Components:** Pre-designed layouts, post lists, markdown rendering, photo viewers, and more.
+- **Built-in App Shell:** Pre-designed layouts, post lists, markdown rendering, photo viewers, and more.
+- **Runtime Configuration:** JSON-based setup without frontend build tools.
 - **Routing & State:** Pre-configured React Router integration for seamless SPA navigation.
 - **i18n Support:** Built-in internationalization.
 - **Responsive Design:** Mobile-friendly UI right out of the box.

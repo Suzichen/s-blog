@@ -47,7 +47,7 @@ npm run dev
 npm update @s-blog/core
 ```
 
-你只需维护内容层文件（`src/posts/`、`src/config.ts`、`src/album.config.ts`、`public/albums/`），框架更新通过 `@s-blog/core` 包自动交付。
+你只需维护内容层文件（`posts/`、`config.json`、`album.config.json`、`public/albums/`），框架更新通过 `@s-blog/core` 包自动交付。
 
 ### 手动安装（备选方案）
 
@@ -70,7 +70,7 @@ npm run build
 
 ## 配置
 
-站点配置位于 `src/config.ts` 文件中，可以修改：
+站点配置位于 `config.json` 文件中，可以修改：
 
 - **title**: 网站标题
 - **description**: 网站描述
@@ -94,7 +94,7 @@ npm run build
 
 ## 撰写文章
 
-在 `src/posts` 目录下添加 Markdown 文件即可。
+在 `posts` 目录下添加 Markdown 文件即可。
 文件头部需要包含 Frontmatter 信息：
 
 ```yaml
@@ -114,16 +114,16 @@ preview: 文章预览内容...
 
 ### 配置
 
-编辑 `src/album.config.ts` 来管理相册：
+编辑 `album.config.json` 来管理相册：
 
-```typescript
-export const albumConfig: AlbumConfig = {
-  enabled: true,
-  albums: [
-    { dir: 'travel-2024', name: '2024 旅行', cover: 'cover.jpg' },
-    { dir: '做饭', cover: 'braised-pork.jpg' }, // 支持中文目录名，未设置 name 时显示目录名
-  ],
-};
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "travel-2024", "name": "2024 旅行", "cover": "cover.jpg" },
+    { "dir": "做饭", "cover": "braised-pork.jpg" }
+  ]
+}
 ```
 
 - **enabled**：开启/关闭整个相册模块
