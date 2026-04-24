@@ -18,7 +18,7 @@ This is your first sample post. You can edit or delete it, and start writing you
 
 ### Writing a Post
 
-Create a new Markdown file in the `src/posts/` directory. Each post needs frontmatter metadata:
+Create a new Markdown file in the `posts/` directory. Each post needs frontmatter metadata:
 
 ```markdown
 ---
@@ -54,9 +54,9 @@ npm update @s-blog/core
 
 ## What's Next?
 
-- Edit `src/config.ts` to customize your site title, description, and other settings
-- Add your own posts to `src/posts/`
-- Enable the album feature in `src/album.config.ts` if you want a photo gallery
+- Edit `config.json` to customize your site title, description, and other settings
+- Add your own posts to `posts/`
+- Enable the album feature in `album.config.json` if you want a photo gallery
 - Deploy your built site to any static hosting service
 
 Happy blogging! ✍️

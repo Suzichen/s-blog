@@ -47,7 +47,7 @@ Get the latest features and bug fixes:
 npm update @s-blog/core
 ```
 
-You only maintain your content files (`src/posts/`, `src/config.ts`, `src/album.config.ts`, `public/albums/`). Framework updates are delivered through the `@s-blog/core` package.
+You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `public/albums/`). Framework updates are delivered through the `@s-blog/core` package.
 
 ### Manual Installation (Alternative)
 
@@ -70,7 +70,7 @@ npm run build
 
 ## Configuration
 
-Site configuration can be modified in `src/config.ts`:
+Site configuration can be modified in `config.json`:
 
 - **title**: Website title
 - **description**: Website description
@@ -94,7 +94,7 @@ When `siteUrl` is configured, the build process automatically generates:
 
 ## Writing Posts
 
-Add your Markdown files to the `src/posts` directory.
+Add your Markdown files to the `posts` directory.
 Top of the file should include frontmatter:
 
 ```yaml
@@ -114,16 +114,16 @@ The blog includes an optional album (photo gallery) module that allows you to or
 
 ### Configuration
 
-Edit `src/album.config.ts` to manage albums:
+Edit `album.config.json` to manage albums:
 
-```typescript
-export const albumConfig: AlbumConfig = {
-  enabled: true,
-  albums: [
-    { dir: 'travel-2024', name: '2024 Travel', cover: 'cover.jpg' },
-    { dir: '春', cover: 'sakura.jpg' }, // CJK dirname, name defaults to dirname
-  ],
-};
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "travel-2024", "name": "2024 Travel", "cover": "cover.jpg" },
+    { "dir": "春", "cover": "sakura.jpg" }
+  ]
+}
 ```
 
 - **enabled**: Toggle the entire album module on/off

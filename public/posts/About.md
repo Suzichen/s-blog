@@ -21,7 +21,10 @@ If you are reading this page on the live site, you are already looking at a real
 Create a new blog in one command:
 
 ```bash
-npm create s-blog@latest
+# Using bun
+bunx create-s-blog my-blog
+# Or using npx
+npx create-s-blog@latest my-blog
 ```
 
 The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
@@ -30,6 +33,9 @@ Then:
 
 ```bash
 cd my-blog
+# Using bun
+bun run dev
+# Or using npm
 npm run dev
 ```
 
@@ -39,7 +45,7 @@ That's it. Your blog is running.
 
 ## Writing Posts
 
-Create a Markdown file under `src/posts/`:
+Create a Markdown file under `posts/`:
 
 ```markdown
 ---
@@ -95,13 +101,13 @@ No Node.js runtime or backend required after build.
 - Auto-generated WebP thumbnails
 - EXIF metadata extraction
 - Full-screen photo viewer
-- Configurable via `src/album.config.ts`
+- Configurable via `album.config.json`
 
 ### 🔍 SEO Optimization
 - Per-post HTML pages with Open Graph and Twitter Card meta tags
 - Structured data (JSON-LD)
 - Auto-generated `sitemap.xml`, `rss.xml`, and `robots.txt`
-- Configure `siteUrl` in `src/config.ts` to enable all SEO features
+- Configure `siteUrl` in `config.json` to enable all SEO features
 
 ### 🌐 i18n
 - Built-in language switcher (Chinese, English, Japanese)
@@ -127,13 +133,11 @@ Your project only contains your content and configuration:
 
 ```
 my-blog/
-├── src/
-│   ├── posts/          # Your Markdown posts
-│   ├── config.ts       # Site configuration
-│   ├── album.config.ts # Album configuration
-│   └── main.tsx        # Entry point
+├── posts/          # Your Markdown posts
+├── config.json     # Site configuration
+├── album.config.json # Album configuration
 ├── public/
-│   └── albums/         # Photo album directories
+│   └── albums/     # Photo album directories
 ├── index.html
 └── package.json
 ```
@@ -148,31 +152,31 @@ npm update @s-blog/core
 
 ## Configuration
 
-### Site Config (`src/config.ts`)
+### Site Config (`config.json`)
 
-```typescript
-export const siteConfig: SiteConfig = {
-  title: "My Blog",
-  description: "A personal blog",
-  logo: "/logo.png",
-  favicon: "/favicon.ico",
-  siteUrl: "https://example.com",  // Enables SEO features
-  author: "Your Name",
-  language: "en",
-  timezone: "Asia/Tokyo", // IANA timezone identifier to ensure correct build dates on CI
-};
+```json
+{
+  "title": "My Blog",
+  "description": "A personal blog",
+  "logo": "/logo.png",
+  "favicon": "/favicon.ico",
+  "siteUrl": "https://example.com",
+  "author": "Your Name",
+  "language": "en",
+  "timezone": "Asia/Tokyo"
+}
 ```
 
-### Album Config (`src/album.config.ts`)
+### Album Config (`album.config.json`)
 
-```typescript
-export const albumConfig: AlbumConfig = {
-  enabled: true,
-  albums: [
-    { dir: 'travel', name: 'Travel Photos' },
-    { dir: 'food', name: 'Food Gallery', cover: 'best-dish.jpg' },
-  ],
-};
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "travel", "name": "Travel Photos" },
+    { "dir": "food", "name": "Food Gallery", "cover": "best-dish.jpg" }
+  ]
+}
 ```
 
 ---

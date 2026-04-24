@@ -18,7 +18,7 @@ Like everything else in this system, the album module is **purely static**. All 
 
 The album module consists of three layers:
 
-1. **Configuration** (`src/album.config.ts`) — Define your albums
+1. **Configuration** (`album.config.json`) — Define your albums
 2. **Build Script** (`npm run build:albums`) — Process photos at build time
 3. **Frontend Pages** — Browse albums and view photos
 
@@ -26,15 +26,14 @@ The album module consists of three layers:
 
 Albums are defined in a single config file:
 
-```typescript
-// src/album.config.ts
-export const albumConfig: AlbumConfig = {
-  enabled: true,
-  albums: [
-    { dir: 'travel-2024', name: '2024 Travel', cover: 'cover.jpg' },
-    { dir: '日常写真' },
-  ],
-};
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "travel-2024", "name": "2024 Travel", "cover": "cover.jpg" },
+    { "dir": "日常写真" }
+  ]
+}
 ```
 
 - **`dir`** — Directory name under `public/albums/`. Supports letters, numbers, hyphens, underscores, and CJK characters. No spaces or path separators.

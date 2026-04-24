@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/core",
-  "version": "0.1.13",
+  "version": "0.2.2",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,9 +14,14 @@
   "files": ["dist/", "scripts/"],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
-    "prepublishOnly": "npm run build",
+    "build:shell": "vite build --config vite.shell.config.ts",
+    "build:all": "npm run build && npm run build:shell",
+    "prepublishOnly": "npm run build:all",
     "build:posts": "npx tsx ../../scripts/generate-posts-data.ts",
-    "build:albums": "npx tsx ../../scripts/generate-albums-data.ts"
+    "build:albums": "npx tsx ../../scripts/generate-albums-data.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -40,15 +45,19 @@
     "exifr": "^7.1.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.23",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^3.2.4"
   },
   "keywords": ["blog", "react", "vite", "s-blog"],
   "license": "MIT",

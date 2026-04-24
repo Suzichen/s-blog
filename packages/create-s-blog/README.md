@@ -44,7 +44,7 @@ npm run dev
 ## Features
 
 - **Instant Setup:** Generates a ready-to-use directory structure for your blog.
-- **Pre-configured:** Comes with Markdown post support, Vite configuration, and built-in package scripts.
+- **Pre-configured:** Comes with Markdown post support, App Shell configuration, and built-in data generation scripts.
 - **Customizable:** Generates standard templates and configuration files that are easily adjustable to fit your needs.
 
 ## License

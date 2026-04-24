@@ -1,0 +1,7 @@
+{
+  "__SCHEMA__": "__ALBUM_SCHEMA_URL__",
+  "enabled": true,
+  "albums": [
+    { "dir": "blog" }
+  ]
+}

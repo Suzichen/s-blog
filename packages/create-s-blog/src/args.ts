@@ -75,6 +75,6 @@ export function printVersion(): void {
     const pkg = JSON.parse(readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'));
     console.log(`create-s-blog v${pkg.version}`);
   } catch {
-    console.log('create-s-blog v0.1.0');
+    console.log('create-s-blog v0.2.0');
   }
 }

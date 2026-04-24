@@ -47,7 +47,7 @@ npm run dev
 npm update @s-blog/core
 ```
 
-ユーザーはコンテンツファイル（`src/posts/`、`src/config.ts`、`src/album.config.ts`、`public/albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
+ユーザーはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`public/albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
 
 ### 手動インストール（代替方法）
 
@@ -70,7 +70,7 @@ npm run build
 
 ## 設定
 
-サイトの設定は `src/config.ts` で変更できます：
+サイトの設定は `config.json` で変更できます：
 
 - **title**: サイトタイトル
 - **description**: サイト説明文
@@ -94,7 +94,7 @@ npm run build
 
 ## 記事の執筆
 
-`src/posts` ディレクトリに Markdown ファイルを追加してください。
+`posts` ディレクトリに Markdown ファイルを追加してください。
 ファイルの先頭には Frontmatter を含める必要があります：
 
 ```yaml
@@ -114,16 +114,16 @@ preview: 記事のプレビュー...
 
 ### 設定
 
-`src/album.config.ts` を編集してアルバムを管理します：
+`album.config.json` を編集してアルバムを管理します：
 
-```typescript
-export const albumConfig: AlbumConfig = {
-  enabled: true,
-  albums: [
-    { dir: 'travel-2024', name: '2024 旅行', cover: 'cover.jpg' },
-    { dir: '春', cover: 'sakura.jpg' }, // 日本語ディレクトリ名も可、name 未設定時はディレクトリ名を表示
-  ],
-};
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "travel-2024", "name": "2024 旅行", "cover": "cover.jpg" },
+    { "dir": "春", "cover": "sakura.jpg" }
+  ]
+}
 ```
 
 - **enabled**：アルバムモジュール全体のオン/オフ切り替え
