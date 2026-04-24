@@ -167,4 +167,12 @@ npm run build:albums
 - Gemini 3 Pro
 - Gemini 3.1 Pro
 - Claude Sonnet 4.5
+- Claude Opus 4.5
 - Claude Opus 4.6
+
+## エージェンティック ツール
+
+- [Antigravity](https://antigravity.google/)
+- [Kiro](https://kiro.dev/)
+- [Gemini CLI](https://geminicli.com/)
+- [Gemini CLI in Zed](https://zed.dev/acp/agent/gemini-cli)
