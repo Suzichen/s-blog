@@ -3,9 +3,8 @@ import path from 'path';
 import Vips from 'wasm-vips';
 import decode from 'heic-decode';
 import exifr from 'exifr';
-import { pathToFileURL } from 'url';
 
-// Types inlined to avoid depending on compiled core source
+// Types for album configuration
 interface AlbumEntry {
   dir: string;
   name?: string;
@@ -46,10 +45,8 @@ interface AlbumDetail {
   photos: PhotoItem[];
 }
 
-// Import album config from user's project (resolved via process.cwd())
-const configPath = path.join(process.cwd(), 'src', 'album.config.ts');
-const { albumConfig } = await import(pathToFileURL(configPath).href) as { albumConfig: AlbumConfig };
-
+// Configuration paths - now using JSON files
+const CONFIG_FILE = path.join(process.cwd(), 'album.config.json');
 const PROJECT_ROOT = process.cwd();
 const ALBUMS_BASE_DIR = path.join(PROJECT_ROOT, 'public', 'albums');
 const GENERATED_DIR = path.join(PROJECT_ROOT, 'public', 'generated');
@@ -64,6 +61,56 @@ async function getVips(): Promise<typeof Vips> {
     vips = await Vips();
   }
   return vips;
+}
+
+/**
+ * Load and validate album configuration from album.config.json
+ */
+function loadAlbumConfig(): AlbumConfig {
+  if (!fs.existsSync(CONFIG_FILE)) {
+    console.error(`album.config.json not found. Please create it in the project root.`);
+    console.error(`Expected path: ${CONFIG_FILE}`);
+    process.exit(1);
+  }
+
+  let configContent: string;
+  try {
+    configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
+  } catch (err) {
+    console.error(`Failed to read album.config.json: ${err instanceof Error ? err.message : err}`);
+    process.exit(1);
+  }
+
+  let config: AlbumConfig;
+  try {
+    config = JSON.parse(configContent);
+  } catch (err) {
+    console.error(`Failed to parse album.config.json: Invalid JSON format`);
+    console.error(err instanceof Error ? err.message : err);
+    process.exit(1);
+  }
+
+  // Validate required fields
+  if (typeof config.enabled !== 'boolean') {
+    console.error(`Missing or invalid required field in album.config.json: enabled (must be boolean)`);
+    process.exit(1);
+  }
+
+  if (!Array.isArray(config.albums)) {
+    console.error(`Missing or invalid required field in album.config.json: albums (must be array)`);
+    process.exit(1);
+  }
+
+  // Validate each album entry
+  for (let i = 0; i < config.albums.length; i++) {
+    const album = config.albums[i];
+    if (!album.dir || typeof album.dir !== 'string') {
+      console.error(`Invalid album entry at index ${i}: missing or invalid 'dir' field`);
+      process.exit(1);
+    }
+  }
+
+  return config;
 }
 
 // ─── Pure Functions (exported for testing) ───
@@ -173,9 +220,9 @@ async function generateThumbnail(
 
   const vipsInstance = await getVips();
   const ext = path.extname(srcPath).toLowerCase();
-  
+
   let image: InstanceType<typeof Vips.Image>;
-  
+
   if (ext === '.heic') {
     // HEIC files: use heic-decode first, then feed raw pixels to wasm-vips
     // This is because wasm-vips's built-in HEIF decoder has issues with some HEIC files
@@ -187,21 +234,21 @@ async function generateThumbnail(
     const inputBuffer = fs.readFileSync(srcPath);
     image = vipsInstance.Image.newFromBuffer(inputBuffer);
   }
-  
+
   // Calculate thumbnail size (fit inside MAX_THUMBNAIL_SIZE)
   const { width, height } = image;
   const scale = Math.min(MAX_THUMBNAIL_SIZE / width, MAX_THUMBNAIL_SIZE / height, 1);
-  
+
   // Resize if needed
   let resized = image;
   if (scale < 1) {
     resized = image.resize(scale);
   }
-  
+
   // Convert to WebP and write to file
   const webpBuffer = resized.writeToBuffer('.webp');
   fs.writeFileSync(destPath, webpBuffer);
-  
+
   // Clean up
   resized.delete();
   if (resized !== image) {
@@ -289,6 +336,9 @@ async function processAlbum(entry: AlbumEntry): Promise<{
 async function main() {
   console.log('[albums] Starting album data generation...');
 
+  // Load configuration from JSON file
+  const albumConfig = loadAlbumConfig();
+
   if (!fs.existsSync(GENERATED_DIR)) {
     fs.mkdirSync(GENERATED_DIR, { recursive: true });
   }
@@ -319,7 +369,7 @@ async function main() {
   fs.writeFileSync(indexPath, JSON.stringify(summaries, null, 2));
   console.log(`[albums] Generated albums-index.json (${summaries.length} albums)`);
   console.log('[albums] Done.');
-  
+
   // Shutdown vips
   if (vips) {
     vips.shutdown();

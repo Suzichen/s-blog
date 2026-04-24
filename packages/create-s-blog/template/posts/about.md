@@ -25,7 +25,7 @@ All content is processed at build time and served as static files. There is no b
 
 ### Customization
 
-- Edit `src/config.ts` to change site settings
-- Edit `src/album.config.ts` to configure photo albums
-- Add posts as Markdown files in `src/posts/`
+- Edit `config.json` to change site settings
+- Edit `album.config.json` to configure photo albums
+- Add posts as Markdown files in `posts/`
 - Add album photos in `public/albums/`

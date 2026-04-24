@@ -8,8 +8,17 @@ const TEMPLATE_DIR = path.resolve(__dirname, '../template');
 
 /**
  * Generate a customized package.json object for the user's project.
+ * 
+ * New App Shell architecture:
+ * - No Vite/React dependencies (App Shell is pre-built)
+ * - Only tsx for running data generation scripts
+ * - Simplified build process: copy shell + generate data + copy public
  */
 export function generatePackageJson(input: UserInput): Record<string, unknown> {
+  // Helper to get the script runner command
+  const runner = input.packageManager === 'bun' ? 'bun' : 'npx tsx';
+  const scriptsPath = 'node_modules/@s-blog/core/scripts';
+
   return {
     name: input.name,
     private: true,
@@ -18,56 +27,72 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
     description: input.description,
     author: input.author,
     scripts: {
-      dev: `${input.packageManager} run build:albums && ${input.packageManager} run build:posts && vite`,
-      'build:posts': `${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-posts-data.ts`,
-      'build:albums': `${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-albums-data.ts`,
-      'build:seo': `${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-seo.ts && ${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-sitemap.ts && ${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-rss.ts && ${input.packageManager === 'bun' ? 'bun' : 'npx tsx'} node_modules/@s-blog/core/scripts/generate-robots.ts`,
-      build: `${input.packageManager} run build:albums && ${input.packageManager} run build:posts && tsc && vite build && ${input.packageManager} run build:seo`,
-      preview: 'vite preview',
+      // Dev: generate data then serve with a simple HTTP server
+      dev: `${input.packageManager} run build && ${input.packageManager} run serve`,
+      // Serve the dist folder for local preview
+      serve: `${runner} ${scriptsPath}/serve.ts`,
+      // Build steps
+      'build:shell': `${runner} ${scriptsPath}/copy-shell.ts`,
+      'build:posts': `${runner} ${scriptsPath}/generate-posts-data.ts`,
+      'build:albums': `${runner} ${scriptsPath}/generate-albums-data.ts`,
+      'build:public': `${runner} ${scriptsPath}/copy-public.ts`,
+      'build:seo': `${runner} ${scriptsPath}/generate-seo.ts && ${runner} ${scriptsPath}/generate-sitemap.ts && ${runner} ${scriptsPath}/generate-rss.ts && ${runner} ${scriptsPath}/generate-robots.ts`,
+      // Full build: shell -> data generation -> copy public -> SEO
+      build: `${input.packageManager} run build:shell && ${input.packageManager} run build:posts && ${input.packageManager} run build:albums && ${input.packageManager} run build:public && ${input.packageManager} run build:seo`,
     },
     dependencies: {
-      '@s-blog/core': '^0.1.13',
-      'react': '^19.2.1',
-      'react-dom': '^19.2.1',
+      '@s-blog/core': '^0.2.0',
     },
     devDependencies: {
-      '@types/react': '^19.2.7',
-      '@types/react-dom': '^19.2.3',
-      '@vitejs/plugin-react': '^5.1.1',
-      'autoprefixer': '^10.4.23',
-      'postcss': '^8.5.6',
-      'tailwindcss': '^3.4.17',
       'tsx': '^4.21.0',
-      'typescript': '~5.9.3',
-      'vite': '^7.2.4',
     },
   };
 }
 
 /**
- * Inject user-provided values into the config.ts template content.
- * Replaces __TITLE__, __DESCRIPTION__, __AUTHOR__, __SITEURL__ placeholders.
+ * Inject user-provided values into the config.json template content.
+ * Replaces placeholders with actual values and handles optional fields.
  */
 export function injectConfigValues(template: string, input: UserInput): string {
-  let result = template
-    .replace('__TITLE__', input.name)
-    .replace('__DESCRIPTION__', input.description)
-    .replace('__AUTHOR__', input.author);
+  // Parse the JSON template
+  const config = JSON.parse(template);
 
-  // If siteUrl is empty, remove the entire siteUrl line to avoid SEO scripts picking up an empty string
+  // Replace the $schema placeholder
+  config['$schema'] = 'https://unpkg.com/@s-blog/core/schemas/config.schema.json';
+  delete config['__SCHEMA__'];
+
+  // Set required fields
+  config.title = input.name;
+  config.description = input.description;
+
+  // Handle optional siteUrl
+  delete config['__SITEURL__'];
   if (input.siteUrl) {
-    result = result.replace('__SITEURL__', input.siteUrl);
-  } else {
-    result = result.replace(/\s*siteUrl:.*__SITEURL__.*,?\n/, '\n');
+    config.siteUrl = input.siteUrl;
   }
 
+  // Handle optional author
+  delete config['__AUTHOR__'];
+  if (input.author) {
+    config.author = input.author;
+  }
+
+  // Handle optional timezone
   if (input.timezone) {
-    result = result.replace('// __TIMEZONE__', `timezone: "${input.timezone}",`);
-  } else {
-    result = result.replace('// __TIMEZONE__', `// timezone: "Asia/Shanghai", // IANA timezone`);
+    config.timezone = input.timezone;
   }
 
-  return result;
+  return JSON.stringify(config, null, 2);
+}
+
+/**
+ * Inject schema URL into album.config.json template.
+ */
+export function injectAlbumConfigSchema(template: string): string {
+  const config = JSON.parse(template);
+  config['$schema'] = 'https://unpkg.com/@s-blog/core/schemas/album.config.schema.json';
+  delete config['__SCHEMA__'];
+  return JSON.stringify(config, null, 2);
 }
 
 /**
@@ -112,12 +137,26 @@ export async function copyTemplate(targetDir: string, input: UserInput): Promise
       JSON.stringify(packageJson, null, 2) + '\n',
     );
 
-    // Inject user config values into src/config.ts
-    const configPath = path.join(targetDir, 'src', 'config.ts');
+    // Inject user config values into config.json
+    const configPath = path.join(targetDir, 'config.json');
     if (fs.existsSync(configPath)) {
       const configTemplate = fs.readFileSync(configPath, 'utf-8');
       const configContent = injectConfigValues(configTemplate, input);
-      fs.writeFileSync(configPath, configContent);
+      fs.writeFileSync(configPath, configContent + '\n');
+    }
+
+    // Inject schema URL into album.config.json
+    const albumConfigPath = path.join(targetDir, 'album.config.json');
+    if (fs.existsSync(albumConfigPath)) {
+      const albumConfigTemplate = fs.readFileSync(albumConfigPath, 'utf-8');
+      const albumConfigContent = injectAlbumConfigSchema(albumConfigTemplate);
+      fs.writeFileSync(albumConfigPath, albumConfigContent + '\n');
+    }
+
+    // Remove the empty src directory if it exists (no longer needed)
+    const srcDir = path.join(targetDir, 'src');
+    if (fs.existsSync(srcDir)) {
+      fs.rmSync(srcDir, { recursive: true, force: true });
     }
   } catch (err) {
     // Clean up on failure (unless it was a directory exists error)

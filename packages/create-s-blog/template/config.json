@@ -1,0 +1,10 @@
+{
+  "__SCHEMA__": "__SCHEMA_URL__",
+  "title": "__TITLE__",
+  "description": "__DESCRIPTION__",
+  "logo": "/logo.png",
+  "favicon": "/favicon.ico",
+  "__SITEURL__": "__SITEURL_VALUE__",
+  "__AUTHOR__": "__AUTHOR_VALUE__",
+  "language": "en"
+}

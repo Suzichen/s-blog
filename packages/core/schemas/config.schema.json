@@ -1,0 +1,56 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://unpkg.com/@s-blog/core/schemas/config.schema.json",
+  "title": "S-Blog Site Configuration",
+  "description": "Configuration schema for s-blog site settings",
+  "type": "object",
+  "required": ["title", "description", "logo", "favicon"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference URL for editor intellisense"
+    },
+    "title": {
+      "type": "string",
+      "description": "Blog title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Blog description"
+    },
+    "logo": {
+      "type": "string",
+      "description": "Path to logo image"
+    },
+    "favicon": {
+      "type": "string",
+      "description": "Path to favicon"
+    },
+    "siteUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Production URL for SEO features"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name"
+    },
+    "language": {
+      "type": "string",
+      "description": "Default language code (e.g., en, zh-CN, ja)",
+      "examples": ["en", "zh-CN", "ja", "ja-JP"]
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone identifier (e.g., Asia/Shanghai)",
+      "examples": ["UTC", "Asia/Shanghai", "Asia/Tokyo", "America/New_York"]
+    },
+    "basePath": {
+      "type": "string",
+      "default": "/",
+      "description": "Base path for subdirectory deployment",
+      "examples": ["/", "/blog/", "/my-site/"]
+    }
+  },
+  "additionalProperties": false
+}
