@@ -97,7 +97,7 @@ No Node.js runtime or backend required after build.
 - Previous/next post navigation
 
 ### 📸 Photo Albums
-- Drop photos into `public/albums/` directories
+- Drop photos into `albums/` directories
 - Auto-generated WebP thumbnails
 - EXIF metadata extraction
 - Full-screen photo viewer

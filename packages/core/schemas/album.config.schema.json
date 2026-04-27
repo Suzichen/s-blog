@@ -23,7 +23,7 @@
         "properties": {
           "dir": {
             "type": "string",
-            "description": "Directory name relative to public/albums/"
+            "description": "Directory name relative to albums/"
           },
           "name": {
             "type": "string",

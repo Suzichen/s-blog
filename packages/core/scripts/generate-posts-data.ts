@@ -5,7 +5,6 @@ import matter from 'gray-matter';
 // Configuration paths - now using JSON files
 const POSTS_DIR = path.join(process.cwd(), 'posts');
 const OUTPUT_FILE = path.join(process.cwd(), 'public/generated/manifest.json');
-const PUBLIC_POSTS_DIR = path.join(process.cwd(), 'public/posts');
 const CONFIG_FILE = path.join(process.cwd(), 'config.json');
 
 interface SiteConfig {
@@ -218,18 +217,6 @@ function processPostsFromDir(
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(posts, null, 2));
   console.log(`Generated manifest with ${posts.length} posts.`);
-
-  // Copy markdown files to public/posts/ for runtime fetching
-  if (!fs.existsSync(PUBLIC_POSTS_DIR)) {
-    fs.mkdirSync(PUBLIC_POSTS_DIR, { recursive: true });
-  }
-  for (const file of files) {
-    fs.copyFileSync(
-      path.join(postsDir, file),
-      path.join(PUBLIC_POSTS_DIR, file)
-    );
-  }
-  console.log(`Copied ${files.length} post files to public/posts/.`);
 
   // Log basePath info if configured
   if (basePath) {

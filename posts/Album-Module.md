@@ -36,17 +36,17 @@ Albums are defined in a single config file:
 }
 ```
 
-- **`dir`** — Directory name under `public/albums/`. Supports letters, numbers, hyphens, underscores, and CJK characters. No spaces or path separators.
+- **`dir`** — Directory name under `albums/`. Supports letters, numbers, hyphens, underscores, and CJK characters. No spaces or path separators.
 - **`name`** (optional) — Display name. Defaults to `dir` if not set.
 - **`cover`** (optional) — Cover photo filename. Falls back to the first photo.
 - **`enabled`** — Toggle the entire module on/off. When disabled, album routes redirect to home and the nav link is hidden.
 
 ### 2. Prepare Your Photos
 
-Place original photos in `public/albums/{dirname}/`:
+Place original photos in `albums/{dirname}/`:
 
 ```
-public/albums/travel-2024/
+albums/travel-2024/
   photo-01.jpg
   photo-02.jpg
   photo-03.png

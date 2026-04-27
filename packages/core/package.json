@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/core",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,7 +11,7 @@
     },
     "./style.css": "./dist/index.css"
   },
-  "files": ["dist/", "scripts/"],
+  "files": ["dist/", "scripts/", "schemas/"],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "build:shell": "vite build --config vite.shell.config.ts",
@@ -59,7 +59,12 @@
     "vite": "^7.2.4",
     "vitest": "^3.2.4"
   },
-  "keywords": ["blog", "react", "vite", "s-blog"],
+  "keywords": [
+    "blog",
+    "react",
+    "vite",
+    "s-blog"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
