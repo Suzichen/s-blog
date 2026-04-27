@@ -47,7 +47,7 @@ npm run dev
 npm update @s-blog/core
 ```
 
-ユーザーはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`public/albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
+ユーザーはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
 
 ### 手動インストール（代替方法）
 
@@ -127,16 +127,16 @@ preview: 記事のプレビュー...
 ```
 
 - **enabled**：アルバムモジュール全体のオン/オフ切り替え
-- **dir**：`public/albums/` 配下のディレクトリ名（文字・数字・ハイフン・アンダースコア；日本語等の Unicode 文字に対応；スペースやパス区切り文字は不可）
+- **dir**：`albums/` 配下のディレクトリ名（文字・数字・ハイフン・アンダースコア；日本語等の Unicode 文字に対応；スペースやパス区切り文字は不可）
 - **name**（オプション）：アルバムの表示名
 - **cover**（オプション）：カバー写真のファイル名
 
 ### 写真の追加
 
-写真を `public/albums/{dirname}/` に配置します：
+写真を `albums/{dirname}/` に配置します：
 
 ```
-public/albums/travel-2024/
+albums/travel-2024/
   photo1.jpg
   photo2.png
   cover.jpg

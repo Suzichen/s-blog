@@ -48,7 +48,8 @@ interface AlbumDetail {
 // Configuration paths - now using JSON files
 const CONFIG_FILE = path.join(process.cwd(), 'album.config.json');
 const PROJECT_ROOT = process.cwd();
-const ALBUMS_BASE_DIR = path.join(PROJECT_ROOT, 'public', 'albums');
+const ALBUMS_BASE_DIR = path.join(PROJECT_ROOT, 'albums');
+const PUBLIC_ALBUMS_DIR = path.join(PROJECT_ROOT, 'public', 'albums');
 const GENERATED_DIR = path.join(PROJECT_ROOT, 'public', 'generated');
 const PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic'];
 const MAX_THUMBNAIL_SIZE = 1080;
@@ -180,8 +181,7 @@ export function parseExif(rawExif: Record<string, unknown> | null): ExifData {
 
 export function buildAlbumSummary(
   entry: AlbumEntry,
-  photos: string[],
-  thumbsDir: string
+  photos: string[]
 ): AlbumSummary {
   const dirname = entry.dir;
   const name = entry.name || dirname;
@@ -228,7 +228,7 @@ async function generateThumbnail(
     // This is because wasm-vips's built-in HEIF decoder has issues with some HEIC files
     const inputBuffer = fs.readFileSync(srcPath);
     const { width, height, data } = await decode({ buffer: inputBuffer });
-    image = vipsInstance.Image.newFromMemory(data, width, height, 4, 'uchar');
+    image = vipsInstance.Image.newFromMemory(data, width, height, 4, 'uchar' as any);
   } else {
     // Non-HEIC files: use wasm-vips directly
     const inputBuffer = fs.readFileSync(srcPath);
@@ -278,10 +278,16 @@ async function processAlbum(entry: AlbumEntry): Promise<{
     return null;
   }
 
-  const albumDir = path.join(ALBUMS_BASE_DIR, dirname);
+  let albumDir = path.join(ALBUMS_BASE_DIR, dirname);
   if (!fs.existsSync(albumDir)) {
-    console.warn(`[WARN] Album directory not found: ${albumDir}. Skipping.`);
-    return null;
+    const legacyDir = path.join(PROJECT_ROOT, 'public', 'albums', dirname);
+    if (fs.existsSync(legacyDir)) {
+      console.warn(`[WARN] Using legacy album directory at public/albums/${dirname}. Consider moving to albums/${dirname}`);
+      albumDir = legacyDir;
+    } else {
+      console.warn(`[WARN] Album directory not found: ${albumDir}. Skipping.`);
+      return null;
+    }
   }
 
   const allFiles = fs.readdirSync(albumDir);
@@ -292,7 +298,12 @@ async function processAlbum(entry: AlbumEntry): Promise<{
     })
     .sort();
 
-  const thumbsDir = path.join(albumDir, 'thumbs');
+  const publicAlbumDir = path.join(PUBLIC_ALBUMS_DIR, dirname);
+  if (!fs.existsSync(publicAlbumDir)) {
+    fs.mkdirSync(publicAlbumDir, { recursive: true });
+  }
+
+  const thumbsDir = path.join(publicAlbumDir, 'thumbs');
   if (!fs.existsSync(thumbsDir)) {
     fs.mkdirSync(thumbsDir, { recursive: true });
   }
@@ -303,7 +314,6 @@ async function processAlbum(entry: AlbumEntry): Promise<{
     const basename = path.parse(filename).name;
     const thumbFilename = `${basename}.webp`;
     const destPath = path.join(thumbsDir, thumbFilename);
-
     try {
       await generateThumbnail(srcPath, destPath);
     } catch (err) {
@@ -327,7 +337,7 @@ async function processAlbum(entry: AlbumEntry): Promise<{
   }
 
   const name = entry.name || dirname;
-  const summary = buildAlbumSummary(entry, photoFiles, thumbsDir);
+  const summary = buildAlbumSummary(entry, photoFiles);
   const detail: AlbumDetail = { dirname, name, photos };
 
   return { summary, detail };

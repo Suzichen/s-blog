@@ -1,14 +1,15 @@
 /**
  * copy-public.ts
  * 
- * Copies public assets to dist/ for deployment:
+ * Copies assets to dist/ for deployment:
  * - public/generated/ (manifest.json, albums data)
- * - public/posts/ (markdown files)
- * - public/albums/ (album images and thumbnails)
+ * - albums/ (original album images) and public/albums/ (thumbnails)
+ * - posts/ (markdown files)
  * - Other static assets (favicon, logo, etc.)
  * 
  * Requirements: 1.5.2, 1.5.3, 1.5.4
- * - Copy public/generated/, public/posts/, public/albums/ to dist/
+ * - Copy public/generated/ and public/albums/ to dist/
+ * - Copy albums/ and posts/ to dist/
  * - Copy other static resources
  * - Handle directory creation and file overwrite
  * - Cross-platform compatible (Windows/Mac/Linux)
@@ -23,7 +24,8 @@ const PUBLIC_DIR = path.join(CWD, 'public');
 const DIST_DIR = path.join(CWD, 'dist');
 
 // Directories to copy from public/
-const COPY_DIRS = ['generated', 'posts', 'albums'];
+// 'albums' here copies public/albums/ (which contains generated thumbnails)
+const COPY_DIRS = ['generated', 'albums'];
 
 // Files/patterns to exclude (e.g., .DS_Store, Thumbs.db)
 const EXCLUDE_PATTERNS = [
@@ -136,7 +138,7 @@ function main(): void {
 
   let totalFiles = 0;
 
-  // Copy specified directories
+  // Copy specified directories from public
   for (const dir of COPY_DIRS) {
     const srcDir = path.join(PUBLIC_DIR, dir);
     const destDir = path.join(DIST_DIR, dir);
@@ -147,6 +149,19 @@ function main(): void {
       totalFiles += count;
     } else {
       console.log(`  Skipping public/${dir}/ (not found)`);
+    }
+  }
+
+  // Copy root directories (albums original photos and posts markdown)
+  // Note: root 'albums' will merge into dist/albums alongside the thumbnails copied above
+  const ROOT_DIRS = ['albums', 'posts'];
+  for (const dir of ROOT_DIRS) {
+    const srcDir = path.join(CWD, dir);
+    const destDir = path.join(DIST_DIR, dir);
+    if (fs.existsSync(srcDir)) {
+      const count = copyDir(srcDir, destDir);
+      console.log(`  Copied ${count} files from root ${dir}/`);
+      totalFiles += count;
     }
   }
 

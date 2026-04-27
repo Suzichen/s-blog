@@ -97,7 +97,7 @@ No Node.js runtime or backend required after build.
 - Previous/next post navigation
 
 ### 📸 Photo Albums
-- Drop photos into `public/albums/` directories
+- Drop photos into `albums/` directories
 - Auto-generated WebP thumbnails
 - EXIF metadata extraction
 - Full-screen photo viewer
@@ -133,11 +133,11 @@ Your project only contains your content and configuration:
 
 ```
 my-blog/
+├── albums/         # Photo album directories
 ├── posts/          # Your Markdown posts
 ├── config.json     # Site configuration
 ├── album.config.json # Album configuration
-├── public/
-│   └── albums/     # Photo album directories
+├── public/         # Static assets (logo, favicon, etc.)
 ├── index.html
 └── package.json
 ```

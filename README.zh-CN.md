@@ -47,7 +47,7 @@ npm run dev
 npm update @s-blog/core
 ```
 
-你只需维护内容层文件（`posts/`、`config.json`、`album.config.json`、`public/albums/`），框架更新通过 `@s-blog/core` 包自动交付。
+你只需维护内容层文件（`posts/`、`config.json`、`album.config.json`、`albums/`），框架更新通过 `@s-blog/core` 包自动交付。
 
 ### 手动安装（备选方案）
 
@@ -127,16 +127,16 @@ preview: 文章预览内容...
 ```
 
 - **enabled**：开启/关闭整个相册模块
-- **dir**：`public/albums/` 下的目录名（支持字母、数字、连字符、下划线；支持中文等 Unicode 字符；不允许空格或路径分隔符）
+- **dir**：`albums/` 下的目录名（支持字母、数字、连字符、下划线；支持中文等 Unicode 字符；不允许空格或路径分隔符）
 - **name**（可选）：相册显示名称
 - **cover**（可选）：封面照片文件名
 
 ### 添加照片
 
-将照片放入 `public/albums/{dirname}/` 目录：
+将照片放入 `albums/{dirname}/` 目录：
 
 ```
-public/albums/travel-2024/
+albums/travel-2024/
   photo1.jpg
   photo2.png
   cover.jpg

@@ -47,7 +47,7 @@ Get the latest features and bug fixes:
 npm update @s-blog/core
 ```
 
-You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `public/albums/`). Framework updates are delivered through the `@s-blog/core` package.
+You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `albums/`). Framework updates are delivered through the `@s-blog/core` package.
 
 ### Manual Installation (Alternative)
 
@@ -127,16 +127,16 @@ Edit `album.config.json` to manage albums:
 ```
 
 - **enabled**: Toggle the entire album module on/off
-- **dir**: Directory name under `public/albums/` (letters, numbers, hyphens, underscores; CJK characters allowed; no spaces or path separators)
+- **dir**: Directory name under `albums/` (letters, numbers, hyphens, underscores; CJK characters allowed; no spaces or path separators)
 - **name** (optional): Display name for the album
 - **cover** (optional): Cover photo filename
 
 ### Adding Photos
 
-Place your photos in `public/albums/{dirname}/`:
+Place your photos in `albums/{dirname}/`:
 
 ```
-public/albums/travel-2024/
+albums/travel-2024/
   photo1.jpg
   photo2.png
   cover.jpg

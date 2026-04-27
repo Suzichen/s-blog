@@ -36,17 +36,17 @@ Albums are defined in a single config file:
 }
 ```
 
-- **`dir`** — Directory name under `public/albums/`. Supports letters, numbers, hyphens, underscores, and CJK characters. No spaces or path separators.
+- **`dir`** — Directory name under `albums/`. Supports letters, numbers, hyphens, underscores, and CJK characters. No spaces or path separators.
 - **`name`** (optional) — Display name. Defaults to `dir` if not set.
 - **`cover`** (optional) — Cover photo filename. Falls back to the first photo.
 - **`enabled`** — Toggle the entire module on/off. When disabled, album routes redirect to home and the nav link is hidden.
 
 ### 2. Prepare Your Photos
 
-Place original photos in `public/albums/{dirname}/`:
+Place original photos in `albums/{dirname}/`:
 
 ```
-public/albums/travel-2024/
+albums/travel-2024/
   photo-01.jpg
   photo-02.jpg
   photo-03.png
@@ -78,25 +78,29 @@ The `build:albums` step is also included in the main `npm run build` command, so
 After running `build:albums`, the directory structure looks like this:
 
 ```
-public/
+albums/                     ← Original photos (placed by you, fully tracked)
+  travel-2024/
+    photo-01.jpg
+    photo-02.jpg
+  日常写真/
+    img-001.jpg
+
+public/                     ← Build outputs (gitignored)
   albums/
     travel-2024/
-      photo-01.jpg          ← Original photos (placed by you)
-      photo-02.jpg
-      thumbs/               ← Thumbnails (auto-generated, gitignored)
+      thumbs/               ← Thumbnails (auto-generated)
         photo-01.webp
         photo-02.webp
     日常写真/
-      img-001.jpg
       thumbs/
         img-001.webp
-  generated/                ← JSON index files (auto-generated, gitignored)
+  generated/                ← JSON index files (auto-generated)
     albums-index.json
     album-travel-2024.json
     album-日常写真.json
 ```
 
-Both `thumbs/` directories and `public/generated/` are gitignored since they are build artifacts that can be regenerated at any time.
+Both `public/albums/` and `public/generated/` are gitignored since they are build artifacts that can be regenerated at any time. Original photos in `albums/` remain clean and version-controlled.
 
 ---
 
