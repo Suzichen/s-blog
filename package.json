@@ -10,8 +10,8 @@
     "build:albums": "npx tsx packages/core/scripts/generate-albums-data.ts",
     "build:seo": "npx tsx packages/core/scripts/generate-seo.ts && npx tsx packages/core/scripts/generate-sitemap.ts && npx tsx packages/core/scripts/generate-rss.ts && npx tsx packages/core/scripts/generate-robots.ts",
     "build:core": "npm run build -w packages/core",
-    "build:all": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npm run build:seo",
-    "build": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npm run build:seo",
+    "build:all": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
+    "build": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
     "preview": "vite preview"
   },
   "devDependencies": {

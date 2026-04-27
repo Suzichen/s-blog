@@ -28,4 +28,4 @@ All content is processed at build time and served as static files. There is no b
 - Edit `config.json` to change site settings
 - Edit `album.config.json` to configure photo albums
 - Add posts as Markdown files in `posts/`
-- Add album photos in `public/albums/`
+- Add album photos in `albums/`
