@@ -1,0 +1,45 @@
+{
+  "dirname": "sakura-exif",
+  "name": "Sakura EXIF",
+  "photos": [
+    {
+      "filename": "DSC_1464.JPG",
+      "thumbnailUrl": "/albums/sakura-exif/thumbs/DSC_1464.webp",
+      "originalUrl": "/albums/sakura-exif/DSC_1464.JPG",
+      "exif": {
+        "cameraMake": "NIKON CORPORATION",
+        "cameraModel": "NIKON Z fc",
+        "focalLength": "240",
+        "aperture": "9",
+        "shutterSpeed": "1/320",
+        "iso": "320"
+      }
+    },
+    {
+      "filename": "DSC_1666.jpg",
+      "thumbnailUrl": "/albums/sakura-exif/thumbs/DSC_1666.webp",
+      "originalUrl": "/albums/sakura-exif/DSC_1666.jpg",
+      "exif": {
+        "cameraMake": "NIKON CORPORATION",
+        "cameraModel": "NIKON Z fc",
+        "focalLength": "250",
+        "aperture": "6.3",
+        "shutterSpeed": "1/320",
+        "iso": "560"
+      }
+    },
+    {
+      "filename": "DSC_1754.jpg",
+      "thumbnailUrl": "/albums/sakura-exif/thumbs/DSC_1754.webp",
+      "originalUrl": "/albums/sakura-exif/DSC_1754.jpg",
+      "exif": {
+        "cameraMake": "NIKON CORPORATION",
+        "cameraModel": "NIKON Z fc",
+        "focalLength": "50",
+        "aperture": "5.6",
+        "shutterSpeed": "1/15",
+        "iso": "1600"
+      }
+    }
+  ]
+}

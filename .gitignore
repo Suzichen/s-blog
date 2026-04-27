@@ -28,3 +28,10 @@ dist-ssr
 
 # User test files
 testes
+
+# Golden file generation temp directories
+tests/.tmp
+tests/.tmp-test*
+
+# Rust build artifacts
+/target

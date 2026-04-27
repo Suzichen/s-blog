@@ -1,0 +1,11 @@
+{
+  "title": "Test Blog",
+  "description": "A test blog for fixture-based testing",
+  "logo": "/logo.png",
+  "favicon": "/favicon.ico",
+  "siteUrl": "https://test-blog.example.com",
+  "author": "Test Author",
+  "language": "en",
+  "timezone": "Asia/Tokyo",
+  "basePath": "/"
+}

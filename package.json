@@ -12,10 +12,13 @@
     "build:core": "npm run build -w packages/core",
     "build:all": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
     "build": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run --config vitest.config.ts",
+    "test:golden": "npx tsx tests/generate-golden.ts"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "vitest": "^3.2.4",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

@@ -402,7 +402,7 @@ pub fn has_timezone_offset(date_str: &str) -> bool;
 #### 2.4 Image Processing Module
 
 ```rust
-// crates/s-blog-engine/src/image.rs
+// crates/s-blog-engine/src/image_proc.rs
 
 /// 生成缩略图
 pub fn generate_thumbnail(
@@ -910,7 +910,7 @@ npm test                   # 运行所有测试
    - frontmatter.rs (Frontmatter 解析)
    - timezone.rs (时区处理)
    - posts.rs (文章清单生成)
-   - image.rs (缩略图生成)
+   - image_proc.rs (缩略图生成)
    - exif.rs (EXIF 读取)
    - albums.rs (相册数据生成)
    - seo.rs (SEO 页面生成)

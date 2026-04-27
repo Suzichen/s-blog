@@ -1,0 +1,18 @@
+[package]
+name = "s-blog-engine-napi"
+version = "0.1.0"
+edition = "2021"
+description = "NAPI-RS bindings for s-blog-engine — exposes the Rust engine to Node.js"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+s-blog-engine = { path = "../s-blog-engine", features = ["napi"] }
+napi = { version = "2", default-features = false, features = ["napi4"] }
+napi-derive = "2"
+serde_json = "1.0"
+
+[build-dependencies]
+napi-build = "2"

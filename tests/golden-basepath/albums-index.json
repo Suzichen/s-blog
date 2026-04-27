@@ -1,0 +1,20 @@
+[
+  {
+    "dirname": "test-album",
+    "name": "test-album",
+    "cover": "/albums/test-album/thumbs/photo1.webp",
+    "photoCount": 2
+  },
+  {
+    "dirname": "empty-album",
+    "name": "Empty Album",
+    "cover": null,
+    "photoCount": 0
+  },
+  {
+    "dirname": "sakura-exif",
+    "name": "Sakura EXIF",
+    "cover": "/albums/sakura-exif/thumbs/DSC_1666.webp",
+    "photoCount": 3
+  }
+]

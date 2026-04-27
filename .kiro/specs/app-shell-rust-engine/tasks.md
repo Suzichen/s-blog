@@ -121,8 +121,8 @@
   - Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 1.8.1, 1.8.2, 1.8.3, 1.8.4_
 
-- [ ] 9. Phase 1 遗留修复（Phase 2 前置）
-  - [ ] 9.1 修复 `@s-blog/core` npm 发布 `files` 字段
+- [x] 9. Phase 1 遗留修复（Phase 2 前置）
+  - [x] 9.1 修复 `@s-blog/core` npm 发布 `files` 字段
     - 当前 `files` 为 `["dist/", "scripts/"]`，缺少 `schemas/` 目录
     - 用户通过 `$schema` 引用 unpkg 上的 schema 文件时会 404
     - 将 `schemas/` 加入 `files` 数组
@@ -131,67 +131,67 @@
 
 ## Phase 2: Rust 引擎开发
 
-- [ ] 10. 测试基础设施搭建
-  - [ ] 10.1 创建测试 fixtures 目录结构
+- [x] 10. 测试基础设施搭建
+  - [x] 10.1 创建测试 fixtures 目录结构
     - 创建 `tests/fixtures/posts/` 包含各类测试 Markdown 文件
     - 创建 `tests/fixtures/albums/` 包含测试图片
     - 创建 `tests/fixtures/config.json` 和 `album.config.json`
     - ⚠️ fixtures 中的 config.json / album.config.json 必须与 Phase 1 改造后的 JSON 格式一致（脚本已改为读取 JSON 配置），确保字段名和结构匹配
     - _Requirements: 2.0.1, 2.0.2_
 
-  - [ ] 10.2 运行 TS 脚本生成 golden files
+  - [x] 10.2 运行 TS 脚本生成 golden files
     - 使用 fixtures 运行所有 TS 脚本
     - 将输出保存到 `tests/golden/` 目录
     - _Requirements: 2.0.3_
 
-  - [ ] 10.3 创建跨实现验证测试框架
+  - [x] 10.3 创建跨实现验证测试框架
     - 设置 `npm test` 命令运行验证测试
     - 实现 Rust 输出与 TS 输出的比对逻辑
     - _Requirements: 2.0.4, 2.0.5_
 
-- [ ] 11. Rust 项目初始化
-  - [ ] 11.1 创建 Rust workspace 和 crate 结构
+- [x] 11. Rust 项目初始化
+  - [x] 11.1 创建 Rust workspace 和 crate 结构
     - 创建 `crates/s-blog-engine/` 核心库
     - 创建 `crates/s-blog-engine-napi/` NAPI 绑定层
     - 配置 Cargo.toml 依赖
     - ⚠️ 所有路径处理须使用跨平台规范化（Windows 反斜杠 vs Unix 正斜杠），建议统一使用 `/` 作为路径分隔符输出，内部使用 `std::path::Path` 处理
     - _Requirements: 2.10.1, 2.10.5_
 
-- [ ] 12. Frontmatter 解析模块
-  - [ ] 12.1 实现 frontmatter.rs 模块
+- [x] 12. Frontmatter 解析模块
+  - [x] 12.1 实现 frontmatter.rs 模块
     - 实现 YAML frontmatter 解析（`---` 分隔符）
     - 解析 title, date, tags, categories, preview, description, excerpt 字段
     - 实现 tags/categories 数组规范化（支持空格/逗号分隔）
     - 处理无效日期格式（警告并使用空字符串）
     - _Requirements: 2.1.1, 2.1.2, 2.1.3, 2.1.4_
 
-  - [ ]* 12.2 编写 Frontmatter 单元测试
+  - [x]* 12.2 编写 Frontmatter 单元测试
     - 测试各种 frontmatter 格式
     - 测试边界情况和错误处理
     - _Requirements: 2.1.6_
 
-  - [ ]* 12.3 编写 Frontmatter Round-Trip 属性测试
+  - [x]* 12.3 编写 Frontmatter Round-Trip 属性测试
     - **Property 1: Frontmatter Round-Trip**
     - **Validates: Requirements 2.1.1, 2.1.2, 2.1.5**
 
-  - [ ]* 12.4 编写 Tag/Category 规范化属性测试
+  - [x]* 12.4 编写 Tag/Category 规范化属性测试
     - **Property 2: Tag/Category Normalization**
     - **Validates: Requirements 2.1.3**
 
-- [ ] 13. 时区处理模块
-  - [ ] 13.1 实现 timezone.rs 模块
+- [x] 13. 时区处理模块
+  - [x] 13.1 实现 timezone.rs 模块
     - 实现日期时区转换
     - 处理无时区偏移的日期（视为 UTC）
     - 处理无效时区标识符（警告并回退到 UTC）
     - 输出 ISO 8601 格式（无时区后缀）
     - _Requirements: 2.2.1, 2.2.2, 2.2.3, 2.2.4_
 
-  - [ ]* 13.2 编写时区转换属性测试
+  - [x] 13.2 编写时区转换属性测试
     - **Property 3: Timezone Conversion Correctness**
     - **Validates: Requirements 2.2.1, 2.2.4**
 
-- [ ] 14. 文章清单生成模块
-  - [ ] 14.1 实现 posts.rs 模块
+- [x] 14. 文章清单生成模块
+  - [x] 14.1 实现 posts.rs 模块
     - 扫描 posts 目录生成 manifest.json
     - 包含 slug, title, date, tags, categories, summary
     - 按日期降序排序
@@ -199,22 +199,22 @@
     - 处理目录不存在错误
     - _Requirements: 2.3.1, 2.3.2, 2.3.3, 2.3.4, 2.3.5_
 
-  - [ ]* 14.2 编写文章清单生成测试
+  - [x] 14.2 编写文章清单生成测试
     - 验证输出与 TS 脚本一致
     - _Requirements: 2.3.6_
 
-  - [ ]* 14.3 编写 Manifest 完整性属性测试
+  - [x] 14.3 编写 Manifest 完整性属性测试
     - **Property 4: Manifest Generation Completeness**
     - **Validates: Requirements 2.3.1, 2.3.2, 2.3.3**
 
-- [ ] 15. Checkpoint - Rust 核心解析模块验证
+- [x] 15. Checkpoint - Rust 核心解析模块验证
   - 验证 Frontmatter、时区、文章清单模块通过所有测试
   - 验证 Rust 输出与 TS golden files 一致
   - 验证根项目 `npm run dev` / `npm run build` 仍能正常工作（防止回归）
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 16. 图片处理模块
-  - [ ] 16.1 实现 image.rs 缩略图生成模块
+  - [ ] 16.1 实现 image_proc.rs 缩略图生成模块
     - 生成 WebP 缩略图（最长边不超过 1080px）
     - 保持原始宽高比
     - 支持 JPEG, PNG, WebP 输入格式
