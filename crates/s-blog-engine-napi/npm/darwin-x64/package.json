@@ -1,0 +1,13 @@
+{
+  "name": "@s-blog/engine-darwin-x64",
+  "version": "0.1.0",
+  "description": "s-blog-engine native binding for macOS x64 (Intel)",
+  "license": "MIT",
+  "os": ["darwin"],
+  "cpu": ["x64"],
+  "main": "s-blog-engine-napi.darwin-x64.node",
+  "files": ["s-blog-engine-napi.darwin-x64.node"],
+  "engines": {
+    "node": ">= 16"
+  }
+}

@@ -315,23 +315,24 @@
   - 验证根项目 `npm run dev` / `npm run build` 仍能正常工作（防止回归）
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 24. NAPI-RS 绑定层
-  - [ ] 24.1 实现 NAPI-RS 绑定
+- [x] 24. NAPI-RS 绑定层
+  - [x] 24.1 实现 NAPI-RS 绑定
+    - 考虑并决定此package在仓库中的位置
     - 暴露 generatePostsData, generateAlbumsData, generateSeoPages, generateSitemap, generateRss 函数
     - 实现 JSON 字符串参数传递
     - _Requirements: 2.9.1_
 
-  - [ ] 24.2 配置多平台构建
+  - [x] 24.2 配置多平台构建
     - 配置 GitHub Actions 构建 Windows/Mac/Linux 二进制
     - 发布平台特定 npm 包
     - _Requirements: 2.9.2, 2.9.3, 2.9.4_
 
-  - [ ] 24.3 生成 TypeScript 类型定义
+  - [x] 24.3 生成 TypeScript 类型定义
     - 为所有导出函数生成 .d.ts 文件
     - _Requirements: 2.9.5_
 
-- [ ] 25. Tauri Admin 集成说明
-  - [ ] 25.1 编写 Rust 引擎集成文档
+- [x] 25. Tauri Admin 集成说明
+  - [x] 25.1 编写 Rust 引擎集成文档
     - 说明如何作为 Cargo 依赖使用
     - 提供 API 使用示例
     - _Requirements: 2.10.2, 2.10.3, 2.10.4_

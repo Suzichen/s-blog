@@ -1,0 +1,13 @@
+{
+  "name": "@s-blog/engine-darwin-arm64",
+  "version": "0.1.0",
+  "description": "s-blog-engine native binding for macOS ARM64 (Apple Silicon)",
+  "license": "MIT",
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  "main": "s-blog-engine-napi.darwin-arm64.node",
+  "files": ["s-blog-engine-napi.darwin-arm64.node"],
+  "engines": {
+    "node": ">= 16"
+  }
+}

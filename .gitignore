@@ -35,3 +35,7 @@ tests/.tmp-test*
 
 # Rust build artifacts
 /target
+
+# NAPI-RS native binaries (built by CI)
+*.node
+crates/s-blog-engine-napi/artifacts/
