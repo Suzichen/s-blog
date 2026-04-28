@@ -1,0 +1,13 @@
+{
+  "name": "@s-blog/engine-win32-x64-msvc",
+  "version": "0.1.0",
+  "description": "s-blog-engine native binding for Windows x64",
+  "license": "MIT",
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "main": "s-blog-engine-napi.win32-x64-msvc.node",
+  "files": ["s-blog-engine-napi.win32-x64-msvc.node"],
+  "engines": {
+    "node": ">= 16"
+  }
+}

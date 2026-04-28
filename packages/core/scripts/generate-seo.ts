@@ -112,46 +112,65 @@ function generateSEOHtml(post: PostMetadata, config: SiteConfig, basePath: strin
   const keywords = [...tags, ...categories].join(', ');
   const publishDate = date || new Date().toISOString();
 
-  const jsonLd = siteUrl ? {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": title,
-    "description": summary,
-    "author": {
-      "@type": "Person",
-      "name": author || "Anonymous"
-    },
-    "datePublished": publishDate,
-    "url": postUrl,
-    "keywords": keywords
-  } : null;
+  // Build SEO tags imperatively to avoid spurious blank lines from
+  // template-literal conditionals (e.g. when keywords or author is empty).
+  let out = '';
 
-  return `
-  <title>${escapeHtml(title)}</title>
-  <meta name="title" content="${escapeHtml(title)}">
-  <meta name="description" content="${escapeHtml(summary)}">
-  ${keywords ? `<meta name="keywords" content="${escapeHtml(keywords)}">` : ''}
-  ${author ? `<meta name="author" content="${escapeHtml(author)}">` : ''}
-  <meta name="robots" content="index, follow">
-  ${postUrl ? `<link rel="canonical" href="${postUrl}">` : ''}
+  // --- basic meta ---
+  out += `\n  <title>${escapeHtml(title)}</title>`;
+  out += `\n  <meta name="title" content="${escapeHtml(title)}">`;
+  out += `\n  <meta name="description" content="${escapeHtml(summary)}">`;
+  if (keywords) {
+    out += `\n  <meta name="keywords" content="${escapeHtml(keywords)}">`;
+  }
+  if (author) {
+    out += `\n  <meta name="author" content="${escapeHtml(author)}">`;
+  }
+  out += `\n  <meta name="robots" content="index, follow">`;
+  if (postUrl) {
+    out += `\n  <link rel="canonical" href="${postUrl}">`;
+  }
 
-  ${siteUrl ? `<meta property="og:type" content="article">
-  <meta property="og:url" content="${postUrl}">
-  <meta property="og:title" content="${escapeHtml(title)}">
-  <meta property="og:description" content="${escapeHtml(summary)}">
-  <meta property="og:site_name" content="${escapeHtml(config.title)}">
-  <meta property="article:published_time" content="${publishDate}">
-  ${author ? `<meta property="article:author" content="${escapeHtml(author)}">` : ''}
-  ${tags.map(tag => `<meta property="article:tag" content="${escapeHtml(tag)}">`).join('\n  ')}
+  // --- Open Graph + Twitter (only when siteUrl is set) ---
+  if (siteUrl) {
+    out += `\n\n  <meta property="og:type" content="article">`;
+    out += `\n  <meta property="og:url" content="${postUrl}">`;
+    out += `\n  <meta property="og:title" content="${escapeHtml(title)}">`;
+    out += `\n  <meta property="og:description" content="${escapeHtml(summary)}">`;
+    out += `\n  <meta property="og:site_name" content="${escapeHtml(config.title)}">`;
+    out += `\n  <meta property="article:published_time" content="${publishDate}">`;
+    if (author) {
+      out += `\n  <meta property="article:author" content="${escapeHtml(author)}">`;
+    }
+    for (const tag of tags) {
+      out += `\n  <meta property="article:tag" content="${escapeHtml(tag)}">`;
+    }
 
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:url" content="${postUrl}">
-  <meta name="twitter:title" content="${escapeHtml(title)}">
-  <meta name="twitter:description" content="${escapeHtml(summary)}">` : ''}
+    out += `\n\n  <meta name="twitter:card" content="summary">`;
+    out += `\n  <meta name="twitter:url" content="${postUrl}">`;
+    out += `\n  <meta name="twitter:title" content="${escapeHtml(title)}">`;
+    out += `\n  <meta name="twitter:description" content="${escapeHtml(summary)}">`;
+  }
 
-  ${jsonLd ? `<script type="application/ld+json">
-${JSON.stringify(jsonLd, null, 2)}
-  </script>` : ''}`;
+  // --- JSON-LD (only when siteUrl is set) ---
+  if (siteUrl) {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title,
+      "description": summary,
+      "author": {
+        "@type": "Person",
+        "name": author || "Anonymous"
+      },
+      "datePublished": publishDate,
+      "url": postUrl,
+      "keywords": keywords
+    };
+    out += `\n\n  <script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n  </script>`;
+  }
+
+  return out;
 }
 
 function main() {

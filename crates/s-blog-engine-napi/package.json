@@ -1,0 +1,42 @@
+{
+  "name": "@s-blog/engine",
+  "version": "0.1.0",
+  "description": "Rust-powered data engine for s-blog — Markdown parsing, image processing, SEO/feed generation",
+  "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "napi": {
+    "binaryName": "s-blog-engine-napi",
+    "targets": [
+      "x86_64-pc-windows-msvc",
+      "aarch64-apple-darwin",
+      "x86_64-apple-darwin",
+      "x86_64-unknown-linux-gnu"
+    ]
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm"
+  },
+  "optionalDependencies": {
+    "@s-blog/engine-win32-x64-msvc": "0.1.0",
+    "@s-blog/engine-darwin-arm64": "0.1.0",
+    "@s-blog/engine-darwin-x64": "0.1.0",
+    "@s-blog/engine-linux-x64-gnu": "0.1.0"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/s-blog"
+  },
+  "engines": {
+    "node": ">= 16"
+  }
+}

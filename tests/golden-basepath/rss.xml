@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Test Blog</title>
+    <description>A test blog for fixture-based testing</description>
+    <link>https://test-blog.example.com/blog/</link>
+    <language>en</language>
+    <lastBuildDate>Tue, 28 Apr 2026 05:11:43 GMT</lastBuildDate>
+    <atom:link href="https://test-blog.example.com/blog/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Comma Separated Tags</title>
+      <description>This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.  C...</description>
+      <link>https://test-blog.example.com/blog/post/comma-separated-tags</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/comma-separated-tags</guid>
+      <pubDate>Wed, 22 May 2024 07:45:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Backend</category>
+      <category>Systems</category>
+      <category>python</category>
+      <category>rust</category>
+      <category>go</category>
+    </item>
+    <item>
+      <title>Post With Invalid Date</title>
+      <description>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...</description>
+      <link>https://test-blog.example.com/blog/post/invalid-date</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/invalid-date</guid>
+      <pubDate>Tue, 28 Apr 2026 05:11:43 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Testing</category>
+      <category>edge-case</category>
+    </item>
+    <item>
+      <title>no-frontmatter</title>
+      <description>This is a post with no frontmatter at all. It starts directly with content.  The parser should handle this edge case gracefully. The slug ...</description>
+      <link>https://test-blog.example.com/blog/post/no-frontmatter</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/no-frontmatter</guid>
+      <pubDate>Tue, 28 Apr 2026 05:11:43 GMT</pubDate>
+      <author>Test Author</author>
+    </item>
+    <item>
+      <title>Post With Description Field</title>
+      <description>This summary comes from the description field, not preview or body content.</description>
+      <link>https://test-blog.example.com/blog/post/with-description</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-description</guid>
+      <pubDate>Sat, 10 Aug 2024 02:00:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Content</category>
+      <category>description</category>
+      <category>metadata</category>
+    </item>
+    <item>
+      <title>Post With Explicit Preview</title>
+      <description>This is a custom preview text that should be used instead of auto-generated summary.</description>
+      <link>https://test-blog.example.com/blog/post/with-preview</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-preview</guid>
+      <pubDate>Sun, 30 Jun 2024 23:00:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Content</category>
+      <category>preview</category>
+      <category>summary</category>
+    </item>
+    <item>
+      <title>Post With Timezone</title>
+      <description>This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...</description>
+      <link>https://test-blog.example.com/blog/post/with-timezone</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-timezone</guid>
+      <pubDate>Sat, 15 Jun 2024 01:30:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Technical</category>
+      <category>timezone</category>
+      <category>date-handling</category>
+    </item>
+    <item>
+      <title>Space Separated Tags</title>
+      <description>This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into prope...</description>
+      <link>https://test-blog.example.com/blog/post/space-separated-tags</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/space-separated-tags</guid>
+      <pubDate>Wed, 10 Apr 2024 00:00:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Frontend</category>
+      <category>react</category>
+      <category>vue</category>
+      <category>angular</category>
+    </item>
+    <item>
+      <title>Post With Tags and Categories</title>
+      <description>This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.  Tags ar...</description>
+      <link>https://test-blog.example.com/blog/post/with-tags</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-tags</guid>
+      <pubDate>Wed, 20 Mar 2024 05:30:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Development</category>
+      <category>Tutorial</category>
+      <category>javascript</category>
+      <category>typescript</category>
+      <category>testing</category>
+    </item>
+    <item>
+      <title>Post With Excerpt Field</title>
+      <description>This summary comes from the excerpt field, the lowest priority custom field.</description>
+      <link>https://test-blog.example.com/blog/post/with-excerpt</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-excerpt</guid>
+      <pubDate>Wed, 28 Feb 2024 06:30:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Content</category>
+      <category>excerpt</category>
+      <category>metadata</category>
+    </item>
+    <item>
+      <title>Simple Post</title>
+      <description>This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.  The po...</description>
+      <link>https://test-blog.example.com/blog/post/simple</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/simple</guid>
+      <pubDate>Mon, 15 Jan 2024 01:00:00 GMT</pubDate>
+      <author>Test Author</author>
+    </item>
+  </channel>
+</rss>

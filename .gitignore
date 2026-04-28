@@ -28,3 +28,14 @@ dist-ssr
 
 # User test files
 testes
+
+# Golden file generation temp directories
+tests/.tmp
+tests/.tmp-test*
+
+# Rust build artifacts
+/target
+
+# NAPI-RS native binaries (built by CI)
+*.node
+crates/s-blog-engine-napi/artifacts/

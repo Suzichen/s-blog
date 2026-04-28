@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/s-blog-engine",
+    "crates/s-blog-engine-napi",
+]
+
+# Optimise image-heavy deps even in dev/test builds so that thumbnail
+# generation doesn't take minutes in debug mode.
+[profile.dev.package.image]
+opt-level = 3
+
+[profile.dev.package.webp]
+opt-level = 3

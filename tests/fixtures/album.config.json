@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "test-album" },
+    { "dir": "empty-album", "name": "Empty Album", "cover": "nonexistent.jpg" },
+    { "dir": "sakura-exif", "name": "Sakura EXIF", "cover": "DSC_1666.jpg" }
+  ]
+}
