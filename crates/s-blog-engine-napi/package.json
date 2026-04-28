@@ -14,7 +14,6 @@
     "targets": [
       "x86_64-pc-windows-msvc",
       "aarch64-apple-darwin",
-      "x86_64-apple-darwin",
       "x86_64-unknown-linux-gnu"
     ]
   },
@@ -26,7 +25,6 @@
   "optionalDependencies": {
     "@s-blog/engine-win32-x64-msvc": "0.1.0",
     "@s-blog/engine-darwin-arm64": "0.1.0",
-    "@s-blog/engine-darwin-x64": "0.1.0",
     "@s-blog/engine-linux-x64-gnu": "0.1.0"
   },
   "devDependencies": {
