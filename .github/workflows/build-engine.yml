@@ -22,9 +22,6 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
             npm-dir: npm/darwin-arm64
-          - os: macos-13
-            target: x86_64-apple-darwin
-            npm-dir: npm/darwin-x64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             npm-dir: npm/linux-x64-gnu
@@ -100,7 +97,6 @@ jobs:
             case "$target" in
               x86_64-pc-windows-msvc)   dest="npm/win32-x64-msvc" ;;
               aarch64-apple-darwin)     dest="npm/darwin-arm64" ;;
-              x86_64-apple-darwin)      dest="npm/darwin-x64" ;;
               x86_64-unknown-linux-gnu) dest="npm/linux-x64-gnu" ;;
               *) echo "Unknown target: $target"; continue ;;
             esac
