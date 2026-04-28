@@ -5,8 +5,8 @@
   "license": "MIT",
   "os": ["darwin"],
   "cpu": ["arm64"],
-  "main": "s-blog-engine-napi.darwin-arm64.node",
-  "files": ["s-blog-engine-napi.darwin-arm64.node"],
+  "main": "index.darwin-arm64.node",
+  "files": ["index.darwin-arm64.node"],
   "engines": {
     "node": ">= 16"
   }
