@@ -213,8 +213,8 @@
   - 验证根项目 `npm run dev` / `npm run build` 仍能正常工作（防止回归）
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. 图片处理模块
-  - [ ] 16.1 实现 image_proc.rs 缩略图生成模块
+- [x] 16. 图片处理模块
+  - [x] 16.1 实现 image_proc.rs 缩略图生成模块
     - 生成 WebP 缩略图（最长边不超过 1080px）
     - 保持原始宽高比
     - 支持 JPEG, PNG, WebP 输入格式
@@ -222,24 +222,24 @@
     - 处理解码失败（警告并跳过）
     - _Requirements: 2.4.1, 2.4.2, 2.4.3, 2.4.5, 2.4.6_
 
-  - [ ]* 16.2 编写缩略图尺寸约束属性测试
+  - [x] 16.2 编写缩略图尺寸约束属性测试
     - **Property 5: Thumbnail Size Constraint**
     - **Validates: Requirements 2.4.1, 2.4.2**
 
-- [ ] 17. EXIF 读取模块
-  - [ ] 17.1 实现 exif.rs 模块
+- [x] 17. EXIF 读取模块
+  - [x] 17.1 实现 exif.rs 模块
     - 提取 Make, Model, FocalLength, FNumber, ExposureTime, ISO
     - 格式化 ExposureTime 为分数（如 1/250）
     - FocalLength 四舍五入到整数
     - 处理无法读取 EXIF 的情况（返回 null）
     - _Requirements: 2.5.1, 2.5.2, 2.5.3, 2.5.4_
 
-  - [ ]* 17.2 编写 EXIF 格式化属性测试
+  - [x] 17.2 编写 EXIF 格式化属性测试
     - **Property 6: EXIF Formatting**
     - **Validates: Requirements 2.5.2, 2.5.3**
 
-- [ ] 18. 相册数据生成模块
-  - [ ] 18.1 实现 albums.rs 模块
+- [x] 18. 相册数据生成模块
+  - [x] 18.1 实现 albums.rs 模块
     - 生成 albums-index.json（所有相册摘要）
     - 为每个相册生成 album-{dirname}.json
     - 包含 dirname, name, cover, photoCount
@@ -247,22 +247,22 @@
     - 处理相册模块禁用（生成空 albums-index.json）
     - _Requirements: 2.6.1, 2.6.2, 2.6.3, 2.6.4, 2.6.5_
 
-  - [ ]* 18.2 编写相册数据生成测试
+  - [x] 18.2 编写相册数据生成测试
     - 验证输出与 TS 脚本一致
     - _Requirements: 2.6.6_
 
-  - [ ]* 18.3 编写相册数据完整性属性测试
+  - [x] 18.3 编写相册数据完整性属性测试
     - **Property 7: Album Data Completeness**
     - **Validates: Requirements 2.6.1, 2.6.2, 2.6.3**
 
-- [ ] 19. Checkpoint - Rust 图片处理模块验证
+- [x] 19. Checkpoint - Rust 图片处理模块验证
   - 验证图片处理、EXIF、相册模块通过所有测试
   - 验证 Rust 输出与 TS golden files 一致
   - 验证根项目 `npm run dev` / `npm run build` 仍能正常工作（防止回归）
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 20. SEO 页面生成模块
-  - [ ] 20.1 实现 seo.rs 模块
+- [x] 20. SEO 页面生成模块
+  - [x] 20.1 实现 seo.rs 模块
     - 为每篇文章生成 `dist/post/{slug}/index.html`
     - 注入 title, meta description, meta keywords, canonical link
     - 注入 Open Graph 标签
@@ -271,45 +271,45 @@
     - 使用 App Shell 的 index.html 作为模板
     - _Requirements: 2.7.1, 2.7.2, 2.7.3, 2.7.4, 2.7.5, 2.7.6_
 
-  - [ ]* 20.2 编写 SEO 页面生成测试
+  - [x] 20.2 编写 SEO 页面生成测试
     - 验证输出与 TS 脚本一致
     - _Requirements: 2.7.7_
 
-  - [ ]* 20.3 编写 SEO 页面完整性属性测试
+  - [x] 20.3 编写 SEO 页面完整性属性测试
     - **Property 8: SEO Page Completeness**
     - **Validates: Requirements 2.7.1, 2.7.2, 2.7.3, 2.7.4, 2.7.5**
 
-- [ ] 21. Sitemap 和 RSS 生成模块
-  - [ ] 21.1 实现 sitemap.rs 模块
+- [x] 21. Sitemap 和 RSS 生成模块
+  - [x] 21.1 实现 sitemap.rs 模块
     - 生成符合 Sitemaps 协议的 sitemap.xml
     - 首页 URL priority 1.0，文章 URL priority 0.8
     - _Requirements: 2.8.1, 2.8.2_
 
-  - [ ] 21.2 实现 rss.rs 模块
+  - [x] 21.2 实现 rss.rs 模块
     - 生成符合 RSS 2.0 规范的 rss.xml
     - 包含 channel 元数据和所有文章 item
     - 处理 siteUrl 未配置（警告并跳过）
     - _Requirements: 2.8.3, 2.8.4, 2.8.5_
 
-  - [ ]* 21.3 编写 Sitemap/RSS 生成测试
+  - [x] 21.3 编写 Sitemap/RSS 生成测试
     - 验证输出与 TS 脚本一致（排除动态时间戳）
     - _Requirements: 2.8.6_
 
-  - [ ]* 21.4 编写 Feed 完整性属性测试
+  - [x] 21.4 编写 Feed 完整性属性测试
     - **Property 9: Feed Completeness**
     - **Validates: Requirements 2.8.2, 2.8.4**
 
-- [ ] 22. BasePath 路径处理
-  - [ ] 22.1 实现 basePath 路径前缀处理
+- [x] 22. BasePath 路径处理
+  - [x] 22.1 实现 basePath 路径前缀处理
     - 在所有生成的资源路径中正确添加 basePath 前缀
     - 正确处理尾部斜杠
     - _Requirements: 1.5.5_
 
-  - [ ]* 22.2 编写 BasePath 前缀属性测试
+  - [x] 22.2 编写 BasePath 前缀属性测试
     - **Property 10: BasePath Prefixing**
     - **Validates: Requirements 1.5.5**
 
-- [ ] 23. Checkpoint - Rust SEO/Feed 模块验证
+- [x] 23. Checkpoint - Rust SEO/Feed 模块验证
   - 验证 SEO、Sitemap、RSS 模块通过所有测试
   - 验证 Rust 输出与 TS golden files 一致
   - 验证根项目 `npm run dev` / `npm run build` 仍能正常工作（防止回归）

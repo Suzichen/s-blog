@@ -48,6 +48,41 @@ pub fn prefix_with_base(base_path: &str, path: &str) -> String {
     }
 }
 
+/// Normalize an `Option<&str>` base-path into a URL prefix string.
+///
+/// Returns `""` for `None`, `Some("")`, or `Some("/")`.
+/// Returns a leading-slash, no-trailing-slash string like `"/blog"` otherwise.
+///
+/// This is the single canonical helper that all modules (seo, sitemap,
+/// rss, albums, robots) should use instead of duplicating the logic.
+pub fn normalize_base_path_option(base_path: Option<&str>) -> String {
+    match base_path {
+        None => String::new(),
+        Some(bp) => {
+            let normalized = normalize_base_path(bp);
+            if normalized == "/" {
+                String::new()
+            } else {
+                normalized
+            }
+        }
+    }
+}
+
+/// Build a full URL: `{site_url}{base_path}{relative_path}`.
+///
+/// - `site_url` trailing slashes are stripped.
+/// - `relative_path` gets a leading `/` if it doesn't have one.
+pub fn build_full_url(site_url: &str, base_path: &str, relative_path: &str) -> String {
+    let base_url = site_url.trim_end_matches('/');
+    let path = if relative_path.starts_with('/') {
+        relative_path.to_string()
+    } else {
+        format!("/{}", relative_path)
+    };
+    format!("{}{}{}", base_url, base_path, path)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,6 +113,55 @@ mod tests {
         assert_eq!(
             prefix_with_base("/blog", "/posts/hello"),
             "/blog/posts/hello"
+        );
+    }
+
+    #[test]
+    fn normalize_base_path_option_none() {
+        assert_eq!(normalize_base_path_option(None), "");
+    }
+
+    #[test]
+    fn normalize_base_path_option_root() {
+        assert_eq!(normalize_base_path_option(Some("/")), "");
+        assert_eq!(normalize_base_path_option(Some("")), "");
+    }
+
+    #[test]
+    fn normalize_base_path_option_subdir() {
+        assert_eq!(normalize_base_path_option(Some("/blog")), "/blog");
+        assert_eq!(normalize_base_path_option(Some("/blog/")), "/blog");
+    }
+
+    #[test]
+    fn build_full_url_basic() {
+        assert_eq!(
+            build_full_url("https://example.com", "", "/post/hello"),
+            "https://example.com/post/hello"
+        );
+    }
+
+    #[test]
+    fn build_full_url_with_base_path() {
+        assert_eq!(
+            build_full_url("https://example.com", "/blog", "/post/hello"),
+            "https://example.com/blog/post/hello"
+        );
+    }
+
+    #[test]
+    fn build_full_url_strips_trailing_slash() {
+        assert_eq!(
+            build_full_url("https://example.com/", "", "/post/hello"),
+            "https://example.com/post/hello"
+        );
+    }
+
+    #[test]
+    fn build_full_url_adds_leading_slash() {
+        assert_eq!(
+            build_full_url("https://example.com", "", "post/hello"),
+            "https://example.com/post/hello"
         );
     }
 }

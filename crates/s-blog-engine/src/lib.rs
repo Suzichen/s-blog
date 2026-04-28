@@ -16,6 +16,7 @@ pub mod albums;
 pub mod seo;
 pub mod sitemap;
 pub mod rss;
+pub mod robots;
 pub mod path_util;
 
 // Re-export primary types for convenience.
