@@ -54,19 +54,22 @@ jobs:
       - name: Build native module
         run: npx napi build --platform --release --target ${{ matrix.target }}
 
+      - name: List build output
+        shell: bash
+        run: ls -la *.node 2>/dev/null || echo "No .node files found in cwd"
+
       - name: Copy artifact to platform package
         shell: bash
         run: |
-          # napi build outputs s_blog_engine_napi.{node,dll,...} in the cwd
-          cp s-blog-engine-napi.*.node ${{ matrix.npm-dir }}/ 2>/dev/null || \
-          cp s_blog_engine_napi.*.node ${{ matrix.npm-dir }}/ 2>/dev/null || true
+          # napi build --platform outputs index.<target>.node in the cwd
+          cp index.*.node ${{ matrix.npm-dir }}/ 2>/dev/null || true
           ls -la ${{ matrix.npm-dir }}/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: crates/s-blog-engine-napi/${{ matrix.npm-dir }}/*.node
+          path: crates/s-blog-engine-napi/${{ matrix.npm-dir }}/index.*.node
           if-no-files-found: error
 
   publish:
@@ -101,7 +104,8 @@ jobs:
               x86_64-unknown-linux-gnu) dest="npm/linux-x64-gnu" ;;
               *) echo "Unknown target: $target"; continue ;;
             esac
-            cp "$dir"/*.node "$dest"/
+            # upload-artifact may nest files; find them recursively
+            find "$dir" -name '*.node' -exec cp {} "$dest"/ \;
             echo "Copied $target -> $dest"
             ls -la "$dest"/
           done

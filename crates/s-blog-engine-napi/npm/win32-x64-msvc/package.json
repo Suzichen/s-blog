@@ -5,8 +5,8 @@
   "license": "MIT",
   "os": ["win32"],
   "cpu": ["x64"],
-  "main": "s-blog-engine-napi.win32-x64-msvc.node",
-  "files": ["s-blog-engine-napi.win32-x64-msvc.node"],
+  "main": "index.win32-x64-msvc.node",
+  "files": ["index.win32-x64-msvc.node"],
   "engines": {
     "node": ">= 16"
   }
