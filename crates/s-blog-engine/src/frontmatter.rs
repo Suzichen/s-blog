@@ -26,6 +26,8 @@ pub struct FrontmatterData {
 /// Returns `(yaml_str, body)`. If no frontmatter is found the yaml
 /// portion is empty and body is the full input.
 fn split_frontmatter(content: &str) -> (&str, &str) {
+    // Strip UTF-8 BOM if present
+    let content = content.strip_prefix('\u{FEFF}').unwrap_or(content);
     let trimmed = content.trim_start();
     if !trimmed.starts_with("---") {
         return ("", content);
@@ -387,6 +389,23 @@ Body content here.
         let (yaml, body) = split_frontmatter(md);
         assert_eq!(yaml, "title: test");
         assert_eq!(body, "Body");
+    }
+
+    #[test]
+    fn split_frontmatter_handles_utf8_bom() {
+        let md = "\u{FEFF}---\ntitle: BOM Test\ndate: 2025-01-15 10:30:00\n---\nBody";
+        let (yaml, body) = split_frontmatter(md);
+        assert!(yaml.contains("title: BOM Test"), "BOM should not prevent frontmatter parsing, got yaml: {:?}", yaml);
+        assert_eq!(body, "Body");
+    }
+
+    #[test]
+    fn parse_frontmatter_with_utf8_bom() {
+        let md = "\u{FEFF}---\ntitle: BOM Post\ndate: 2025-01-15 10:30:00\ntags: [test]\n---\nBody content";
+        let (fm, body) = parse_frontmatter(md, "bom.md").unwrap();
+        assert_eq!(fm.title.as_deref(), Some("BOM Post"));
+        assert_eq!(fm.date.as_deref(), Some("2025-01-15 10:30:00"));
+        assert_eq!(body, "Body content");
     }
 
     // ── Edge-case tests added during review ────────────────────────

@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine-linux-x64-gnu",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "s-blog-engine native binding for Linux x64 (glibc)",
   "license": "MIT",
   "os": ["linux"],
