@@ -2,11 +2,14 @@
  * 临时的Rust完整构建脚本 — 使用 @s-blog/engine (Rust) 替代所有 TS 脚本
  *
  * 等价于: build:shell + build:posts + build:albums + build:public + build:seo
- * 用法: node build-rust.cjs
+ * 用法: node build-rust.cjs          (production build)
+ *        node build-rust.cjs --dev    (dev mode: generate data into public/ only)
  */
 const fs = require("fs");
 const path = require("path");
 const engine = require("@s-blog/engine");
+
+const isDev = process.argv.includes("--dev");
 
 const CWD = process.cwd();
 const DIST_DIR = path.join(CWD, "dist");
@@ -30,6 +33,33 @@ function copyDir(src, dest) {
     }
     return count;
 }
+
+// ── Dev mode: generate manifest + albums data into public/ ──
+if (isDev) {
+    console.log("🚀 Dev mode: generating data into public/\n");
+
+    const configRaw = fs.readFileSync(path.join(CWD, "config.json"), "utf-8");
+    const albumConfigRaw = fs.readFileSync(
+        path.join(CWD, "album.config.json"),
+        "utf-8",
+    );
+
+    // Generate posts manifest → public/generated/manifest.json (+ copies .md to public/posts/)
+    console.log("[1/2] generatePostsData → public/");
+    const postsResult = engine.generatePostsData("posts", "public", configRaw);
+    const manifest = JSON.parse(postsResult);
+    console.log(`  ✅ ${manifest.length} 篇文章\n`);
+
+    // Generate albums data → public/generated/
+    console.log("[2/2] generateAlbumsData → public/");
+    engine.generateAlbumsData("albums", "public", albumConfigRaw, configRaw);
+    console.log("  ✅ 相册数据\n");
+
+    console.log("✨ Dev data ready — start Vite to serve the app");
+    process.exit(0);
+}
+
+// ── Production build ──
 
 // ── Step 0: 清理 dist ──
 if (fs.existsSync(DIST_DIR)) {
@@ -83,13 +113,13 @@ const albumConfigRaw = fs.readFileSync(
     path.join(CWD, "album.config.json"),
     "utf-8",
 );
-const postsResult = engine.generatePostsData("posts", "public", configRaw);
+const postsResult = engine.generatePostsData("posts", "dist", configRaw);
 const manifest = JSON.parse(postsResult);
 console.log(`  ✅ ${manifest.length} 篇文章\n`);
 
 // ── Step 3: Rust 引擎 — 生成相册数据 ──
 console.log("[3/6] generateAlbumsData");
-engine.generateAlbumsData("albums", "public", albumConfigRaw, configRaw);
+engine.generateAlbumsData("albums", "dist", albumConfigRaw, configRaw);
 console.log("  ✅ 相册数据\n");
 
 // ── Step 4: Rust 引擎 — 生成 SEO + Sitemap + RSS + Robots ──
@@ -109,15 +139,8 @@ console.log(`  ✅ ${seoCount} 个 SEO 页面 + sitemap + rss + robots\n`);
 // ── Step 5: 复制 public/ 静态资源 ──
 console.log("[5/6] 复制静态资源");
 let pubTotal = 0;
-for (const dir of ["generated", "albums"]) {
-    const src = path.join(PUBLIC_DIR, dir);
-    if (fs.existsSync(src)) {
-        const c = copyDir(src, path.join(DIST_DIR, dir));
-        pubTotal += c;
-        console.log(`  public/${dir}/: ${c} 文件`);
-    }
-}
-for (const dir of ["albums", "posts"]) {
+// 复制项目根目录 albums/ 原图到 dist/albums/（Rust 引擎已处理 posts，albums 仍需复制原图）
+for (const dir of ["albums"]) {
     const src = path.join(CWD, dir);
     if (fs.existsSync(src)) {
         const c = copyDir(src, path.join(DIST_DIR, dir));

@@ -84,8 +84,8 @@
   - 验证 `About.zh-CN.md ` 在构建后是否符合预期。
   - 运行 `cargo test`，确保所有现有测试和新增测试通过，如有问题请询问用户。
 
-- [ ] 4. 构建脚本改造：消除 public/ 中间副本
-  - [~] 4.1 改造 `build-rust.cjs` 输出目录
+- [x] 4. 构建脚本改造：消除 public/ 中间副本
+  - [x] 4.1 改造 `build-rust.cjs` 输出目录
     - 修改 `testes/S-blog-rustEngine12/build-rust.cjs` 中的 `generatePostsData` 调用，将 `output_dir` 从 `'public'` 改为 `'dist'`
     - 修改 `generateAlbumsData` 调用，将 `output_dir` 从 `'public'` 改为 `'dist'`
     - 移除 Step 5 中从 `public/generated` 和 `public/albums` 复制到 `dist/` 的逻辑（不再需要）
@@ -93,7 +93,7 @@
     - 保留 `public/` 根目录静态资源文件（favicon、logo、`_redirects` 等）的复制逻辑
     - _需求: 1.1, 1.2, 1.3, 1.5, 1.7, 6.3_
 
-  - [ ]* 4.2 编写构建输出验证测试
+  - [x] 4.2 编写构建输出验证测试
     - 创建 `testes/S-blog-rustEngine12/test-build-output.js` 脚本
     - 验证 `dist/generated/manifest.json` 存在且包含 `availableLanguages` 字段
     - 验证 `dist/posts/` 包含所有 Markdown 文件
