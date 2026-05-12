@@ -23,6 +23,7 @@ pub mod path_util;
 pub use error::EngineError;
 pub use path_util::normalize_path;
 
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 // ── Configuration types ────────────────────────────────────────────
@@ -70,8 +71,17 @@ pub struct AlbumEntry {
 
 // ── Output types ───────────────────────────────────────────────────
 
+/// Localized metadata for a single blog post (title and summary in a specific language).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalizedPostMeta {
+    pub title: String,
+    pub summary: String,
+}
+
 /// Metadata for a single blog post (written to `manifest.json`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PostMetadata {
     pub slug: String,
     pub title: String,
@@ -79,4 +89,8 @@ pub struct PostMetadata {
     pub tags: Vec<String>,
     pub categories: Vec<String>,
     pub summary: String,
+    #[serde(default)]
+    pub available_languages: Vec<String>,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub localized_meta: HashMap<String, LocalizedPostMeta>,
 }

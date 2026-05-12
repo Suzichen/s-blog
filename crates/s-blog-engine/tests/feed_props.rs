@@ -144,6 +144,8 @@ fn to_metadata(p: &GenPost) -> PostMetadata {
         tags: p.tags.clone(),
         categories: p.categories.clone(),
         summary: p.summary.clone(),
+        available_languages: vec![],
+        localized_meta: std::collections::HashMap::new(),
     }
 }
 
@@ -504,6 +506,8 @@ fn no_site_url_skips_sitemap() {
         tags: vec![],
         categories: vec![],
         summary: "A test".into(),
+        available_languages: vec![],
+        localized_meta: std::collections::HashMap::new(),
     }];
 
     generate_sitemap(&manifest, &output, &config).unwrap();
@@ -524,6 +528,8 @@ fn no_site_url_skips_rss() {
         tags: vec![],
         categories: vec![],
         summary: "A test".into(),
+        available_languages: vec![],
+        localized_meta: std::collections::HashMap::new(),
     }];
 
     generate_rss(&manifest, &output, &config).unwrap();

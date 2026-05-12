@@ -10,8 +10,8 @@
     "build:albums": "npx tsx packages/core/scripts/generate-albums-data.ts",
     "build:seo": "npx tsx packages/core/scripts/generate-seo.ts && npx tsx packages/core/scripts/generate-sitemap.ts && npx tsx packages/core/scripts/generate-rss.ts && npx tsx packages/core/scripts/generate-robots.ts",
     "build:core": "npm run build -w packages/core",
-    "build:all": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
-    "build": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
+    "build:old": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
+    "build": "npm run build:core && node build-rust.cjs",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
     "test:golden": "npx tsx tests/generate-golden.ts"
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@s-blog/core": "workspace:*",
+    "@s-blog/engine": "0.2.0",
     "@types/github-slugger": "^1.3.0",
     "date-fns": "^4.1.0",
     "exifr": "^7.1.3",

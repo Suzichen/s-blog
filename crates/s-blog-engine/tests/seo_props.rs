@@ -147,6 +147,8 @@ fn to_metadata(p: &GenPost) -> PostMetadata {
         tags: p.tags.clone(),
         categories: p.categories.clone(),
         summary: p.summary.clone(),
+        available_languages: vec![],
+        localized_meta: std::collections::HashMap::new(),
     }
 }
 

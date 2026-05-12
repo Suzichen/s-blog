@@ -74,9 +74,7 @@ This single command handles the full pipeline:
 
 1. **Album processing** — generates thumbnails and metadata
 2. **Posts processing** — generates the posts manifest and copies files
-3. **Type checking** — validates TypeScript
-4. **Vite build** — bundles the application with code splitting
-5. **SEO generation** — creates per-post HTML, sitemap.xml, rss.xml, robots.txt
+3. **SEO generation** — creates per-post HTML, sitemap.xml, rss.xml, robots.txt
 
 The output is a fully static site in `dist/`. Deploy it anywhere:
 
@@ -111,7 +109,7 @@ No Node.js runtime or backend required after build.
 
 ### 🌐 i18n
 - Built-in language switcher (Chinese, English, Japanese)
-- All UI text is translatable
+- Support the publication of different language versions of the same article
 
 ### ⚡ Performance
 - Route-level code splitting via React.lazy
@@ -122,12 +120,14 @@ No Node.js runtime or backend required after build.
 
 ## Architecture
 
-S-blog is published as two npm packages:
+S-blog is published as three npm packages:
 
 | Package | Purpose |
 |---------|---------|
 | `@s-blog/core` | The blog framework — UI components, routing, hooks, build scripts |
 | `create-s-blog` | The CLI scaffold — `npm create s-blog` |
+| `@s-blog/engine` | A parsing and build engine implemented in `rust`, which will replace the built-in scripts of `@s-blog/core` in future versions. |
+
 
 Your project only contains your content and configuration:
 

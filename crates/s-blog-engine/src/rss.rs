@@ -233,6 +233,8 @@ mod tests {
             tags: vec!["intro".to_string(), "blog".to_string()],
             categories: vec!["General".to_string()],
             summary: "This is my first post".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         }
     }
 
@@ -353,6 +355,8 @@ mod tests {
             tags: vec![],
             categories: vec![],
             summary: "Summary with <script>alert('xss')</script>".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         };
 
         let xml = build_rss_xml(
@@ -390,6 +394,8 @@ mod tests {
             tags: vec![],
             categories: vec![],
             summary: "No date".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         };
 
         let now = "Mon, 01 Jan 2024 00:00:00 GMT";
@@ -478,6 +484,8 @@ mod tests {
                 tags: vec!["rust".to_string()],
                 categories: vec![],
                 summary: "Another post".to_string(),
+                available_languages: vec![],
+                localized_meta: std::collections::HashMap::new(),
             },
         ];
 
