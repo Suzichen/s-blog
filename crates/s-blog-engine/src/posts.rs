@@ -302,24 +302,57 @@ struct PostGroup {
 
 // ── Public API ─────────────────────────────────────────────────────
 
-/// Generate the posts manifest and optionally copy Markdown files.
+/// Generate the posts manifest and copy Markdown files to the output directory.
+///
+/// Use this for production builds where `output_dir` is `dist/`.
+/// Generates `{output_dir}/generated/manifest.json` and copies all
+/// relevant `.md` files to `{output_dir}/posts/`.
 ///
 /// # Arguments
 ///
 /// * `posts_dir`  – Directory containing `*.md` files.
-/// * `output_dir` – Root output directory. Manifest is written to
-///   `{output_dir}/generated/manifest.json` and Markdown files are
-///   copied to `{output_dir}/posts/`.
+/// * `output_dir` – Root output directory (e.g. `dist/`).
 /// * `config`     – Site configuration (used for timezone).
 ///
 /// # Errors
 ///
-/// Returns [`EngineError::DirectoryNotFound`] if `posts_dir` does not
-/// exist.
+/// Returns [`EngineError::DirectoryNotFound`] if `posts_dir` does not exist.
 pub fn generate_posts_data(
     posts_dir: &Path,
     output_dir: &Path,
     config: &SiteConfig,
+) -> Result<Vec<PostMetadata>, EngineError> {
+    generate_posts_internal(posts_dir, output_dir, config, true)
+}
+
+/// Generate only the posts manifest, without copying Markdown files.
+///
+/// Use this for dev mode where a Vite plugin serves `.md` files directly
+/// from the source directory. Only writes `{output_dir}/generated/manifest.json`.
+///
+/// # Arguments
+///
+/// * `posts_dir`  – Directory containing `*.md` files.
+/// * `output_dir` – Root output directory (e.g. `public/`).
+/// * `config`     – Site configuration (used for timezone).
+///
+/// # Errors
+///
+/// Returns [`EngineError::DirectoryNotFound`] if `posts_dir` does not exist.
+pub fn generate_posts_manifest_only(
+    posts_dir: &Path,
+    output_dir: &Path,
+    config: &SiteConfig,
+) -> Result<Vec<PostMetadata>, EngineError> {
+    generate_posts_internal(posts_dir, output_dir, config, false)
+}
+
+/// Internal implementation: generates manifest and optionally copies files.
+fn generate_posts_internal(
+    posts_dir: &Path,
+    output_dir: &Path,
+    config: &SiteConfig,
+    copy_files: bool,
 ) -> Result<Vec<PostMetadata>, EngineError> {
     if !posts_dir.exists() {
         return Err(EngineError::DirectoryNotFound(posts_dir.to_path_buf()));
@@ -510,13 +543,15 @@ pub fn generate_posts_data(
     let json = serde_json::to_string_pretty(&posts)?;
     fs::write(&manifest_path, &json)?;
 
-    // Copy markdown files to output_dir/posts/
-    let posts_output = output_dir.join("posts");
-    fs::create_dir_all(&posts_output)?;
-    for file_name in &files_to_copy {
-        let src = posts_dir.join(file_name);
-        let dst = posts_output.join(file_name);
-        fs::copy(&src, &dst)?;
+    // Copy markdown files to output_dir/posts/ (only in full build mode)
+    if copy_files {
+        let posts_output = output_dir.join("posts");
+        fs::create_dir_all(&posts_output)?;
+        for file_name in &files_to_copy {
+            let src = posts_dir.join(file_name);
+            let dst = posts_output.join(file_name);
+            fs::copy(&src, &dst)?;
+        }
     }
 
     Ok(posts)

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PostMetadata } from '../types/blog';
 
 interface UsePostsResult {
@@ -8,9 +9,11 @@ interface UsePostsResult {
 }
 
 export function usePosts(): UsePostsResult {
-  const [posts, setPosts] = useState<PostMetadata[]>([]);
+  const [rawPosts, setRawPosts] = useState<PostMetadata[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { i18n } = useTranslation();
+  const currentLang = i18n.resolvedLanguage ?? '';
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +26,7 @@ export function usePosts(): UsePostsResult {
         }
         const data: PostMetadata[] = await response.json();
         if (!cancelled) {
-          setPosts(data);
+          setRawPosts(data);
           setLoading(false);
         }
       } catch (err) {
@@ -37,6 +40,22 @@ export function usePosts(): UsePostsResult {
     fetchPosts();
     return () => { cancelled = true; };
   }, []);
+
+  // Apply localized title/summary based on current language
+  const posts = useMemo(() => {
+    if (!currentLang) return rawPosts;
+    return rawPosts.map((post) => {
+      const localized = post.localizedMeta?.[currentLang];
+      if (localized) {
+        return {
+          ...post,
+          title: localized.title,
+          summary: localized.summary,
+        };
+      }
+      return post;
+    });
+  }, [rawPosts, currentLang]);
 
   return { posts, loading, error };
 }

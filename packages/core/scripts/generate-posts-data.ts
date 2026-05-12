@@ -26,6 +26,7 @@ interface PostMetadata {
   tags: string[];
   categories: string[];
   summary: string;
+  availableLanguages: string[];
 }
 
 /**
@@ -203,6 +204,7 @@ function processPostsFromDir(
       tags,
       categories,
       summary: summary,
+      availableLanguages: [],
     });
   }
 

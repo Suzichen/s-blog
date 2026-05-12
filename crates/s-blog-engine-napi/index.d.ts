@@ -10,6 +10,13 @@
  */
 export declare function generatePostsData(postsDir: string, outputDir: string, configJson: string): string
 /**
+ * Generate only the posts manifest without copying Markdown files.
+ *
+ * Use this for dev mode where files are served directly from source.
+ * Returns the manifest JSON string (array of `PostMetadata`).
+ */
+export declare function generatePostsManifestOnly(postsDir: string, outputDir: string, configJson: string): string
+/**
  * Generate album index and per-album detail JSON files, including
  * thumbnail generation and EXIF extraction.
  *

@@ -30,6 +30,8 @@ export default defineConfig({
   plugins: [react(), serveSBlogData()],
   resolve: {
     alias: {
+      '@s-blog/core/style.css': path.resolve(__dirname, 'packages/core/dist/index.css'),
+      '@s-blog/core': path.resolve(__dirname, 'packages/core/src/index.tsx'),
       '@': path.resolve(__dirname, 'packages/core/src'),
     },
   },

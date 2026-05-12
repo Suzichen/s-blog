@@ -11,8 +11,8 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <div className="language-switcher" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
       <button 
-        onClick={() => changeLanguage('zh')} 
-        style={{ fontWeight: i18n.resolvedLanguage === 'zh' ? 'bold' : 'normal', border: 'none', background: 'none', cursor: 'pointer', padding: '0 5px' }}
+        onClick={() => changeLanguage('zh-CN')} 
+        style={{ fontWeight: i18n.resolvedLanguage === 'zh-CN' ? 'bold' : 'normal', border: 'none', background: 'none', cursor: 'pointer', padding: '0 5px' }}
       >
         中
       </button>
