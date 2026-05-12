@@ -14,7 +14,7 @@ const PostDetail: React.FC = () => {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   
-  const { post, content, loading, prevPost, nextPost } = usePost(slug);
+  const { post, content, loading, isFallback, prevPost, nextPost } = usePost(slug);
 
   useEffect(() => {
     if (content) {
@@ -34,6 +34,11 @@ const PostDetail: React.FC = () => {
   return (
     <div className="relative w-full max-w-[800px] mx-auto pb-8 px-4 xl:px-0 xl:max-w-content">
       <article>
+        {isFallback && (
+          <div className="mb-4 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 text-sm rounded-lg">
+            {t('post.noLocalizedVersion')}
+          </div>
+        )}
         <header className="mb-8 border-b-0 text-center">
           <h1 className="text-4xl md:text-5xl font-normal mb-2 leading-tight">{post.title}</h1>
           <div className="text-sm text-secondary flex justify-center items-center gap-4">

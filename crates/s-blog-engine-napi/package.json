@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Rust-powered data engine for s-blog — Markdown parsing, image processing, SEO/feed generation",
   "license": "MIT",
   "main": "index.js",
@@ -23,9 +23,9 @@
     "build:debug": "napi build --platform"
   },
   "optionalDependencies": {
-    "@s-blog/engine-win32-x64-msvc": "0.2.0",
-    "@s-blog/engine-darwin-arm64": "0.2.0",
-    "@s-blog/engine-linux-x64-gnu": "0.2.0"
+    "@s-blog/engine-win32-x64-msvc": "0.3.0",
+    "@s-blog/engine-darwin-arm64": "0.3.0",
+    "@s-blog/engine-linux-x64-gnu": "0.3.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.4"

@@ -36,6 +36,31 @@ pub fn generate_posts_data(
     Ok(json)
 }
 
+/// Generate only the posts manifest without copying Markdown files.
+///
+/// Use this for dev mode where files are served directly from source.
+/// Returns the manifest JSON string (array of `PostMetadata`).
+#[napi]
+pub fn generate_posts_manifest_only(
+    posts_dir: String,
+    output_dir: String,
+    config_json: String,
+) -> napi::Result<String> {
+    let config: SiteConfig = serde_json::from_str(&config_json)
+        .map_err(|e| napi::Error::from_reason(format!("Invalid config JSON: {e}")))?;
+
+    let posts = s_blog_engine::posts::generate_posts_manifest_only(
+        Path::new(&posts_dir),
+        Path::new(&output_dir),
+        &config,
+    )?;
+
+    let json = serde_json::to_string_pretty(&posts)
+        .map_err(|e| napi::Error::from_reason(format!("Failed to serialize result: {e}")))?;
+
+    Ok(json)
+}
+
 // ── Albums ──────────────────────────────────────────────────────────
 
 /// Generate album index and per-album detail JSON files, including

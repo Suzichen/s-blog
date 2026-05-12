@@ -44,9 +44,9 @@ if (isDev) {
         "utf-8",
     );
 
-    // Generate posts manifest → public/generated/manifest.json (+ copies .md to public/posts/)
-    console.log("[1/2] generatePostsData → public/");
-    const postsResult = engine.generatePostsData("posts", "public", configRaw);
+    // Generate posts manifest → public/generated/manifest.json (no file copy in dev mode)
+    console.log("[1/2] generatePostsManifestOnly → public/");
+    const postsResult = engine.generatePostsManifestOnly("posts", "public", configRaw);
     const manifest = JSON.parse(postsResult);
     console.log(`  ✅ ${manifest.length} 篇文章\n`);
 

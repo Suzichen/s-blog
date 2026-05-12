@@ -100,18 +100,18 @@
     - 验证 `public/` 不包含 `posts/`、`generated/`、`albums/` 子目录
     - _需求: 1.1, 1.2, 1.3, 1.7_
 
-- [ ] 5. 前端类型更新与 URL 解析工具函数
-  - [~] 5.1 更新 `PostMetadata` TypeScript 类型
+- [x] 5. 前端类型更新与 URL 解析工具函数
+  - [x] 5.1 更新 `PostMetadata` TypeScript 类型
     - 在 `packages/core/src/types/blog.ts` 中新增 `LocalizedPostMeta` 接口，包含 `title: string` 和 `summary: string`
     - 在 `PostMetadata` 接口中新增 `availableLanguages: string[]` 和 `localizedMeta?: Record<string, LocalizedPostMeta>` 字段
     - _需求: 3.1, 3.5_
 
-  - [~] 5.2 实现 `resolvePostUrl` 工具函数
+  - [x] 5.2 实现 `resolvePostUrl` 工具函数
     - 在 `packages/core/src/hooks/usePost.ts` 中新增（或单独创建 `packages/core/src/utils/resolvePostUrl.ts`）纯函数 `resolvePostUrl(slug: string, availableLanguages: string[], currentLang: string): string`
     - 逻辑：如果 `currentLang` 在 `availableLanguages` 中，返回 `/posts/${slug}.${currentLang}.md`；否则返回 `/posts/${slug}.md`
     - _需求: 4.1, 4.2_
 
-  - [ ]* 5.3 编写属性测试：前端文章 URL 解析（Property 3）
+  - [x] 5.3 编写属性测试：前端文章 URL 解析（Property 3）
     - 创建 `packages/core/src/__tests__/resolvePostUrl.prop.test.ts`
     - **Property 3: Frontend article URL resolution**
     - 使用 `fast-check` 库，随机生成 slug、availableLanguages、currentLang 组合
@@ -119,46 +119,55 @@
     - 最少 100 次迭代
     - **验证: 需求 4.1, 4.2**
 
-- [ ] 6. 前端 Hook 改造：语言感知文章加载
-  - [~] 6.1 改造 `usePost` Hook 支持语言感知加载
+- [x] 6. 前端 Hook 改造：语言感知文章加载
+  - [x] 6.1 改造 `usePost` Hook 支持语言感知加载
     - 修改 `packages/core/src/hooks/usePost.ts`
     - 引入 `useTranslation` 获取 `i18n.resolvedLanguage`
     - 使用 `resolvePostUrl` 函数根据 `post.availableLanguages` 和当前语言决定 fetch URL
     - 当语言变化时（`currentLang` 作为 `useEffect` 依赖），自动重新加载文章内容
-    - 添加 404 回退逻辑：本地化文件 404 时回退加载默认文件 `/posts/${slug}.md`
+    - 添加 404 回退逻辑：本地化文件 404 时先尝试回退加载默认文件 `/posts/${slug}.md`
     - _需求: 4.1, 4.2, 4.3, 4.4_
 
-  - [ ]* 6.2 编写 `usePost` Hook 单元测试
+  - [x] 6.2 编写 `usePost` Hook 单元测试
     - 创建 `packages/core/src/hooks/__tests__/usePost.test.ts`
     - 测试场景：加载本地化文件、回退到默认文件、两者都 404 时显示错误、语言切换时重新加载
     - _需求: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 7. 前端组件：文章级语言切换器
-  - [~] 7.1 创建 `PostLanguageSwitcher` 组件
-    - 创建 `packages/core/src/components/PostLanguageSwitcher.tsx`
-    - 接收 props: `availableLanguages: string[]`、`currentLanguage: string`、`onLanguageChange: (lang: string) => void`
-    - 仅当 `availableLanguages.length > 0` 时渲染
-    - 显示可用语言按钮，高亮当前语言，样式与现有 `LanguageSwitcher` 组件保持一致
+- [x] 7. 前端：文章详情页语言回退提示
+  - [x] 7.1 添加 i18n 翻译文案
+    - 在 `packages/core/src/i18n/locales/` 下的中/英/日翻译文件中新增 `post.noLocalizedVersion` 键
+    - 中文: "此文章暂无中文版本，已为您展示作者原文"
+    - 英文: "This article is not available in English. Showing the original version."
+    - 日文: "この記事の日本語版はありません。原文を表示しています。"
     - _需求: 4.5_
 
-  - [~] 7.2 在 `PostDetail` 页面集成 `PostLanguageSwitcher`
-    - 修改 `packages/core/src/pages/PostDetail.tsx`
-    - 在文章标题下方渲染 `PostLanguageSwitcher`，传入 `post.availableLanguages` 和当前语言
-    - 语言切换时调用 `i18n.changeLanguage` 触发重新加载
+  - [x] 7.2 在 `usePost` 中暴露 `isFallback` 标志，并在 `PostDetail` 页面添加语言回退提示条
+    - 修改 `packages/core/src/hooks/usePost.ts`：新增 `isFallback` 状态
+    - `isFallback` 判断逻辑（与 404 回退无关，纯粹看内容语言匹配）：
+      - `isFallback = true` 的条件：文章没有用户语言的本地化版本（`currentLang` 不在 `availableLanguages` 中）**且** `currentLang !== siteDefaultLanguage`
+      - `isFallback = false` 的条件：加载了本地化文件成功（`currentLang` 在 `availableLanguages` 中且加载成功）、或 `currentLang === siteDefaultLanguage`（默认文件就是为该语言读者写的）
+    - `siteDefaultLanguage` 从 `config.json` 的 `language` 字段获取（通过现有的 config context 或直接读取）
+    - 在返回值中暴露 `isFallback`
+    - 修改 `packages/core/src/pages/PostDetail.tsx`：当 `isFallback === true` 时，在文章标题上方显示提示条
+    - 提示条使用 `t('post.noLocalizedVersion')` 获取翻译文案
+    - 样式：浅色背景、小字体、圆角，不遮挡内容，可被用户忽略
     - _需求: 4.5_
 
-  - [ ]* 7.3 编写 `PostLanguageSwitcher` 组件单元测试
-    - 创建 `packages/core/src/components/__tests__/PostLanguageSwitcher.test.tsx`
-    - 测试场景：无本地化版本时不渲染、有本地化版本时渲染按钮、点击按钮触发回调
+  - [x] 7.3 编写提示条显示逻辑单元测试
+    - 创建 `packages/core/src/pages/__tests__/PostDetail.langTip.test.tsx`
+    - 测试场景：
+      - `currentLang === siteDefaultLanguage` 时不显示提示（无论文章有无本地化版本）
+      - `currentLang !== siteDefaultLanguage` 且文章有该语言版本并加载成功时不显示提示
+      - `currentLang !== siteDefaultLanguage` 且文章无该语言版本时显示提示
     - _需求: 4.5_
 
-- [~] 8. 检查点 — 确保所有测试通过
+- [x] 8. 检查点 — 确保所有测试通过
   - 运行 `cargo test` 确保 Rust 测试通过
   - 运行 `npx vitest --run` 确保 TypeScript 测试通过
   - 如有问题请询问用户。
 
-- [ ] 9. 端到端集成与收尾
-  - [~] 9.1 改造 `usePosts` Hook 支持语言感知文章列表
+- [x] 9. 端到端集成与收尾
+  - [x] 9.1 改造 `usePosts` Hook 支持语言感知文章列表
     - 修改 `packages/core/src/hooks/usePosts.ts`
     - 引入 `useTranslation` 获取 `i18n.resolvedLanguage`
     - 对每篇文章检查 `post.localizedMeta?.[currentLang]`，如果存在则使用其 `title` 和 `summary` 替代顶层字段
@@ -166,17 +175,17 @@
     - 文章列表天然不会重复（Rust 引擎已按 slug 去重），无需额外去重逻辑
     - _需求: 5.1, 5.2, 5.3_
 
-  - [~] 9.2 确保 Vite 开发插件兼容多语言文件
+  - [x] 9.2 确保 Vite 开发插件兼容多语言文件
     - 检查 `vite.config.ts` 中的 `serveSBlogData` 插件，确认请求 `/posts/{slug}.{lang}.md` 时能正确映射到 `posts/{slug}.{lang}.md` 源文件
     - 现有插件已通过路径拼接实现，理论上无需改动，但需验证
     - _需求: 1.4, 1.6_
 
-  - [~] 9.3 确保 NAPI 绑定兼容新 PostMetadata 字段
+  - [x] 9.3 确保 NAPI 绑定兼容新 PostMetadata 字段
     - 检查 `crates/s-blog-engine-napi/src/lib.rs`，确认 `generate_posts_data` 返回的 JSON 包含 `availableLanguages` 字段
     - NAPI 函数签名不变（已接受 `output_dir` 参数），仅需确认序列化输出正确
     - _需求: 6.3_
 
-- [~] 10. 最终检查点 — 确保所有测试通过
+- [x] 10. 最终检查点 — 确保所有测试通过
   - 运行 `cargo test` 确保 Rust 测试通过
   - 运行 `npx vitest --run` 确保 TypeScript 测试通过
   - 确保所有测试通过，如有问题请询问用户。

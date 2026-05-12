@@ -38,10 +38,13 @@ const resources = {
         "photoCount": "{{count}} photos",
         "backToAlbums": "← Back to Albums",
         "albumNotFound": "Album not found"
+      },
+      "post": {
+        "noLocalizedVersion": "This article is not available in English. Showing the original version."
       }
     }
   },
-  zh: {
+  'zh-CN': {
     translation: {
       "nav": {
         "home": "首页",
@@ -75,6 +78,9 @@ const resources = {
         "photoCount": "{{count}} 张照片",
         "backToAlbums": "← 返回相册",
         "albumNotFound": "相册未找到"
+      },
+      "post": {
+        "noLocalizedVersion": "此文章暂无中文版本，已为您展示作者原文"
       }
     }
   },
@@ -112,6 +118,9 @@ const resources = {
         "photoCount": "{{count}} 枚の写真",
         "backToAlbums": "← アルバムに戻る",
         "albumNotFound": "アルバムが見つかりません"
+      },
+      "post": {
+        "noLocalizedVersion": "この記事の日本語版はありません。原文を表示しています。"
       }
     }
   }
