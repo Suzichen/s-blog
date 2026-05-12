@@ -12,7 +12,8 @@
       "Backend",
       "Systems"
     ],
-    "summary": "This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.\r \r C..."
+    "summary": "This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.\r \r C...",
+    "availableLanguages": []
   },
   {
     "slug": "invalid-date",
@@ -24,7 +25,8 @@
     "categories": [
       "Testing"
     ],
-    "summary": "This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st..."
+    "summary": "This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...",
+    "availableLanguages": []
   },
   {
     "slug": "no-frontmatter",
@@ -32,7 +34,8 @@
     "date": "",
     "tags": [],
     "categories": [],
-    "summary": "This is a post with no frontmatter at all. It starts directly with content.\r \r The parser should handle this edge case gracefully. The slug ..."
+    "summary": "This is a post with no frontmatter at all. It starts directly with content.\r \r The parser should handle this edge case gracefully. The slug ...",
+    "availableLanguages": []
   },
   {
     "slug": "with-description",
@@ -45,7 +48,8 @@
     "categories": [
       "Content"
     ],
-    "summary": "This summary comes from the description field, not preview or body content."
+    "summary": "This summary comes from the description field, not preview or body content.",
+    "availableLanguages": []
   },
   {
     "slug": "with-preview",
@@ -58,7 +62,8 @@
     "categories": [
       "Content"
     ],
-    "summary": "This is a custom preview text that should be used instead of auto-generated summary."
+    "summary": "This is a custom preview text that should be used instead of auto-generated summary.",
+    "availableLanguages": []
   },
   {
     "slug": "with-timezone",
@@ -71,7 +76,8 @@
     "categories": [
       "Technical"
     ],
-    "summary": "This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv..."
+    "summary": "This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...",
+    "availableLanguages": []
   },
   {
     "slug": "space-separated-tags",
@@ -85,7 +91,8 @@
     "categories": [
       "Frontend"
     ],
-    "summary": "This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into prope..."
+    "summary": "This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into prope...",
+    "availableLanguages": []
   },
   {
     "slug": "with-tags",
@@ -100,7 +107,8 @@
       "Development",
       "Tutorial"
     ],
-    "summary": "This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.\r \r Tags ar..."
+    "summary": "This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.\r \r Tags ar...",
+    "availableLanguages": []
   },
   {
     "slug": "with-excerpt",
@@ -113,7 +121,8 @@
     "categories": [
       "Content"
     ],
-    "summary": "This summary comes from the excerpt field, the lowest priority custom field."
+    "summary": "This summary comes from the excerpt field, the lowest priority custom field.",
+    "availableLanguages": []
   },
   {
     "slug": "simple",
@@ -121,6 +130,7 @@
     "date": "2024-01-15T10:00:00",
     "tags": [],
     "categories": [],
-    "summary": "This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.\r \r The po..."
+    "summary": "This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.\r \r The po...",
+    "availableLanguages": []
   }
 ]

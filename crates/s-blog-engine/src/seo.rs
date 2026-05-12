@@ -346,6 +346,8 @@ mod tests {
             tags: vec!["intro".to_string(), "blog".to_string()],
             categories: vec!["General".to_string()],
             summary: "This is my first post".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         }
     }
 
@@ -591,6 +593,8 @@ mod tests {
                 tags: vec!["rust".to_string()],
                 categories: vec![],
                 summary: "Another post".to_string(),
+                available_languages: vec![],
+                localized_meta: std::collections::HashMap::new(),
             },
         ];
 
@@ -631,6 +635,8 @@ mod tests {
             tags: vec![],
             categories: vec![],
             summary: "Summary with <script>alert('xss')</script>".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         }];
 
         generate_seo_pages(&posts, &template_path, &output_dir, &config).unwrap();

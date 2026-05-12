@@ -151,6 +151,8 @@ mod tests {
             tags: vec!["intro".to_string(), "blog".to_string()],
             categories: vec!["General".to_string()],
             summary: "This is my first post".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         }
     }
 
@@ -213,6 +215,8 @@ mod tests {
             tags: vec![],
             categories: vec![],
             summary: "No date post".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         };
 
         let xml = build_sitemap_xml(&[post], "https://example.com", "", "2024-06-01");
@@ -244,6 +248,8 @@ mod tests {
             tags: vec![],
             categories: vec![],
             summary: "Special chars".to_string(),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
         };
 
         let xml = build_sitemap_xml(&[post], "https://example.com", "", "2024-06-01");
@@ -322,6 +328,8 @@ mod tests {
                 tags: vec![],
                 categories: vec![],
                 summary: "Another post".to_string(),
+                available_languages: vec![],
+                localized_meta: std::collections::HashMap::new(),
             },
         ];
 

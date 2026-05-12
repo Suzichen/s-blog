@@ -80,37 +80,62 @@ const DYNAMIC_DATE_SLUGS: &[&str] = &["invalid-date", "no-frontmatter"];
 ///
 /// We identify dynamic entries by matching the slugs in
 /// `DYNAMIC_DATE_SLUGS` and the homepage (first `<url>` block).
+///
+/// Uses a two-pass approach: first pass collects which `<url>` blocks
+/// are dynamic, second pass performs the replacement. This avoids
+/// ordering issues where `<lastmod>` appears before `<priority>`.
 fn normalize_sitemap(xml: &str) -> String {
+    // Split into <url>...</url> blocks and process each one.
     let mut result = String::new();
-    let mut in_dynamic_url = false;
+    let lines: Vec<&str> = xml.lines().collect();
+    let mut i = 0;
 
-    for line in xml.lines() {
-        let trimmed = line.trim();
+    while i < lines.len() {
+        let trimmed = lines[i].trim();
 
-        // Detect the homepage URL block (first <url> with priority 1.0)
-        // or a post URL block for a dynamic-date slug.
         if trimmed == "<url>" {
-            in_dynamic_url = false;
-        }
-
-        // Homepage: priority 1.0 → its lastmod is dynamic
-        if trimmed == "<priority>1.0</priority>" {
-            in_dynamic_url = true;
-        }
-
-        // Check if this URL block is for a dynamic-date slug
-        for slug in DYNAMIC_DATE_SLUGS {
-            if trimmed.contains(&format!("/post/{}</loc>", slug)) {
-                in_dynamic_url = true;
+            // Collect the entire <url> block
+            let block_start = i;
+            let mut block_end = i;
+            while block_end < lines.len() && lines[block_end].trim() != "</url>" {
+                block_end += 1;
             }
-        }
+            // block_end is now at </url>
 
-        if in_dynamic_url && trimmed.starts_with("<lastmod>") && trimmed.ends_with("</lastmod>") {
-            result.push_str(&line.replace(trimmed, "<lastmod>__DYNAMIC_DATE__</lastmod>"));
+            // Determine if this block is dynamic
+            let block_lines = &lines[block_start..=block_end];
+            let is_dynamic = block_lines.iter().any(|l| {
+                let t = l.trim();
+                // Homepage: priority 1.0
+                if t == "<priority>1.0</priority>" {
+                    return true;
+                }
+                // Dynamic-date slugs
+                for slug in DYNAMIC_DATE_SLUGS {
+                    if t.contains(&format!("/post/{}</loc>", slug)) {
+                        return true;
+                    }
+                }
+                false
+            });
+
+            // Write the block, normalizing <lastmod> if dynamic
+            for &line in block_lines {
+                let lt = line.trim();
+                if is_dynamic && lt.starts_with("<lastmod>") && lt.ends_with("</lastmod>") {
+                    result.push_str(&line.replace(lt, "<lastmod>__DYNAMIC_DATE__</lastmod>"));
+                } else {
+                    result.push_str(line);
+                }
+                result.push('\n');
+            }
+
+            i = block_end + 1;
         } else {
-            result.push_str(line);
+            result.push_str(lines[i]);
+            result.push('\n');
+            i += 1;
         }
-        result.push('\n');
     }
 
     result
