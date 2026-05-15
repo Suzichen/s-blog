@@ -257,8 +257,9 @@ fn handle_request(
     };
 
     // Strip leading slash for file resolution
-    let rel = path.trim_start_matches('/');
-
+    let rel_raw = path.trim_start_matches('/');
+    let rel_decoded = percent_decode(rel_raw);
+    let rel = rel_decoded.as_str();
     // Dynamic regeneration for manifest and album index on every request
     if rel == "generated/manifest.json" {
         let posts_dir = state.work_dir.join("posts");
@@ -366,5 +367,35 @@ fn serve_file(path: &Path) -> Response<Full<Bytes>> {
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Full::new(Bytes::from("500 Internal Server Error")))
             .unwrap(),
+    }
+}
+
+
+/// Decode percent-encoded URL path segments (e.g. `%E6%98%A5` → `春`).
+fn percent_decode(input: &str) -> String {
+    let mut bytes = Vec::with_capacity(input.len());
+    let mut chars = input.bytes();
+    while let Some(b) = chars.next() {
+        if b == b'%' {
+            let hi = chars.next().and_then(|c| hex_val(c));
+            let lo = chars.next().and_then(|c| hex_val(c));
+            if let (Some(h), Some(l)) = (hi, lo) {
+                bytes.push(h << 4 | l);
+            } else {
+                bytes.push(b'%');
+            }
+        } else {
+            bytes.push(b);
+        }
+    }
+    String::from_utf8(bytes).unwrap_or_else(|_| input.to_string())
+}
+
+fn hex_val(b: u8) -> Option<u8> {
+    match b {
+        b'0'..=b'9' => Some(b - b'0'),
+        b'a'..=b'f' => Some(b - b'a' + 10),
+        b'A'..=b'F' => Some(b - b'A' + 10),
+        _ => None,
     }
 }
