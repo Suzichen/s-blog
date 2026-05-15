@@ -82,6 +82,10 @@ struct ServerState {
     public_dir: PathBuf,
     shell_dir: PathBuf,
     work_dir: PathBuf,
+    /// Parsed site config (for dynamic manifest/album regeneration).
+    config: SiteConfig,
+    /// Parsed album config (for dynamic album index regeneration).
+    album_config: Option<AlbumConfig>,
     /// Normalized basePath prefix to strip from requests (e.g. "/blog"). Empty for root.
     base_path: String,
 }
@@ -131,45 +135,39 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
         }
     })?;
 
-    // Generate posts manifest
+    // Parse site config
     let posts_dir = work_dir.join("posts");
     let config_path = work_dir.join("config.json");
-    if config_path.exists() {
+    let config: SiteConfig = if config_path.exists() {
         let config_raw = fs::read_to_string(&config_path).unwrap_or_default();
-        match serde_json::from_str::<SiteConfig>(&config_raw) {
-            Ok(config) => {
-                if posts_dir.exists() {
-                    let _ = crate::posts::generate_posts_manifest_only(
-                        &posts_dir,
-                        &cache_dir,
-                        &config,
-                    );
-                }
+        serde_json::from_str(&config_raw).map_err(|e| EngineError::BuildStepFailed {
+            step: "parse config.json".into(),
+            reason: e.to_string(),
+        })?
+    } else {
+        return Err(EngineError::ConfigNotFound(config_path));
+    };
 
-                // Generate albums data
-                let albums_dir = work_dir.join("albums");
-                let album_config_path = work_dir.join("album.config.json");
-                if albums_dir.exists() && album_config_path.exists() {
-                    if let Ok(raw) = fs::read_to_string(&album_config_path) {
-                        match serde_json::from_str::<AlbumConfig>(&raw) {
-                            Ok(album_config) => {
-                                let _ = crate::albums::generate_albums_data_with_base(
-                                    &albums_dir,
-                                    &cache_dir,
-                                    &album_config,
-                                    config.base_path.as_deref(),
-                                );
-                            }
-                            Err(e) => {
-                                eprintln!("Warning: failed to parse album.config.json: {e}");
-                            }
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                eprintln!("Warning: failed to parse config.json: {e}");
-            }
+    // Parse album config
+    let album_config_path = work_dir.join("album.config.json");
+    let album_config: Option<AlbumConfig> = if album_config_path.exists() {
+        fs::read_to_string(&album_config_path)
+            .ok()
+            .and_then(|raw| serde_json::from_str(&raw).ok())
+    } else {
+        None
+    };
+
+    // Initial generation (warm-up)
+    if posts_dir.exists() {
+        let _ = crate::posts::generate_posts_manifest_only(&posts_dir, &cache_dir, &config);
+    }
+    if let Some(ref ac) = album_config {
+        let albums_dir = work_dir.join("albums");
+        if albums_dir.exists() {
+            let _ = crate::albums::generate_albums_data_with_base(
+                &albums_dir, &cache_dir, ac, config.base_path.as_deref(),
+            );
         }
     }
 
@@ -192,22 +190,17 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
     let bound_addr = listener.local_addr().map_err(|_| EngineError::PortInUse { port: opts.port })?;
 
     // Read basePath from config for request path stripping
-    let base_path = if config_path.exists() {
-        let raw = fs::read_to_string(&config_path).unwrap_or_default();
-        serde_json::from_str::<SiteConfig>(&raw)
-            .ok()
-            .and_then(|c| c.base_path)
-            .map(|bp| crate::shell::normalize_base_path(&bp))
-            .unwrap_or_default()
-    } else {
-        String::new()
-    };
+    let base_path = config.base_path.as_deref()
+        .map(|bp| crate::shell::normalize_base_path(bp))
+        .unwrap_or_default();
 
     let state = Arc::new(ServerState {
         cache_dir,
         public_dir: work_dir.join("public"),
         shell_dir,
         work_dir: work_dir.clone(),
+        config,
+        album_config,
         base_path,
     });
 
@@ -265,6 +258,25 @@ fn handle_request(
 
     // Strip leading slash for file resolution
     let rel = path.trim_start_matches('/');
+
+    // Dynamic regeneration for manifest and album index on every request
+    if rel == "generated/manifest.json" {
+        let posts_dir = state.work_dir.join("posts");
+        if posts_dir.exists() {
+            let _ = crate::posts::generate_posts_manifest_only(
+                &posts_dir, &state.cache_dir, &state.config,
+            );
+        }
+    } else if rel == "generated/albums-index.json" || rel.starts_with("generated/album-") {
+        if let Some(ref ac) = state.album_config {
+            let albums_dir = state.work_dir.join("albums");
+            if albums_dir.exists() {
+                let _ = crate::albums::generate_albums_data_with_base(
+                    &albums_dir, &state.cache_dir, ac, state.config.base_path.as_deref(),
+                );
+            }
+        }
+    }
 
     // Priority 1: .cache/ generated data (manifest.json, album data)
     let candidate = state.cache_dir.join(rel);
