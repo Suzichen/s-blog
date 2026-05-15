@@ -310,7 +310,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { generatePostsData, generatePostsManifestOnly, generateAlbumsData, generateSeoPages, generateSitemap, generateRss, generateRobots } = nativeBinding
+const { generatePostsData, generatePostsManifestOnly, generateAlbumsData, generateSeoPages, generateSitemap, generateRss, generateRobots, buildCommand, serveCommand } = nativeBinding
 
 module.exports.generatePostsData = generatePostsData
 module.exports.generatePostsManifestOnly = generatePostsManifestOnly
@@ -319,3 +319,5 @@ module.exports.generateSeoPages = generateSeoPages
 module.exports.generateSitemap = generateSitemap
 module.exports.generateRss = generateRss
 module.exports.generateRobots = generateRobots
+module.exports.buildCommand = buildCommand
+module.exports.serveCommand = serveCommand

@@ -6,6 +6,9 @@ description = "Core data engine for s-blog — Markdown parsing, image processin
 license = "MIT"
 
 [dependencies]
+# Regex
+regex = "1"
+
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
@@ -21,6 +24,14 @@ webp = "0.3"
 
 # EXIF
 kamadak-exif = "0.5"
+
+# Async runtime (sync feature for oneshot channels)
+tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros"] }
+
+# HTTP server
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+http-body-util = "0.1"
 
 # Error handling
 thiserror = "2"

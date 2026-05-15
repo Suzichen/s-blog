@@ -35,3 +35,16 @@ export declare function generateSitemap(manifestJson: string, outputPath: string
 export declare function generateRss(manifestJson: string, outputPath: string, configJson: string): void
 /** Generate `robots.txt`. */
 export declare function generateRobots(outputPath: string, configJson: string): void
+/**
+ * Execute the full production build pipeline.
+ *
+ * Accepts a JSON string of `BuildOptions`, returns a JSON string of `BuildResult`.
+ */
+export declare function buildCommand(optionsJson: string): string
+/**
+ * Start the development preview server and block until Ctrl+C.
+ *
+ * Accepts a JSON string of `ServeOptions`. Prints the server address to stdout,
+ * then blocks until the process receives a termination signal.
+ */
+export declare function serveCommand(optionsJson: string): void

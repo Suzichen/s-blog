@@ -18,6 +18,10 @@ pub mod sitemap;
 pub mod rss;
 pub mod robots;
 pub mod path_util;
+pub mod shell;
+pub mod mime;
+pub mod build;
+pub mod serve;
 
 // Re-export primary types for convenience.
 pub use error::EngineError;
