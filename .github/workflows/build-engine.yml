@@ -46,7 +46,7 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --omit=optional
 
       - name: Build native module
         run: npx napi build --platform --release --target ${{ matrix.target }}

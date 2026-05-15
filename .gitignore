@@ -39,3 +39,4 @@ tests/.tmp-test*
 # NAPI-RS native binaries (built by CI)
 *.node
 crates/s-blog-engine-napi/artifacts/
+.cache

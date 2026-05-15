@@ -9,16 +9,9 @@ const TEMPLATE_DIR = path.resolve(__dirname, '../template');
 /**
  * Generate a customized package.json object for the user's project.
  * 
- * New App Shell architecture:
- * - No Vite/React dependencies (App Shell is pre-built)
- * - Only tsx for running data generation scripts
- * - Simplified build process: copy shell + generate data + copy public
+ * Uses @s-blog/engine CLI for build and serve — no TS scripts needed.
  */
 export function generatePackageJson(input: UserInput): Record<string, unknown> {
-  // Helper to get the script runner command
-  const runner = input.packageManager === 'bun' ? 'bun' : 'npx tsx';
-  const scriptsPath = 'node_modules/@s-blog/core/scripts';
-
   return {
     name: input.name,
     private: true,
@@ -27,24 +20,12 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
     description: input.description,
     author: input.author,
     scripts: {
-      // Dev: generate data then serve with a simple HTTP server
-      dev: `${input.packageManager} run build && ${input.packageManager} run serve`,
-      // Serve the dist folder for local preview
-      serve: `${runner} ${scriptsPath}/serve.ts`,
-      // Build steps
-      'build:shell': `${runner} ${scriptsPath}/copy-shell.ts`,
-      'build:posts': `${runner} ${scriptsPath}/generate-posts-data.ts`,
-      'build:albums': `${runner} ${scriptsPath}/generate-albums-data.ts`,
-      'build:public': `${runner} ${scriptsPath}/copy-public.ts`,
-      'build:seo': `${runner} ${scriptsPath}/generate-seo.ts && ${runner} ${scriptsPath}/generate-sitemap.ts && ${runner} ${scriptsPath}/generate-rss.ts && ${runner} ${scriptsPath}/generate-robots.ts`,
-      // Full build: shell -> data generation -> copy public -> SEO
-      build: `${input.packageManager} run build:shell && ${input.packageManager} run build:posts && ${input.packageManager} run build:albums && ${input.packageManager} run build:public && ${input.packageManager} run build:seo`,
+      dev: 's-blog serve',
+      build: 's-blog build',
     },
     dependencies: {
-      '@s-blog/core': '^0.2.0',
-    },
-    devDependencies: {
-      'tsx': '^4.21.0',
+      '@s-blog/core': '^0.3.0',
+      '@s-blog/engine': '^0.3.7',
     },
   };
 }

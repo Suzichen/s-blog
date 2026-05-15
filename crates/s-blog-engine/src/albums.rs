@@ -99,6 +99,27 @@ pub fn generate_albums_data_with_base(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, false)
+}
+
+/// Like [`generate_albums_data_with_base`] but skips thumbnail generation.
+/// Used in serve mode for fast startup — thumbnailUrl points to the original image.
+pub fn generate_albums_index_only(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, true)
+}
+
+fn generate_albums_impl(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+    skip_thumbnails: bool,
+) -> Result<AlbumsOutput, EngineError> {
     let bp = normalize_base_path_option(base_path);
     let generated_dir = output_dir.join("generated");
     fs::create_dir_all(&generated_dir)?;
@@ -151,42 +172,54 @@ pub fn generate_albums_data_with_base(
             .collect();
         photo_files.sort();
 
-        // Generate thumbnails
+        // Generate thumbnails (skipped in serve mode)
         let public_albums_dir = output_dir.join("albums").join(dirname);
-        let thumbs_dir = public_albums_dir.join("thumbs");
-        fs::create_dir_all(&thumbs_dir)?;
+        let photos = if !skip_thumbnails {
+            let thumbs_dir = public_albums_dir.join("thumbs");
+            fs::create_dir_all(&thumbs_dir)?;
 
-        let mut photos = Vec::new();
-        for filename in &photo_files {
-            let src_path = album_src.join(filename);
-            let stem = Path::new(filename)
-                .file_stem()
-                .unwrap_or_default()
-                .to_string_lossy();
-            let thumb_filename = format!("{stem}.webp");
-            let dest_path = thumbs_dir.join(&thumb_filename);
+            let mut photos = Vec::new();
+            for filename in &photo_files {
+                let src_path = album_src.join(filename);
+                let stem = Path::new(filename)
+                    .file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy();
+                let thumb_filename = format!("{stem}.webp");
+                let dest_path = thumbs_dir.join(&thumb_filename);
 
-            match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
-                Ok(()) => {}
-                Err(e) => {
-                    warn!("Skipping {}: {e}", src_path.display());
-                    continue;
+                match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
+                    Ok(()) => {}
+                    Err(e) => {
+                        warn!("Skipping {}: {e}", src_path.display());
+                        continue;
+                    }
                 }
+
+                let exif = read_exif(&src_path);
+
+                photos.push(PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
+                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    exif,
+                });
             }
-
-            let exif = read_exif(&src_path);
-
-            photos.push(PhotoItem {
-                filename: filename.clone(),
-                thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
-                original_url: format!("{bp}/albums/{dirname}/{filename}"),
-                exif,
-            });
-        }
+            photos
+        } else {
+            photo_files.iter().map(|filename| {
+                PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    exif: read_exif(&album_src.join(filename)),
+                }
+            }).collect()
+        };
 
         // Build summary (requirement 2.6.3)
         let name = entry.name.clone().unwrap_or_else(|| dirname.clone());
-        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp);
+        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp, skip_thumbnails);
 
         let summary = AlbumSummary {
             dirname: dirname.clone(),
@@ -238,10 +271,14 @@ fn build_cover_url(
     configured_cover: Option<&str>,
     photo_files: &[String],
     base_path: &str,
+    skip_thumbnails: bool,
 ) -> Option<String> {
     // Check configured cover
     if let Some(cover_file) = configured_cover {
         if photo_files.iter().any(|f| f == cover_file) {
+            if skip_thumbnails {
+                return Some(format!("{base_path}/albums/{dirname}/{cover_file}"));
+            }
             let stem = Path::new(cover_file)
                 .file_stem()
                 .unwrap_or_default()
@@ -252,11 +289,15 @@ fn build_cover_url(
 
     // Fall back to first photo
     photo_files.first().map(|first| {
-        let stem = Path::new(first)
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy();
-        format!("{base_path}/albums/{dirname}/thumbs/{stem}.webp")
+        if skip_thumbnails {
+            format!("{base_path}/albums/{dirname}/{first}")
+        } else {
+            let stem = Path::new(first)
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy();
+            format!("{base_path}/albums/{dirname}/thumbs/{stem}.webp")
+        }
     })
 }
 
@@ -286,28 +327,28 @@ mod tests {
     #[test]
     fn build_cover_url_configured_cover_exists() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("b.jpg"), &photos, "");
+        let result = build_cover_url("travel", Some("b.jpg"), &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/b.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_configured_cover_missing_falls_back() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "");
+        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/a.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_no_config_uses_first() {
         let photos = vec!["first.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "");
+        let result = build_cover_url("travel", None, &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/first.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_empty_album() {
         let photos: Vec<String> = Vec::new();
-        let result = build_cover_url("travel", None, &photos, "");
+        let result = build_cover_url("travel", None, &photos, "", false);
         assert_eq!(result, None);
     }
 
@@ -442,7 +483,7 @@ mod tests {
     #[test]
     fn build_cover_url_with_base_path() {
         let photos = vec!["a.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "/blog");
+        let result = build_cover_url("travel", None, &photos, "/blog", false);
         assert_eq!(
             result,
             Some("/blog/albums/travel/thumbs/a.webp".to_string())

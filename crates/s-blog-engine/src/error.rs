@@ -37,6 +37,18 @@ pub enum EngineError {
 
     #[error("YAML error: {0}")]
     Yaml(#[from] serde_yaml::Error),
+
+    #[error("错误：找不到配置文件：{0}")]
+    ConfigNotFound(PathBuf),
+
+    #[error("错误：构建步骤 '{step}' 失败：{reason}")]
+    BuildStepFailed { step: String, reason: String },
+
+    #[error("错误：端口 {port} 已被占用")]
+    PortInUse { port: u16 },
+
+    #[error("错误：找不到服务目录：{0}\n提示：请先运行 `s-blog build`")]
+    ServeDirNotFound(PathBuf),
 }
 
 // ── NAPI conversion ────────────────────────────────────────────────
