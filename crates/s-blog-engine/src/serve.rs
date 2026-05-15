@@ -83,6 +83,7 @@ struct ServerState {
     albums_dir: PathBuf,
     public_dir: PathBuf,
     shell_dir: PathBuf,
+    work_dir: PathBuf,
     /// Normalized basePath prefix to strip from requests (e.g. "/blog"). Empty for root.
     base_path: String,
 }
@@ -210,6 +211,7 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
         albums_dir: work_dir.join("albums"),
         public_dir: work_dir.join("public"),
         shell_dir,
+        work_dir: work_dir.clone(),
         base_path,
     });
 
@@ -292,7 +294,13 @@ fn handle_request(
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 5: shell files
+    // Priority 5: work_dir root files (config.json, album.config.json, etc.)
+    let candidate = state.work_dir.join(rel);
+    if candidate.is_file() && !rel.contains('/') && !rel.contains('\\') {
+        return Ok(serve_file(&candidate));
+    }
+
+    // Priority 6: shell files
     let candidate = state.shell_dir.join(rel);
     if candidate.is_file() {
         if rel == "index.html" || rel.is_empty() {
@@ -301,7 +309,7 @@ fn handle_request(
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 6: SPA fallback or 404
+    // Priority 7: SPA fallback or 404
     if has_file_extension(path) {
         // Has extension but file not found → 404
         Ok(Response::builder()

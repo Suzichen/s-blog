@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Rust-powered data engine for s-blog — Markdown parsing, image processing, SEO/feed generation",
   "license": "MIT",
   "main": "index.js",
