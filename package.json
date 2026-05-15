@@ -5,13 +5,9 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "node build-rust.cjs --dev && vite",
-    "build:posts": "npx tsx packages/core/scripts/generate-posts-data.ts",
-    "build:albums": "npx tsx packages/core/scripts/generate-albums-data.ts",
-    "build:seo": "npx tsx packages/core/scripts/generate-seo.ts && npx tsx packages/core/scripts/generate-sitemap.ts && npx tsx packages/core/scripts/generate-rss.ts && npx tsx packages/core/scripts/generate-robots.ts",
+    "dev": "node crates/s-blog-engine-napi/bin/s-blog.cjs serve",
     "build:core": "npm run build:all -w packages/core",
-    "build:old": "npm run build:core && npm run build:albums && npm run build:posts && tsc && vite build && npx tsx packages/core/scripts/copy-public.ts && npm run build:seo",
-    "build": "npm run build:core && node build-rust.cjs",
+    "build": "npm run build:core && node crates/s-blog-engine-napi/bin/s-blog.cjs build",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
     "test:golden": "npx tsx tests/generate-golden.ts"
