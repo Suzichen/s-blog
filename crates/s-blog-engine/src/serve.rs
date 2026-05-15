@@ -79,8 +79,6 @@ impl ServeHandle {
 /// Shared state for the HTTP request handler.
 struct ServerState {
     cache_dir: PathBuf,
-    posts_dir: PathBuf,
-    albums_dir: PathBuf,
     public_dir: PathBuf,
     shell_dir: PathBuf,
     work_dir: PathBuf,
@@ -207,8 +205,6 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
 
     let state = Arc::new(ServerState {
         cache_dir,
-        posts_dir,
-        albums_dir: work_dir.join("albums"),
         public_dir: work_dir.join("public"),
         shell_dir,
         work_dir: work_dir.clone(),
@@ -270,37 +266,25 @@ fn handle_request(
     // Strip leading slash for file resolution
     let rel = path.trim_start_matches('/');
 
-    // Priority 1: .cache/ generated data
+    // Priority 1: .cache/ generated data (manifest.json, album data)
     let candidate = state.cache_dir.join(rel);
     if candidate.is_file() {
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 2: posts/ source files
-    let candidate = state.posts_dir.join(rel);
+    // Priority 2: work_dir files (posts/, albums/, config.json, public/ root files, etc.)
+    let candidate = state.work_dir.join(rel);
     if candidate.is_file() {
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 3: albums/ source files
-    let candidate = state.albums_dir.join(rel);
-    if candidate.is_file() {
-        return Ok(serve_file(&candidate));
-    }
-
-    // Priority 4: public/ static assets
+    // Priority 3: public/ static assets (for files requested without "public/" prefix)
     let candidate = state.public_dir.join(rel);
     if candidate.is_file() {
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 5: work_dir root files (config.json, album.config.json, etc.)
-    let candidate = state.work_dir.join(rel);
-    if candidate.is_file() && !rel.contains('/') && !rel.contains('\\') {
-        return Ok(serve_file(&candidate));
-    }
-
-    // Priority 6: shell files
+    // Priority 4: shell files
     let candidate = state.shell_dir.join(rel);
     if candidate.is_file() {
         if rel == "index.html" || rel.is_empty() {
@@ -309,7 +293,7 @@ fn handle_request(
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 7: SPA fallback or 404
+    // Priority 5: SPA fallback or 404
     if has_file_extension(path) {
         // Has extension but file not found → 404
         Ok(Response::builder()
