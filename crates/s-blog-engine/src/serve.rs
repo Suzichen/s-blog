@@ -165,7 +165,7 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
     if let Some(ref ac) = album_config {
         let albums_dir = work_dir.join("albums");
         if albums_dir.exists() {
-            let _ = crate::albums::generate_albums_data_with_base(
+            let _ = crate::albums::generate_albums_index_only(
                 &albums_dir, &cache_dir, ac, config.base_path.as_deref(),
             );
         }
@@ -271,7 +271,7 @@ fn handle_request(
         if let Some(ref ac) = state.album_config {
             let albums_dir = state.work_dir.join("albums");
             if albums_dir.exists() {
-                let _ = crate::albums::generate_albums_data_with_base(
+                let _ = crate::albums::generate_albums_index_only(
                     &albums_dir, &state.cache_dir, ac, state.config.base_path.as_deref(),
                 );
             }

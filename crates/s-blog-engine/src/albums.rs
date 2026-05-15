@@ -99,6 +99,27 @@ pub fn generate_albums_data_with_base(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, false)
+}
+
+/// Like [`generate_albums_data_with_base`] but skips thumbnail generation.
+/// Used in serve mode for fast startup — thumbnailUrl points to the original image.
+pub fn generate_albums_index_only(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, true)
+}
+
+fn generate_albums_impl(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+    skip_thumbnails: bool,
+) -> Result<AlbumsOutput, EngineError> {
     let bp = normalize_base_path_option(base_path);
     let generated_dir = output_dir.join("generated");
     fs::create_dir_all(&generated_dir)?;
@@ -151,38 +172,50 @@ pub fn generate_albums_data_with_base(
             .collect();
         photo_files.sort();
 
-        // Generate thumbnails
+        // Generate thumbnails (skipped in serve mode)
         let public_albums_dir = output_dir.join("albums").join(dirname);
-        let thumbs_dir = public_albums_dir.join("thumbs");
-        fs::create_dir_all(&thumbs_dir)?;
+        let photos = if !skip_thumbnails {
+            let thumbs_dir = public_albums_dir.join("thumbs");
+            fs::create_dir_all(&thumbs_dir)?;
 
-        let mut photos = Vec::new();
-        for filename in &photo_files {
-            let src_path = album_src.join(filename);
-            let stem = Path::new(filename)
-                .file_stem()
-                .unwrap_or_default()
-                .to_string_lossy();
-            let thumb_filename = format!("{stem}.webp");
-            let dest_path = thumbs_dir.join(&thumb_filename);
+            let mut photos = Vec::new();
+            for filename in &photo_files {
+                let src_path = album_src.join(filename);
+                let stem = Path::new(filename)
+                    .file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy();
+                let thumb_filename = format!("{stem}.webp");
+                let dest_path = thumbs_dir.join(&thumb_filename);
 
-            match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
-                Ok(()) => {}
-                Err(e) => {
-                    warn!("Skipping {}: {e}", src_path.display());
-                    continue;
+                match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
+                    Ok(()) => {}
+                    Err(e) => {
+                        warn!("Skipping {}: {e}", src_path.display());
+                        continue;
+                    }
                 }
+
+                let exif = read_exif(&src_path);
+
+                photos.push(PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
+                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    exif,
+                });
             }
-
-            let exif = read_exif(&src_path);
-
-            photos.push(PhotoItem {
-                filename: filename.clone(),
-                thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
-                original_url: format!("{bp}/albums/{dirname}/{filename}"),
-                exif,
-            });
-        }
+            photos
+        } else {
+            photo_files.iter().map(|filename| {
+                PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    exif: read_exif(&album_src.join(filename)),
+                }
+            }).collect()
+        };
 
         // Build summary (requirement 2.6.3)
         let name = entry.name.clone().unwrap_or_else(|| dirname.clone());
