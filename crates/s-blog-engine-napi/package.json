@@ -27,9 +27,9 @@
     "build:debug": "napi build --platform"
   },
   "optionalDependencies": {
-    "@s-blog/engine-win32-x64-msvc": "0.3.1",
-    "@s-blog/engine-darwin-arm64": "0.3.1",
-    "@s-blog/engine-linux-x64-gnu": "0.3.1"
+    "@s-blog/engine-win32-x64-msvc": "0.3.2",
+    "@s-blog/engine-darwin-arm64": "0.3.2",
+    "@s-blog/engine-linux-x64-gnu": "0.3.2"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.4"
