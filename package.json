@@ -6,6 +6,7 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "dev": "node crates/s-blog-engine-napi/bin/s-blog.cjs serve",
+    "dev:vite": "vite",
     "build:core": "npm run build:all -w packages/core",
     "build": "npm run build:core && node crates/s-blog-engine-napi/bin/s-blog.cjs build",
     "preview": "vite preview",

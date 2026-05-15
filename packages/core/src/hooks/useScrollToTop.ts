@@ -1,20 +1,66 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
-/**
- * Automatically scrolls to top on navigation, unless it's a POP action (back/forward).
- */
-export function useScrollToTop() {
-  const { pathname } = useLocation();
-  const action = useNavigationType();
+const STORAGE_KEY = 'scroll-positions';
 
+const isReload = (() => {
+  const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  return entries.length > 0 && entries[0].type === 'reload';
+})();
+
+// Clear saved positions on reload so they don't interfere
+if (isReload) {
+  sessionStorage.removeItem(STORAGE_KEY);
+}
+
+function getScrollMap(): Record<string, number> {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+  } catch { return {}; }
+}
+
+function saveScroll(key: string, y: number) {
+  const map = getScrollMap();
+  map[key] = y;
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+}
+
+export function useScrollToTop() {
+  const { pathname, hash, key } = useLocation();
+  const action = useNavigationType();
+  const keyRef = useRef(key);
+  const scrollRef = useRef(0);
+
+  // Track scroll position continuously
   useEffect(() => {
-    // 'POP' means the user clicked the Back or Forward button.
-    // In that case, we want to let the browser restore the previous scroll position.
-    // For 'PUSH' (new link) or 'REPLACE', we scroll to the top.
-    console.log("🚀 ~ useScrollToTop ~ action:", action);
-    if (action !== 'POP') {
+    const onScroll = () => { scrollRef.current = window.scrollY; };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // When key changes, save the scroll position of the PREVIOUS key
+  useEffect(() => {
+    if (keyRef.current !== key && keyRef.current !== 'default') {
+      saveScroll(keyRef.current, scrollRef.current);
+    }
+    keyRef.current = key;
+  }, [key]);
+
+  // Handle scroll-to-top for PUSH/REPLACE
+  useEffect(() => {
+    if (action !== 'POP' && !hash) {
       window.scrollTo(0, 0);
     }
-  }, [action, pathname]);
+  }, [action, pathname, hash]);
+}
+
+export function restoreScrollForKey(key: string): boolean {
+  if (key === 'default') return false;
+  const map = getScrollMap();
+  const y = map[key];
+  if (y != null && y > 0) {
+    requestAnimationFrame(() => window.scrollTo(0, y));
+    return true;
+  }
+  return false;
 }
