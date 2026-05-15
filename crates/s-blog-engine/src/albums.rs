@@ -219,7 +219,7 @@ fn generate_albums_impl(
 
         // Build summary (requirement 2.6.3)
         let name = entry.name.clone().unwrap_or_else(|| dirname.clone());
-        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp);
+        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp, skip_thumbnails);
 
         let summary = AlbumSummary {
             dirname: dirname.clone(),
@@ -271,10 +271,14 @@ fn build_cover_url(
     configured_cover: Option<&str>,
     photo_files: &[String],
     base_path: &str,
+    skip_thumbnails: bool,
 ) -> Option<String> {
     // Check configured cover
     if let Some(cover_file) = configured_cover {
         if photo_files.iter().any(|f| f == cover_file) {
+            if skip_thumbnails {
+                return Some(format!("{base_path}/albums/{dirname}/{cover_file}"));
+            }
             let stem = Path::new(cover_file)
                 .file_stem()
                 .unwrap_or_default()
@@ -285,11 +289,15 @@ fn build_cover_url(
 
     // Fall back to first photo
     photo_files.first().map(|first| {
-        let stem = Path::new(first)
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy();
-        format!("{base_path}/albums/{dirname}/thumbs/{stem}.webp")
+        if skip_thumbnails {
+            format!("{base_path}/albums/{dirname}/{first}")
+        } else {
+            let stem = Path::new(first)
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy();
+            format!("{base_path}/albums/{dirname}/thumbs/{stem}.webp")
+        }
     })
 }
 
@@ -319,28 +327,28 @@ mod tests {
     #[test]
     fn build_cover_url_configured_cover_exists() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("b.jpg"), &photos, "");
+        let result = build_cover_url("travel", Some("b.jpg"), &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/b.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_configured_cover_missing_falls_back() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "");
+        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/a.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_no_config_uses_first() {
         let photos = vec!["first.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "");
+        let result = build_cover_url("travel", None, &photos, "", false);
         assert_eq!(result, Some("/albums/travel/thumbs/first.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_empty_album() {
         let photos: Vec<String> = Vec::new();
-        let result = build_cover_url("travel", None, &photos, "");
+        let result = build_cover_url("travel", None, &photos, "", false);
         assert_eq!(result, None);
     }
 
@@ -475,7 +483,7 @@ mod tests {
     #[test]
     fn build_cover_url_with_base_path() {
         let photos = vec!["a.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "/blog");
+        let result = build_cover_url("travel", None, &photos, "/blog", false);
         assert_eq!(
             result,
             Some("/blog/albums/travel/thumbs/a.webp".to_string())
