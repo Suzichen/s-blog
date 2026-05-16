@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useParams, Link, useLocation, useNavigationType } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigationType, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -17,6 +17,7 @@ const PostDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { hash, key } = useLocation();
   const navType = useNavigationType();
+  const navigate = useNavigate();
   
   const { post, content, loading, isFallback, prevPost, nextPost } = usePost(slug);
 
@@ -82,6 +83,22 @@ const PostDetail: React.FC = () => {
               rehypePlugins={[rehypeSlug]}
               components={{
                 img: ({ node, ...props }) => <LazyImage {...props} />,
+                a: ({ node, href, ...props }) => {
+                  if (href?.startsWith('#')) {
+                    return (
+                      <a 
+                        href={href} 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          // Only navigate if it's an internal hash link
+                          navigate(`${window.location.pathname}${href}`); 
+                        }} 
+                        {...props} 
+                      />
+                    );
+                  }
+                  return <a href={href} {...props} />;
+                }
               }}
           >
               {content}
