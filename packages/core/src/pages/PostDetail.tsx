@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { usePost } from '@/hooks/usePost';
 import { restoreScrollForKey } from '@/hooks/useScrollToTop';
+import LazyImage from '@/components/LazyImage';
 
 const PostDetail: React.FC = () => {
   const { t } = useTranslation();
@@ -80,7 +81,7 @@ const PostDetail: React.FC = () => {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSlug]}
               components={{
-                img: ({ node, ...props }) => <img loading="lazy" {...props} />,
+                img: ({ node, ...props }) => <LazyImage {...props} />,
               }}
           >
               {content}
