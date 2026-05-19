@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import GithubSlugger from 'github-slugger';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface TableOfContentsProps {
   content: string;
@@ -16,6 +17,8 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const slugger = new GithubSlugger();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     slugger.reset();
@@ -89,6 +92,11 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
           >
             <a 
                 href={`#${heading.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Only navigate if the hash is actually different, or just let navigate handle it
+                  navigate(`${location.pathname}#${heading.id}`);
+                }}
                 className="block py-[2px] text-sm text-accent hover:text-blue-600 hover:underline transition-colors no-underline"
             >
               {heading.text}

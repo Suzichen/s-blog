@@ -24,7 +24,7 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
       build: 's-blog build',
     },
     dependencies: {
-      '@s-blog/core': '^0.3.0',
+      '@s-blog/core': '^0.3.2',
       '@s-blog/engine': '^0.3.7',
     },
   };

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigationType, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -9,18 +9,46 @@ import 'prismjs/themes/prism.css';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { usePost } from '@/hooks/usePost';
+import { restoreScrollForKey } from '@/hooks/useScrollToTop';
+import LazyImage from '@/components/LazyImage';
 
 const PostDetail: React.FC = () => {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
+  const { hash, key } = useLocation();
+  const navType = useNavigationType();
+  const navigate = useNavigate();
   
   const { post, content, loading, isFallback, prevPost, nextPost } = usePost(slug);
 
+  // After content renders: handle hash scroll or POP restore
   useEffect(() => {
-    if (content) {
-      Prism.highlightAll();
+    if (!content) return;
+    Prism.highlightAll();
+
+    if (navType === 'POP') {
+      const restored = restoreScrollForKey(key);
+      if (!restored && hash) {
+        const id = decodeURIComponent(hash.slice(1));
+        requestAnimationFrame(() => {
+          document.getElementById(id)?.scrollIntoView();
+        });
+      }
+    } else if (hash) {
+      const id = decodeURIComponent(hash.slice(1));
+      requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView();
+      });
     }
   }, [content]);
+
+  // Handle hash changes within the same page (TOC clicks)
+  useEffect(() => {
+    if (!content || !hash) return;
+    const id = decodeURIComponent(hash.slice(1));
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView();
+  }, [hash]);
 
   if (!post) {
     if (loading) return <div>{t('common.loading')}</div>; 
@@ -53,6 +81,25 @@ const PostDetail: React.FC = () => {
           <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSlug]}
+              components={{
+                img: ({ node, ...props }) => <LazyImage {...props} />,
+                a: ({ node, href, ...props }) => {
+                  if (href?.startsWith('#')) {
+                    return (
+                      <a 
+                        href={href} 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          // Only navigate if it's an internal hash link
+                          navigate(`${window.location.pathname}${href}`); 
+                        }} 
+                        {...props} 
+                      />
+                    );
+                  }
+                  return <a href={href} {...props} />;
+                }
+              }}
           >
               {content}
           </ReactMarkdown>
