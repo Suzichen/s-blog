@@ -7,4 +7,5 @@ export interface SiteConfig {
   author?: string;
   language?: string; // Default language code (e.g., 'en', 'zh-CN', 'ja')
   timezone?: string; // IANA timezone identifier (e.g., 'Asia/Shanghai')
+  github?: string; // GitHub repository URL
 }
