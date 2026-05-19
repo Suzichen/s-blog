@@ -165,7 +165,7 @@ posts/
 
 ## 相册
 
-将照片放在 `albums/{dirname}/` 下。支持的格式：`.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
+将照片放在 `albums/{dirname}/` 下。支持的格式：`.jpg`, `.jpeg`, `.png`, `.webp`
 
 构建过程自动：
 - 生成 WebP 缩略图（最大 1080px）

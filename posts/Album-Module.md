@@ -52,7 +52,7 @@ albums/travel-2024/
   photo-03.png
 ```
 
-Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
+Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`
 
 ### 3. Build
 

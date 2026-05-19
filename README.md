@@ -165,7 +165,7 @@ The system automatically detects available languages and shows a fallback notice
 
 ## Photo Albums
 
-Place photos in `albums/{dirname}/`. Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
+Place photos in `albums/{dirname}/`. Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`
 
 The build process automatically:
 - Generates WebP thumbnails (max 1080px)

@@ -57,21 +57,23 @@ All framework code is inside `node_modules/@s-blog/core` and `node_modules/@s-bl
 npm update @s-blog/core @s-blog/engine
 ```
 
-## Advanced: Internal Scripts
+## Advanced: Legacy Scripts (Deprecated)
 
-The build engine (`@s-blog/engine`) handles everything automatically. However, the underlying TypeScript scripts are still available inside this package for advanced use cases or debugging:
+The underlying TypeScript scripts from earlier versions are still present inside this package but are **deprecated** and will be removed in a future release. The Rust build engine (`@s-blog/engine`) has fully replaced their functionality.
 
 ```
 node_modules/@s-blog/core/scripts/
-├── copy-shell.ts           # Copy App Shell to dist/
-├── generate-posts-data.ts  # Generate manifest.json + copy .md files
-├── generate-albums-data.ts # Process photos, generate thumbnails + JSON
-├── generate-seo.ts         # Generate per-post SEO HTML pages
-├── generate-sitemap.ts     # Generate sitemap.xml
-├── generate-rss.ts         # Generate rss.xml
-├── generate-robots.ts      # Generate robots.txt
-└── copy-public.ts          # Copy public/ assets to dist/
+├── copy-shell.ts
+├── generate-posts-data.ts
+├── generate-albums-data.ts
+├── generate-seo.ts
+├── generate-sitemap.ts
+├── generate-rss.ts
+├── generate-robots.ts
+└── copy-public.ts
 ```
+
+> ⚠️ Do not rely on these scripts in new projects. Use `npm run build` / `npm run dev` instead.
 
 ## License
 

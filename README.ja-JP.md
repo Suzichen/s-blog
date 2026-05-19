@@ -165,7 +165,7 @@ posts/
 
 ## フォトアルバム
 
-写真を `albums/{dirname}/` に配置。対応フォーマット：`.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
+写真を `albums/{dirname}/` に配置。対応フォーマット：`.jpg`, `.jpeg`, `.png`, `.webp`
 
 ビルドプロセスが自動的に：
 - WebP サムネイル生成（最大 1080px）
