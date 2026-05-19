@@ -3,7 +3,7 @@ title: About This Blog System
 date: 2025-12-19 12:00:00
 tags: [blog-system, static-site, react]
 categories: [Project]
-preview: An introduction to the blog system behind this site, including how it works and how it can be deployed.
+preview: An introduction to the blog system behind this site — how it works, how to use it, and how to deploy.
 ---
 
 ## What This Page Is
@@ -12,7 +12,7 @@ This page documents **the blog system itself**.
 
 It explains how this site is built, how content is handled, and how the system can be deployed and maintained.
 
-If you are reading this page on the live site, you are already looking at a real instance of this system in use.
+If you are reading this on the live site, you are already looking at a real instance of this system in action.
 
 ---
 
@@ -21,11 +21,10 @@ If you are reading this page on the live site, you are already looking at a real
 Create a new blog in one command:
 
 ```bash
-# Using bun
-bunx create-s-blog my-blog
-# Or using npx
-npx create-s-blog@latest my-blog
+npm create s-blog@latest my-blog
 ```
+
+> You can also use `bunx create-s-blog my-blog` or `pnpm create s-blog my-blog`.
 
 The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
 
@@ -33,9 +32,7 @@ Then:
 
 ```bash
 cd my-blog
-# Using bun
-bun run dev
-# Or using npm
+npm install
 npm run dev
 ```
 
@@ -51,16 +48,28 @@ Create a Markdown file under `posts/`:
 ---
 title: My First Post
 date: 2025-01-01
-# You can bypass global settings and declare the time zone
-# date: 2025-01-01 18:00:00+00:00
 tags: [hello, blog]
 categories: [General]
+preview: A short summary for the post list.
 ---
 
 Your content here...
 ```
 
 Posts are automatically picked up by the build system — no manual registration needed.
+
+### Multi-language Posts
+
+To publish a post in multiple languages, use filename suffixes:
+
+```
+posts/
+├── About.md          # Default version
+├── About.zh-CN.md    # Chinese version
+└── About.ja.md       # Japanese version
+```
+
+The system automatically detects available translations. When a user switches to a language without a localized version, the default version is shown with a fallback notice.
 
 ---
 
@@ -70,11 +79,13 @@ Posts are automatically picked up by the build system — no manual registration
 npm run build
 ```
 
-This single command handles the full pipeline:
+This single command (powered by the Rust build engine) handles the full pipeline:
 
-1. **Album processing** — generates thumbnails and metadata
-2. **Posts processing** — generates the posts manifest and copies files
-3. **SEO generation** — creates per-post HTML, sitemap.xml, rss.xml, robots.txt
+1. **App Shell** — copies the pre-built React frontend from `@s-blog/core`
+2. **Posts** — parses frontmatter, generates manifest, copies Markdown files
+3. **Albums** — generates WebP thumbnails + EXIF metadata JSON
+4. **SEO** — generates per-post HTML pages, sitemap.xml, rss.xml, robots.txt
+5. **Static assets** — copies `public/` to output
 
 The output is a fully static site in `dist/`. Deploy it anywhere:
 
@@ -89,63 +100,63 @@ No Node.js runtime or backend required after build.
 ## Features
 
 ### 📝 Markdown Blogging
-- Frontmatter metadata (title, date, tags, categories)
+- Frontmatter metadata (title, date, tags, categories, preview)
 - Syntax highlighting with PrismJS
 - Table of contents generation
 - Previous/next post navigation
 
 ### 📸 Photo Albums
 - Drop photos into `albums/` directories
-- Auto-generated WebP thumbnails
-- EXIF metadata extraction
+- Auto-generated WebP thumbnails (max 1080px)
+- EXIF metadata extraction (camera, lens, aperture, shutter speed, ISO)
 - Full-screen photo viewer
 - Configurable via `album.config.json`
 
-### 🔍 SEO Optimization
+### 🔍 SEO
 - Per-post HTML pages with Open Graph and Twitter Card meta tags
 - Structured data (JSON-LD)
 - Auto-generated `sitemap.xml`, `rss.xml`, and `robots.txt`
 - Configure `siteUrl` in `config.json` to enable all SEO features
 
 ### 🌐 i18n
-- Built-in language switcher (Chinese, English, Japanese)
-- Support the publication of different language versions of the same article
+- Built-in language switcher (English, Chinese, Japanese)
+- Multi-language posts via filename suffixes
+- Automatic language detection and fallback
 
 ### ⚡ Performance
 - Route-level code splitting via React.lazy
 - Static site — no runtime server overhead
 - Optimized asset bundling with Vite
+- Rust-powered build for near-instant content processing
 
 ---
 
 ## Architecture
 
-S-blog is published as three npm packages:
+S-Blog is published as three npm packages:
 
 | Package | Purpose |
 |---------|---------|
-| `@s-blog/core` | The blog framework — UI components, routing, hooks, build scripts |
-| `create-s-blog` | The CLI scaffold — `npm create s-blog` |
-| `@s-blog/engine` | A parsing and build engine implemented in `rust`, which will replace the built-in scripts of `@s-blog/core` in future versions. |
+| `@s-blog/core` | Pre-built App Shell — UI components, routing, styles, JSON schemas |
+| `@s-blog/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
+| `create-s-blog` | CLI scaffolding tool — `npm create s-blog` |
 
-
-Your project only contains your content and configuration:
+Your project only contains content and configuration:
 
 ```
 my-blog/
-├── albums/         # Photo album directories
-├── posts/          # Your Markdown posts
-├── config.json     # Site configuration
-├── album.config.json # Album configuration
-├── public/         # Static assets (logo, favicon, etc.)
-├── index.html
+├── posts/              # Markdown posts
+├── albums/             # Photo album directories (optional)
+├── public/             # Static assets (logo, favicon)
+├── config.json         # Site configuration
+├── album.config.json   # Album configuration
 └── package.json
 ```
 
-All framework code lives in `@s-blog/core`. To update the framework:
+To update the framework:
 
 ```bash
-npm update @s-blog/core
+npm update @s-blog/core @s-blog/engine
 ```
 
 ---
@@ -163,9 +174,23 @@ npm update @s-blog/core
   "siteUrl": "https://example.com",
   "author": "Your Name",
   "language": "en",
-  "timezone": "Asia/Tokyo"
+  "timezone": "Asia/Tokyo",
+  "github": "https://github.com/username/repo"
 }
 ```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | Yes | Site title |
+| `description` | Yes | Site description |
+| `logo` | Yes | Logo image path |
+| `favicon` | Yes | Favicon path |
+| `siteUrl` | No | Production URL. Enables SEO features |
+| `author` | No | Author name for SEO metadata |
+| `language` | No | Default language (`en`, `zh-CN`, `ja`) |
+| `timezone` | No | IANA timezone for correct post dates |
+| `basePath` | No | Sub-directory deployment path (e.g., `/blog`) |
+| `github` | No | GitHub URL — shows icon link in top-right corner |
 
 ### Album Config (`album.config.json`)
 
@@ -173,8 +198,8 @@ npm update @s-blog/core
 {
   "enabled": true,
   "albums": [
-    { "dir": "travel", "name": "Travel Photos" },
-    { "dir": "food", "name": "Food Gallery", "cover": "best-dish.jpg" }
+    { "dir": "travel", "name": "Travel Photos", "cover": "cover.jpg" },
+    { "dir": "日常" }
   ]
 }
 ```
@@ -184,15 +209,13 @@ npm update @s-blog/core
 ## Who This System Is For
 
 **Good fit for:**
-
 - Personal blogs
 - Technical writing
-- Documentation-style sites
 - Photo portfolios
+- Documentation-style sites
 - Projects that value simplicity and portability
 
 **Not intended for:**
-
 - User-generated content platforms
 - Applications requiring runtime data mutation
 - Systems that depend on authentication or server-side state

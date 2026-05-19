@@ -2,25 +2,27 @@
 
 # S-Blog
 
-> **免責事項**：このシステムのすべてのコードは AI によって生成されました。
+> **免責事項**: 本システムのすべてのコードは AI によって生成されています。
 
 **デモ:**
 - [公式サイト](https://s-blog.me)
-- [著者の個人サイト](https://s-blog.suzichen.me/)
+- [作者の個人サイト](https://s-blog.suzichen.me/)
 
-React、Vite、TypeScript で構築されたモダンな静的ブログシステムです。
+React、Vite、TypeScript で構築されたモダンな静的ブログシステム。Rust ベースのビルドエンジンによりネイティブレベルのパフォーマンスを実現。
 
-## 特徴
+## 機能
 
-- **技術スタック**: React 19, Vite, TypeScript
-- **コンテンツ管理**: Markdown ベースの記事作成（Hexo 互換の Frontmatter）
+- **技術スタック**: React 19, Vite, TypeScript, Rust (ビルドエンジン)
+- **コンテンツ**: Markdown ベースの記事 (Hexo 互換 frontmatter)
 - **機能**:
   - インスタント検索
-  - アーカイブ（年/月）
+  - アーカイブ (年/月)
   - タグとカテゴリー
-  - 多言語対応
-- **デザイン**: シンプルでレスポンシブなデザイン
-- **パフォーマンス**: 記事データの静的生成による高速な読み込み
+  - 多言語サポート (英語、中国語、日本語)
+  - EXIF メタデータ付きフォトアルバム
+  - SEO (sitemap, RSS, Open Graph, JSON-LD)
+- **スタイル**: Tailwind CSS によるクリーンなレスポンシブデザイン
+- **パフォーマンス**: Rust 駆動のビルドパイプラインによる静的サイト生成
 
 ## クイックスタート
 
@@ -30,137 +32,160 @@ React、Vite、TypeScript で構築されたモダンな静的ブログシステ
 npm create s-blog@latest
 ```
 
-> **ヒント:** bun環境を使用している場合は、`bunx create-s-blog my-blog`を使用し、以降のコマンドでは`npm`を`bun`に置き換えてください。
+> **ヒント:** `bunx create-s-blog my-blog` や `pnpm create s-blog my-blog` も使用可能です。
 
-CLI がプロジェクトの設定をガイドします。初期化が完了したら：
+CLI がプロジェクトのセットアップをガイドします。初期化後：
 
 ```bash
 cd my-blog
-npm run dev
-```
-
-### フレームワークの更新
-
-最新の機能とバグ修正を取得：
-
-```bash
-npm update @s-blog/core
-```
-
-ユーザーはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`albums/`）のみ管理します。フレームワークの更新は `@s-blog/core` パッケージを通じて配信されます。
-
-### 手動インストール（代替方法）
-
-手動で設定したい場合：
-
-```bash
-git clone https://github.com/Suzichen/s-blog.git
-cd s-blog
 npm install
 npm run dev
 ```
 
-### ビルド
-
-本番環境用にビルドします：
+### 本番ビルド
 
 ```bash
 npm run build
 ```
 
-## 設定
+このコマンド一つで完全なパイプラインを処理します：
+1. プリビルト App Shell のコピー
+2. 記事マニフェスト生成と Markdown ファイルのコピー
+3. アルバム写真の処理（サムネイル + EXIF 抽出）
+4. SEO ページ、sitemap.xml、rss.xml、robots.txt の生成
 
-サイトの設定は `config.json` で変更できます：
+出力は `dist/` 内の完全な静的サイトです。任意の静的ホスティングにデプロイできます。
 
-- **title**: サイトタイトル
-- **description**: サイト説明文
-- **logo**: ロゴ画像のパス
-- **favicon**: ファビコンのパス
-- **siteUrl**（オプション）: 本番環境の URL（例：`https://s-blog.suzichen.me`）
-  - SEO 機能に必要（sitemap.xml、RSS フィード、Open Graph タグなど）
-  - 設定しない場合、URL 依存の SEO 機能はスキップされます
-- **author**（オプション）: SEO メタデータ用の著者名
-- **language**（オプション）: デフォルト言語コード（例：`en`、`zh-CN`、`ja`）
-- **timezone**（オプション）: IANA タイムゾーン識別子（例：`Asia/Shanghai`、`Asia/Tokyo`）。特定のタイムゾーンで記事を作成し、CI（デフォルトが UTC の GitHub Actions など）でビルドする場合、この設定によりビルド時に記事の公開日が正しく処理され、日付が1日ずれる問題を防ぎます。
+### フレームワークの更新
 
-### SEO 機能
-
-`siteUrl` を設定すると、ビルドプロセスで自動生成されます：
-
-- **SEO HTML ファイル**（`dist/post/*.html`）- メタタグ、Open Graph タグ、Twitter Cards、JSON-LD 構造化データを含む検索エンジンフレンドリーなページ
-- **sitemap.xml** - 検索エンジン用の XML サイトマップ
-- **rss.xml** - RSS 2.0 フィード
-- **robots.txt** - Web クローラー向けの指示
-
-## 記事の執筆
-
-`posts` ディレクトリに Markdown ファイルを追加してください。
-ファイルの先頭には Frontmatter を含める必要があります：
-
-```yaml
----
-title: 記事のタイトル
-date: 2024-01-01 12:00:00
-# date: 2026-01-01 12:00:00+00:00 # グローバル設定をバイパスして、タイムゾーンを個別に宣言できます。
-tags: [Tech, React]
-categories: [プログラミング]
-preview: 記事のプレビュー...
----
+```bash
+npm update @s-blog/core @s-blog/engine
 ```
 
-## アルバムモジュール
+メンテナンスが必要なのはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`albums/`、`public/`）のみです。フレームワークの更新はパッケージマネージャーを通じて配信されます。
 
-ブログにはオプションのアルバム（フォトギャラリー）モジュールが含まれており、写真をアルバムごとに整理して表示できます。
+## アーキテクチャ
 
-### 設定
+S-Blog は 3 つの npm パッケージとして公開されています：
 
-`album.config.json` を編集してアルバムを管理します：
+| パッケージ | 用途 |
+|-----------|------|
+| `@s-blog/core` | プリビルト App Shell、UI コンポーネント、ルーティング、スタイル、JSON Schema |
+| `@s-blog/engine` | Rust 駆動のビルドエンジン — Markdown パース、画像処理、SEO 生成、開発サーバー |
+| `create-s-blog` | CLI スキャフォールディングツール — `npm create s-blog` |
+
+プロジェクトにはコンテンツと設定のみを含みます：
+
+```
+my-blog/
+├── posts/              # Markdown 記事
+├── albums/             # フォトアルバム (オプション)
+├── public/             # 静的アセット (logo, favicon)
+├── config.json         # サイト設定
+├── album.config.json   # アルバム設定
+└── package.json
+```
+
+## 設定
+
+### サイト設定 (`config.json`)
+
+```json
+{
+  "title": "My Blog",
+  "description": "A personal blog",
+  "logo": "/logo.png",
+  "favicon": "/favicon.ico",
+  "siteUrl": "https://example.com",
+  "author": "Your Name",
+  "language": "en",
+  "timezone": "Asia/Tokyo",
+  "github": "https://github.com/username/repo"
+}
+```
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `title` | はい | サイトタイトル |
+| `description` | はい | サイト説明 |
+| `logo` | はい | ロゴ画像パス |
+| `favicon` | はい | Favicon パス |
+| `siteUrl` | いいえ | 本番 URL。SEO 機能（sitemap、RSS、Open Graph）に必要 |
+| `author` | いいえ | 著者名。SEO メタデータに使用 |
+| `language` | いいえ | デフォルト言語コード (`en`, `zh-CN`, `ja`)。i18n フォールバック動作に影響 |
+| `timezone` | いいえ | IANA タイムゾーン（例：`Asia/Tokyo`）。CI でのビルド時に記事の日付を正確にする |
+| `basePath` | いいえ | サブディレクトリデプロイパス（例：`/blog`）。デフォルトは `/` |
+| `github` | いいえ | GitHub URL。設定するとページ右上に GitHub アイコンリンクを表示 |
+
+### アルバム設定 (`album.config.json`)
 
 ```json
 {
   "enabled": true,
   "albums": [
-    { "dir": "travel-2024", "name": "2024 旅行", "cover": "cover.jpg" },
-    { "dir": "春", "cover": "sakura.jpg" }
+    { "dir": "travel-2024", "name": "2024 Travel", "cover": "cover.jpg" },
+    { "dir": "日常", "cover": "best.jpg" }
   ]
 }
 ```
 
-- **enabled**：アルバムモジュール全体のオン/オフ切り替え
-- **dir**：`albums/` 配下のディレクトリ名（文字・数字・ハイフン・アンダースコア；日本語等の Unicode 文字に対応；スペースやパス区切り文字は不可）
-- **name**（オプション）：アルバムの表示名
-- **cover**（オプション）：カバー写真のファイル名
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `enabled` | はい | アルバムモジュール全体のオン/オフ |
+| `albums[].dir` | はい | `albums/` 下のディレクトリ名。英数字、ハイフン、アンダースコア、CJK 文字に対応 |
+| `albums[].name` | いいえ | 表示名。デフォルトは `dir` |
+| `albums[].cover` | いいえ | カバー写真のファイル名。デフォルトは最初の写真 |
 
-### 写真の追加
+## 記事の作成
 
-写真を `albums/{dirname}/` に配置します：
+`posts/` ディレクトリに Markdown ファイルを追加：
 
-```
-albums/travel-2024/
-  photo1.jpg
-  photo2.png
-  cover.jpg
-```
-
-対応フォーマット：`.jpg`、`.jpeg`、`.png`、`.webp`、`.heic`
-
-### アルバムデータのビルド
-
-```bash
-npm run build:albums
+```yaml
+---
+title: 記事タイトル
+date: 2024-01-01 12:00:00
+tags: [Tech, React]
+categories: [Programming]
+preview: プレビュー用の短い説明。
+---
 ```
 
-このコマンドは以下を実行します：
-1. 設定済みのアルバムディレクトリをスキャン
-2. `thumbs/` サブディレクトリに WebP サムネイルを生成（長辺最大 1080px）
-3. EXIF メタデータを抽出（カメラ機種、焦点距離、絞り、シャッタースピード、ISO）
-4. `public/generated/` に JSON インデックスファイルを出力
+### 多言語記事
 
-サムネイルはインクリメンタルビルドに対応 — 変更のない写真はスキップされます。
+ファイル名サフィックスを使って同じ記事の多言語版を公開：
 
-## 貢献方法
+```
+posts/
+├── About.md          # デフォルト（サイト言語または英語に対応）
+├── About.zh-CN.md    # 中国語版
+└── About.ja.md       # 日本語版
+```
 
-このプロジェクトでは手動でのコーディングは禁止されています。すべてのコードは AI によって生成される必要があります。
+システムが利用可能な言語を自動検出し、ローカライズ版が利用できない場合はフォールバック通知を表示します。
+
+## フォトアルバム
+
+写真を `albums/{dirname}/` に配置。対応フォーマット：`.jpg`, `.jpeg`, `.png`, `.webp`
+
+ビルドプロセスが自動的に：
+- WebP サムネイル生成（最大 1080px）
+- EXIF メタデータ抽出（カメラ、レンズ、絞り、シャッタースピード、ISO）
+- JSON インデックスファイル生成
+
+サムネイルはインクリメンタルに生成され、変更のない写真はスキップされます。
+
+## SEO
+
+`siteUrl` を設定すると、ビルド時に自動生成：
+
+- **SEO HTML ページ** (`dist/post/*/index.html`) — Open Graph, Twitter Card, JSON-LD
+- **sitemap.xml** — XML サイトマップ
+- **rss.xml** — RSS 2.0 フィード
+- **robots.txt** — クローラー指示
+
+## コントリビューション
+
+本プロジェクトは手動コーディングを厳格に禁止しています。すべてのコードは AI によって生成される必要があります。
 
 ## AI コントリビューター
 
@@ -170,7 +195,7 @@ npm run build:albums
 - Claude Opus 4.5
 - Claude Opus 4.6
 
-## エージェンティック ツール
+## エージェントツール
 
 - [Antigravity](https://antigravity.google/)
 - [Kiro](https://kiro.dev/)
