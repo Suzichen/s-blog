@@ -45,6 +45,7 @@ let site_config = SiteConfig {
     language: Some("en".into()),
     timezone: Some("Asia/Tokyo".into()),
     base_path: Some("/".into()),
+    github: Some("https://github.com/user/repo".into()),
 };
 
 let album_config = AlbumConfig {
@@ -238,8 +239,13 @@ fn build_blog(
 | `ImageDecode` | 图片解码失败 |
 | `InvalidAlbumName` | 相册目录名包含非法字符 |
 | `Config` | 配置错误 |
+| `ConfigNotFound` | 配置文件不存在 |
+| `BuildStepFailed` | 构建步骤执行失败 |
+| `PortInUse` | 开发服务器端口被占用 |
+| `ServeDirNotFound` | serve 目录不存在（需先 build） |
 | `Io` | 文件系统 I/O 错误 |
 | `Json` | JSON 序列化/反序列化错误 |
+| `Yaml` | YAML 解析错误 |
 
 ```rust
 use s_blog_engine::EngineError;
@@ -266,6 +272,10 @@ match result {
 | `s_blog_engine::image_proc` | 缩略图生成、尺寸计算 |
 | `s_blog_engine::exif` | EXIF 元数据读取 |
 | `s_blog_engine::path_util` | basePath 规范化、URL 构建 |
+| `s_blog_engine::build` | 完整构建管线（buildCommand 使用） |
+| `s_blog_engine::serve` | 开发服务器（serveCommand 使用） |
+| `s_blog_engine::shell` | App Shell 复制逻辑 |
+| `s_blog_engine::mime` | MIME 类型推断 |
 
 ```rust
 // 示例：单独解析 frontmatter

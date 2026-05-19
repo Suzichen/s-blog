@@ -1,14 +1,14 @@
 ---
-title: Welcome to S-blog
+title: Welcome to S-Blog
 date: 2025-01-01 12:00:00
 tags: [blog, getting-started]
 categories: [General]
-preview: Your first post! This article introduces S-blog and how to get started with writing.
+preview: Your first post! This article introduces S-Blog and how to get started with writing.
 ---
 
 ## Welcome! 🎉
 
-Congratulations on setting up your new **S-blog** project!
+Congratulations on setting up your new **S-Blog** project!
 
 This is your first sample post. You can edit or delete it, and start writing your own content.
 
@@ -44,10 +44,12 @@ npm run dev
 npm run build
 ```
 
+The build produces a fully static site in `dist/` — deploy it to any static hosting.
+
 ### Updating the Framework
 
 ```bash
-npm update @s-blog/core
+npm update @s-blog/core @s-blog/engine
 ```
 
 ---

@@ -1,51 +1,105 @@
 # create-s-blog
 
-The official scaffolding CLI tool for creating an **s-blog** project.
+The official scaffolding CLI for creating an [S-Blog](https://s-blog.me) project.
 
 ## Usage
 
-You can create a new blog project instantly using `create-s-blog` via `npx` (which comes with npm), `yarn`, `pnpm`, or `bun`. There is no need to manually install this package globally.
-
 ```bash
-# Using bun
+# npm
+npm create s-blog@latest my-blog
+
+# bun
 bunx create-s-blog my-blog
 
-# Using npx
-npx create-s-blog@latest my-blog
-
-# Using yarn
-yarn create s-blog my-blog
-
-# Using pnpm
+# pnpm
 pnpm create s-blog my-blog
+
+# yarn
+yarn create s-blog my-blog
 ```
 
-If you want to initialize the project in your current directory, you can use `.` as the target directory:
+To initialize in the current directory:
 
 ```bash
-npx create-s-blog@latest .
+npm create s-blog@latest .
 ```
 
-### Next Steps
+The CLI prompts for project name, description, author, site URL, and timezone — then generates everything you need.
 
-After the scaffolding is complete, install the dependencies and start the development server:
+## What Gets Generated
+
+```
+my-blog/
+├── posts/
+│   ├── hello-world.md    # Sample welcome post
+│   └── about.md          # Sample about page
+├── albums/
+│   └── blog/             # Sample album directory
+├── public/
+│   ├── logo.png
+│   ├── logomax.png
+│   ├── favicon.ico
+│   └── _redirects
+├── config.json           # Site configuration (with your answers filled in)
+├── album.config.json     # Album configuration
+├── package.json          # { "dev": "s-blog serve", "build": "s-blog build" }
+└── .gitignore
+```
+
+### Generated `package.json`
+
+```json
+{
+  "name": "my-blog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "s-blog serve",
+    "build": "s-blog build"
+  },
+  "dependencies": {
+    "@s-blog/core": "^0.3.2",
+    "@s-blog/engine": "^0.3.7"
+  }
+}
+```
+
+## After Scaffolding
 
 ```bash
 cd my-blog
-# If you used bun
-bun install
-bun run dev
-
-# Or with npm
 npm install
-npm run dev
+npm run dev      # Start development server (localhost:3000)
+npm run build    # Build for production → dist/
 ```
 
-## Features
+## Configuration
 
-- **Instant Setup:** Generates a ready-to-use directory structure for your blog.
-- **Pre-configured:** Comes with Markdown post support, App Shell configuration, and built-in data generation scripts.
-- **Customizable:** Generates standard templates and configuration files that are easily adjustable to fit your needs.
+### `config.json`
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | Yes | Site title |
+| `description` | Yes | Site description |
+| `logo` | Yes | Logo image path |
+| `favicon` | Yes | Favicon path |
+| `siteUrl` | No | Production URL (enables SEO features) |
+| `author` | No | Author name |
+| `language` | No | Default language (`en`, `zh-CN`, `ja`) |
+| `timezone` | No | IANA timezone for correct post dates |
+| `basePath` | No | Sub-directory path (e.g., `/blog`) |
+| `github` | No | GitHub URL (shows icon in top-right) |
+
+### `album.config.json`
+
+```json
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "blog", "name": "Blog Photos" }
+  ]
+}
+```
 
 ## License
 

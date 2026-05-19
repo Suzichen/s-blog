@@ -19,7 +19,7 @@ Like everything else in this system, the album module is **purely static**. All 
 The album module consists of three layers:
 
 1. **Configuration** (`album.config.json`) — Define your albums
-2. **Build Script** (`npm run build:albums`) — Process photos at build time
+2. **Build** (`npm run build`) — Photos are processed as part of the standard build pipeline
 3. **Frontend Pages** — Browse albums and view photos
 
 ### 1. Configure Albums
@@ -54,38 +54,38 @@ albums/travel-2024/
 
 Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
 
-### 3. Build Album Data
+### 3. Build
+
+Album processing is part of the standard build command:
 
 ```bash
-npm run build:albums
+npm run build
 ```
 
-The build script does the following for each album:
+The Rust build engine handles album processing automatically:
 
-- **Scans** the directory for photo files (direct children only, no recursion)
+- **Scans** each album directory for photo files (direct children only, no recursion)
 - **Generates WebP thumbnails** (max 1080px long side, aspect ratio preserved) in a `thumbs/` subdirectory
 - **Extracts EXIF metadata** — camera make/model, focal length, aperture, shutter speed, ISO
-- **Outputs JSON** index files to `public/generated/`
+- **Outputs JSON** index files to the output directory
 
 The process is **incremental** — thumbnails are only regenerated when the source photo has been modified. This makes repeated builds fast.
-
-The `build:albums` step is also included in the main `npm run build` command, so album data is always up to date in production builds.
 
 ---
 
 ## Photo Directory Structure
 
-After running `build:albums`, the directory structure looks like this:
+After building, the output structure looks like this:
 
 ```
-albums/                     ← Original photos (placed by you, fully tracked)
+albums/                     ← Original photos (placed by you, version-controlled)
   travel-2024/
     photo-01.jpg
     photo-02.jpg
   日常写真/
     img-001.jpg
 
-public/                     ← Build outputs (gitignored)
+dist/                       ← Build output
   albums/
     travel-2024/
       thumbs/               ← Thumbnails (auto-generated)
@@ -100,7 +100,7 @@ public/                     ← Build outputs (gitignored)
     album-日常写真.json
 ```
 
-Both `public/albums/` and `public/generated/` are gitignored since they are build artifacts that can be regenerated at any time. Original photos in `albums/` remain clean and version-controlled.
+Original photos in `albums/` remain clean and version-controlled. All generated outputs go to `dist/`.
 
 ---
 
@@ -137,12 +137,12 @@ Consistent with the blog's philosophy: all heavy work at build time, zero runtim
 
 WebP offers significantly smaller file sizes than JPEG at comparable quality, resulting in faster page loads. The long side is capped at 1080px — large enough for previews, small enough for fast loading.
 
-### Why are thumbnails and JSON gitignored?
+### Why Rust for image processing?
 
-They are deterministic build outputs. Given the same source photos and config, `build:albums` always produces the same result. Keeping them out of version control keeps the repo clean and avoids large binary diffs.
+The build engine uses native Rust image processing for thumbnail generation and EXIF extraction, providing significantly faster performance compared to the previous TypeScript-based approach — especially for albums with many photos.
 
 ---
 
 ## Summary
 
-The album module adds a fully static photo gallery to the blog system with minimal complexity. No new runtime dependencies, no backend changes, no database — just a build script and a few React components.
+The album module adds a fully static photo gallery to the blog system with minimal complexity. No new runtime dependencies, no backend changes, no database — just configuration, photos, and the standard build command.

@@ -8,19 +8,21 @@
 - [Official Site](https://s-blog.me)
 - [Author's Personal Site](https://s-blog.suzichen.me/)
 
-A modern, static blog system built with React, Vite, and TypeScript.
+A modern, static blog system built with React, Vite, and TypeScript. Powered by a Rust-based build engine for native performance.
 
 ## Features
 
-- **Tech Stack**: React 19, Vite, TypeScript
+- **Tech Stack**: React 19, Vite, TypeScript, Rust (build engine)
 - **Content**: Markdown-based posts (Hexo-compatible frontmatter)
 - **Features**:
   - Instant Search
   - Archives (Year/Month)
   - Tags & Categories
-  - i18n Support
-- **Styling**: Clean, responsive design
-- **Performance**: Static site generation for posts data
+  - i18n Support (English, Chinese, Japanese)
+  - Photo Albums with EXIF metadata
+  - SEO (sitemap, RSS, Open Graph, JSON-LD)
+- **Styling**: Clean, responsive design with Tailwind CSS
+- **Performance**: Static site generation with Rust-powered build pipeline
 
 ## Quick Start
 
@@ -30,133 +32,156 @@ The fastest way to create a new blog:
 npm create s-blog@latest
 ```
 
-> **Tip:** If you use the bun environment, you can use `bunx create-s-blog my-blog` and simply replace `npm` with `bun` in the following commands.
+> **Tip:** You can also use `bunx create-s-blog my-blog` or `pnpm create s-blog my-blog`.
 
 The CLI will guide you through project setup. After initialization:
 
 ```bash
 cd my-blog
-npm run dev
-```
-
-### Update Framework
-
-Get the latest features and bug fixes:
-
-```bash
-npm update @s-blog/core
-```
-
-You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `albums/`). Framework updates are delivered through the `@s-blog/core` package.
-
-### Manual Installation (Alternative)
-
-If you prefer to set up manually:
-
-```bash
-git clone https://github.com/Suzichen/s-blog.git
-cd s-blog
 npm install
 npm run dev
 ```
 
-### Build
-
-Build for production:
+### Build for Production
 
 ```bash
 npm run build
 ```
 
-## Configuration
+This single command handles the full pipeline:
+1. Copies the pre-built App Shell
+2. Generates posts manifest and copies Markdown files
+3. Processes album photos (thumbnails + EXIF extraction)
+4. Generates SEO pages, sitemap.xml, rss.xml, robots.txt
 
-Site configuration can be modified in `config.json`:
+The output is a fully static site in `dist/`. Deploy it to any static hosting.
 
-- **title**: Website title
-- **description**: Website description
-- **logo**: Logo image path
-- **favicon**: Favicon path
-- **siteUrl** (optional): Production URL (e.g., `https://s-blog.suzichen.me`)
-  - Required for SEO features like sitemap.xml, RSS feed, Open Graph tags
-  - If not set, URL-dependent SEO features will be skipped
-- **author** (optional): Author name for SEO metadata
-- **language** (optional): Default language code (e.g., `en`, `zh-CN`, `ja`)
-- **timezone** (optional): IANA timezone identifier (e.g., `Asia/Shanghai`, `Asia/Tokyo`). If your blog posts are written in a specific timezone but you build the site on CI (like GitHub Actions) which defaults to UTC, this ensures your post dates are correctly generated during the build process, preventing them from appearing as a day off.
+### Update Framework
 
-### SEO Features
-
-When `siteUrl` is configured, the build process automatically generates:
-
-- **SEO HTML files** (`dist/post/*.html`) - Search engine friendly pages with meta tags, Open Graph tags, Twitter Cards, and JSON-LD structured data
-- **sitemap.xml** - XML sitemap for search engines
-- **rss.xml** - RSS 2.0 feed for subscribers
-- **robots.txt** - Web crawler instructions
-
-## Writing Posts
-
-Add your Markdown files to the `posts` directory.
-Top of the file should include frontmatter:
-
-```yaml
----
-title: My Post Title
-date: 2024-01-01 12:00:00
-# date: 2026-01-01 12:00:00+00:00 # Bypass global settings and declare the time zone separately.
-tags: [Tech, React]
-categories: [Programming]
-preview: A short description of the post meant for previews.
----
+```bash
+npm update @s-blog/core @s-blog/engine
 ```
 
-## Album Module
+You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `albums/`, `public/`). Framework updates are delivered through packages.
 
-The blog includes an optional album (photo gallery) module that allows you to organize and display photos.
+## Architecture
 
-### Configuration
+S-Blog is published as three npm packages:
 
-Edit `album.config.json` to manage albums:
+| Package | Purpose |
+|---------|---------|
+| `@s-blog/core` | Pre-built App Shell, UI components, routing, styles, JSON schemas |
+| `@s-blog/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
+| `create-s-blog` | CLI scaffolding tool — `npm create s-blog` |
+
+Your project only contains content and configuration:
+
+```
+my-blog/
+├── posts/              # Markdown posts
+├── albums/             # Photo albums (optional)
+├── public/             # Static assets (logo, favicon)
+├── config.json         # Site configuration
+├── album.config.json   # Album configuration
+└── package.json
+```
+
+## Configuration
+
+### Site Config (`config.json`)
+
+```json
+{
+  "title": "My Blog",
+  "description": "A personal blog",
+  "logo": "/logo.png",
+  "favicon": "/favicon.ico",
+  "siteUrl": "https://example.com",
+  "author": "Your Name",
+  "language": "en",
+  "timezone": "Asia/Tokyo",
+  "github": "https://github.com/username/repo"
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | Yes | Website title |
+| `description` | Yes | Website description |
+| `logo` | Yes | Logo image path |
+| `favicon` | Yes | Favicon path |
+| `siteUrl` | No | Production URL. Required for SEO features (sitemap, RSS, Open Graph) |
+| `author` | No | Author name for SEO metadata |
+| `language` | No | Default language code (`en`, `zh-CN`, `ja`). Affects i18n fallback behavior |
+| `timezone` | No | IANA timezone (e.g., `Asia/Shanghai`). Ensures correct post dates when building on CI |
+| `basePath` | No | Sub-directory deployment path (e.g., `/blog`). Defaults to `/` |
+| `github` | No | GitHub URL. Displays a GitHub icon link in the top-right corner |
+
+### Album Config (`album.config.json`)
 
 ```json
 {
   "enabled": true,
   "albums": [
     { "dir": "travel-2024", "name": "2024 Travel", "cover": "cover.jpg" },
-    { "dir": "春", "cover": "sakura.jpg" }
+    { "dir": "日常", "cover": "best.jpg" }
   ]
 }
 ```
 
-- **enabled**: Toggle the entire album module on/off
-- **dir**: Directory name under `albums/` (letters, numbers, hyphens, underscores; CJK characters allowed; no spaces or path separators)
-- **name** (optional): Display name for the album
-- **cover** (optional): Cover photo filename
+| Field | Required | Description |
+|-------|----------|-------------|
+| `enabled` | Yes | Toggle the entire album module on/off |
+| `albums[].dir` | Yes | Directory name under `albums/`. Supports letters, numbers, hyphens, underscores, CJK characters |
+| `albums[].name` | No | Display name. Defaults to `dir` |
+| `albums[].cover` | No | Cover photo filename. Falls back to the first photo |
 
-### Adding Photos
+## Writing Posts
 
-Place your photos in `albums/{dirname}/`:
+Add Markdown files to `posts/`:
 
-```
-albums/travel-2024/
-  photo1.jpg
-  photo2.png
-  cover.jpg
-```
-
-Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
-
-### Building Album Data
-
-```bash
-npm run build:albums
+```yaml
+---
+title: My Post Title
+date: 2024-01-01 12:00:00
+tags: [Tech, React]
+categories: [Programming]
+preview: A short description for post previews.
+---
 ```
 
-This command:
-1. Scans configured album directories
-2. Generates WebP thumbnails (max 1080px long side) in `thumbs/` subdirectories
-3. Extracts EXIF metadata (camera, focal length, aperture, shutter speed, ISO)
-4. Outputs JSON index files to `public/generated/`
+### Multi-language Posts
+
+To publish a post in multiple languages, use filename suffixes:
+
+```
+posts/
+├── About.md          # Default (matches site language or English)
+├── About.zh-CN.md    # Chinese version
+└── About.ja.md       # Japanese version
+```
+
+The system automatically detects available languages and shows a fallback notice when a localized version is unavailable.
+
+## Photo Albums
+
+Place photos in `albums/{dirname}/`. Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic`
+
+The build process automatically:
+- Generates WebP thumbnails (max 1080px)
+- Extracts EXIF metadata (camera, lens, aperture, shutter speed, ISO)
+- Produces JSON index files
 
 Thumbnails are generated incrementally — unchanged photos are skipped.
+
+## SEO
+
+When `siteUrl` is configured, the build automatically generates:
+
+- **SEO HTML pages** (`dist/post/*/index.html`) — Open Graph, Twitter Card, JSON-LD
+- **sitemap.xml** — XML sitemap
+- **rss.xml** — RSS 2.0 feed
+- **robots.txt** — Crawler instructions
 
 ## Contributing
 

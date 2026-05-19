@@ -1,47 +1,77 @@
 # @s-blog/core
 
-The core engine and pre-built App Shell for **s-blog**, a lightweight, fast, and elegant static blog framework.
+The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
 
-## Usage
+## What This Package Provides
 
-> **Note:** The easiest and recommended way to get started with `s-blog` is by using the official scaffolding tool: `bunx create-s-blog my-blog` or `npx create-s-blog my-blog`.
+- **Pre-built App Shell** — Production-ready `index.html` + hashed JS/CSS assets (React SPA)
+- **UI Components** — Post list, post detail with Markdown rendering, photo albums, search overlay, language switcher, etc.
+- **Routing** — Pre-configured React Router with code-splitting (lazy-loaded routes)
+- **i18n** — Built-in internationalization (English, Chinese, Japanese)
+- **JSON Schemas** — Validation schemas for `config.json` and `album.config.json`
+- **Type Definitions** — TypeScript types for blog metadata, album data, and site config
 
-If you are setting up manually or need to update the core engine in an existing project, you can install it via your package manager:
+## How It Works
 
-```bash
-npm install @s-blog/core
-# or
-yarn add @s-blog/core
-# or
-pnpm add @s-blog/core
-```
+`@s-blog/core` is the **frontend** half of S-Blog. It pairs with `@s-blog/engine` (the **build engine**) to form the complete system:
 
-### Architecture
+1. `@s-blog/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
+2. `@s-blog/core` provides the App Shell that loads and renders that content at runtime
 
-Starting with the App Shell architecture, `@s-blog/core` provides a pre-built React frontend and data generation scripts. Instead of compiling React yourself via Vite, you only need to provide `config.json`, `album.config.json`, and Markdown posts. The core engine will load your configurations at runtime.
-
-### Basic Scripts
-
-You can use the built-in scripts to generate static data and prepare the App Shell for your blog:
+Users interact with both through simple npm scripts:
 
 ```bash
-# Copy the pre-built App Shell to your dist folder
-npx tsx node_modules/@s-blog/core/scripts/copy-shell.ts
-
-# Generate posts manifest and copy markdown files
-npx tsx node_modules/@s-blog/core/scripts/generate-posts-data.ts
-
-# Process photos and generate albums metadata
-npx tsx node_modules/@s-blog/core/scripts/generate-albums-data.ts
+npm run dev    # Start dev server (powered by @s-blog/engine)
+npm run build  # Full production build (engine copies shell from core, then processes content)
 ```
 
-## Features
+## Installation
 
-- **Built-in App Shell:** Pre-designed layouts, post lists, markdown rendering, photo viewers, and more.
-- **Runtime Configuration:** JSON-based setup without frontend build tools.
-- **Routing & State:** Pre-configured React Router integration for seamless SPA navigation.
-- **i18n Support:** Built-in internationalization.
-- **Responsive Design:** Mobile-friendly UI right out of the box.
+> **Recommended:** Use `npm create s-blog@latest` to scaffold a new project. It sets up both `@s-blog/core` and `@s-blog/engine` automatically.
+
+For manual setup or upgrading:
+
+```bash
+npm install @s-blog/core @s-blog/engine
+```
+
+## Project Structure (User's Project)
+
+After scaffolding, a user's project contains only content:
+
+```
+my-blog/
+├── posts/              # Markdown posts
+├── albums/             # Photo albums (optional)
+├── public/             # Static assets (logo, favicon)
+├── config.json         # Site configuration
+├── album.config.json   # Album configuration
+└── package.json        # scripts: { dev, build }
+```
+
+All framework code is inside `node_modules/@s-blog/core` and `node_modules/@s-blog/engine`.
+
+## Updating
+
+```bash
+npm update @s-blog/core @s-blog/engine
+```
+
+## Advanced: Internal Scripts
+
+The build engine (`@s-blog/engine`) handles everything automatically. However, the underlying TypeScript scripts are still available inside this package for advanced use cases or debugging:
+
+```
+node_modules/@s-blog/core/scripts/
+├── copy-shell.ts           # Copy App Shell to dist/
+├── generate-posts-data.ts  # Generate manifest.json + copy .md files
+├── generate-albums-data.ts # Process photos, generate thumbnails + JSON
+├── generate-seo.ts         # Generate per-post SEO HTML pages
+├── generate-sitemap.ts     # Generate sitemap.xml
+├── generate-rss.ts         # Generate rss.xml
+├── generate-robots.ts      # Generate robots.txt
+└── copy-public.ts          # Copy public/ assets to dist/
+```
 
 ## License
 
