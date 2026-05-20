@@ -39,6 +39,10 @@ const resources = {
         "backToAlbums": "← Back to Albums",
         "albumNotFound": "Album not found"
       },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next"
+      },
       "post": {
         "noLocalizedVersion": "This article is not available in English. Showing the original version."
       }
@@ -79,6 +83,10 @@ const resources = {
         "backToAlbums": "← 返回相册",
         "albumNotFound": "相册未找到"
       },
+      "pagination": {
+        "prev": "上一页",
+        "next": "下一页"
+      },
       "post": {
         "noLocalizedVersion": "此文章暂无中文版本，已为您展示作者原文"
       }
@@ -118,6 +126,10 @@ const resources = {
         "photoCount": "{{count}} 枚の写真",
         "backToAlbums": "← アルバムに戻る",
         "albumNotFound": "アルバムが見つかりません"
+      },
+      "pagination": {
+        "prev": "前のページ",
+        "next": "次のページ"
       },
       "post": {
         "noLocalizedVersion": "この記事の日本語版はありません。原文を表示しています。"
