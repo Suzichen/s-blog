@@ -77,6 +77,11 @@ const PostDetail: React.FC = () => {
           </div>
         </header>
         
+        {/* Mobile TOC - inline collapsible */}
+        <div className="xl:hidden mb-6">
+          <TableOfContents content={content} collapsible />
+        </div>
+
         <div className="markdown-body">
           <ReactMarkdown 
               remarkPlugins={[remarkGfm]}

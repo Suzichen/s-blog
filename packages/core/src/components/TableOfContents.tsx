@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 interface TableOfContentsProps {
   content: string;
+  collapsible?: boolean;
 }
 
 interface Heading {
@@ -13,8 +14,9 @@ interface Heading {
   id: string;
 }
 
-const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
+const TableOfContents: React.FC<TableOfContentsProps> = ({ content, collapsible = false }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
   const slugger = new GithubSlugger();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -80,30 +82,48 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     return null;
   }
 
+  const tocList = (
+    <ul className="list-none p-0 m-0">
+      {headings.map((heading) => (
+        <li 
+          key={heading.id} 
+          className="mb-0 leading-tight"
+          style={{ marginLeft: `${(heading.level - 1) * 1}rem` }}
+        >
+          <a 
+              href={`#${heading.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`${location.pathname}#${heading.id}`);
+              }}
+              className="block py-[2px] text-sm text-accent hover:text-blue-600 hover:underline transition-colors no-underline"
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+
+  if (collapsible) {
+    return (
+      <nav className="bg-bg-alt border border-border rounded p-4" aria-label="Table of Contents">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 w-full text-left font-bold text-primary bg-transparent border-none cursor-pointer p-0"
+        >
+          <span className="text-xs">{isExpanded ? '▼' : '▶'}</span>
+          <span>{t('common.toc')}</span>
+        </button>
+        {isExpanded && <div className="mt-3">{tocList}</div>}
+      </nav>
+    );
+  }
+
   return (
     <nav className="toc" aria-label="Table of Contents">
       <h2 className="text-xl font-bold mb-4 text-primary">{t('common.toc')}</h2>
-      <ul className="list-none p-0 m-0">
-        {headings.map((heading) => (
-          <li 
-            key={heading.id} 
-            className="mb-0 leading-tight"
-            style={{ marginLeft: `${(heading.level - 1) * 1}rem` }}
-          >
-            <a 
-                href={`#${heading.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  // Only navigate if the hash is actually different, or just let navigate handle it
-                  navigate(`${location.pathname}#${heading.id}`);
-                }}
-                className="block py-[2px] text-sm text-accent hover:text-blue-600 hover:underline transition-colors no-underline"
-            >
-              {heading.text}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {tocList}
     </nav>
   );
 };

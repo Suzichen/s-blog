@@ -42,6 +42,7 @@ const App: React.FC = () => {
         <Suspense fallback={<div className="w-full max-w-[800px] mx-auto py-8 text-center text-secondary"></div>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/page/:pageNum" element={<Home />} />
             <Route path="/post/:slug" element={<PostDetail />} />
             <Route path="/categories/:category" element={<CategoryDetail />} />
             <Route path="/tags/:tag" element={<TagDetail />} />
