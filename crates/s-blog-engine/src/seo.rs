@@ -224,6 +224,152 @@ fn generate_seo_html(post: &PostMetadata, config: &SiteConfig, base_path: &str) 
     out
 }
 
+// ── Homepage SEO ───────────────────────────────────────────────────
+
+const POSTS_PER_PAGE: usize = 10;
+
+/// Generate the SEO `<head>` snippet for a homepage/pagination page.
+fn generate_homepage_head(config: &SiteConfig, base_path: &str, page: usize, total_pages: usize) -> String {
+    let site_url = config.site_url.as_deref();
+    let author = config.author.as_deref();
+
+    let page_path = if page == 1 { "/".to_string() } else { format!("/page/{}/", page) };
+    let page_url = match site_url {
+        Some(url) => build_full_url(url, base_path, &page_path),
+        None => String::new(),
+    };
+    let image_url = match site_url {
+        Some(url) => build_full_url(url, base_path, &config.logo),
+        None => String::new(),
+    };
+
+    let title = if page == 1 {
+        config.title.clone()
+    } else {
+        format!("{} - Page {}", config.title, page)
+    };
+
+    let mut out = String::new();
+
+    out.push_str(&format!("\n  <title>{}</title>", escape_html(&title)));
+    out.push_str(&format!("\n  <meta name=\"description\" content=\"{}\">", escape_html(&config.description)));
+    if let Some(a) = author {
+        out.push_str(&format!("\n  <meta name=\"author\" content=\"{}\">", escape_html(a)));
+    }
+    out.push_str("\n  <meta name=\"robots\" content=\"index, follow\">");
+    if !page_url.is_empty() {
+        out.push_str(&format!("\n  <link rel=\"canonical\" href=\"{}\">", page_url));
+    }
+
+    // Pagination rel links
+    if let Some(url) = site_url {
+        if page > 1 {
+            let prev_path = if page == 2 { "/".to_string() } else { format!("/page/{}/", page - 1) };
+            out.push_str(&format!("\n  <link rel=\"prev\" href=\"{}\">", build_full_url(url, base_path, &prev_path)));
+        }
+        if page < total_pages {
+            out.push_str(&format!("\n  <link rel=\"next\" href=\"{}\">", build_full_url(url, base_path, &format!("/page/{}/", page + 1))));
+        }
+    }
+
+    // OG + Twitter (only when siteUrl is set)
+    if site_url.is_some() {
+        out.push_str("\n\n  <meta property=\"og:type\" content=\"website\">");
+        out.push_str(&format!("\n  <meta property=\"og:url\" content=\"{}\">", page_url));
+        out.push_str(&format!("\n  <meta property=\"og:title\" content=\"{}\">", escape_html(&title)));
+        out.push_str(&format!("\n  <meta property=\"og:description\" content=\"{}\">", escape_html(&config.description)));
+        out.push_str(&format!("\n  <meta property=\"og:site_name\" content=\"{}\">", escape_html(&config.title)));
+        out.push_str(&format!("\n  <meta property=\"og:image\" content=\"{}\">", image_url));
+
+        out.push_str("\n\n  <meta name=\"twitter:card\" content=\"summary_large_image\">");
+        out.push_str(&format!("\n  <meta name=\"twitter:url\" content=\"{}\">", page_url));
+        out.push_str(&format!("\n  <meta name=\"twitter:title\" content=\"{}\">", escape_html(&title)));
+        out.push_str(&format!("\n  <meta name=\"twitter:description\" content=\"{}\">", escape_html(&config.description)));
+        out.push_str(&format!("\n  <meta name=\"twitter:image\" content=\"{}\">", image_url));
+    }
+
+    // JSON-LD WebSite schema (only on page 1)
+    if page == 1 {
+        if let Some(_) = site_url {
+            let author_name = author.unwrap_or("Anonymous");
+            let json_ld = format!(
+                "{{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": {},\n  \"url\": {},\n  \"description\": {},\n  \"author\": {{\n    \"@type\": \"Person\",\n    \"name\": {}\n  }}\n}}",
+                serde_json::to_string(&config.title).unwrap_or_else(|_| format!("\"{}\"", &config.title)),
+                serde_json::to_string(&page_url).unwrap_or_else(|_| format!("\"{}\"", &page_url)),
+                serde_json::to_string(&config.description).unwrap_or_else(|_| format!("\"{}\"", &config.description)),
+                serde_json::to_string(author_name).unwrap_or_else(|_| format!("\"{}\"", author_name)),
+            );
+            out.push_str(&format!("\n\n  <script type=\"application/ld+json\">\n{}\n  </script>", json_ld));
+        }
+    }
+
+    out
+}
+
+/// Generate the article list HTML for the `<div id="root">` content.
+fn generate_post_list_html(posts: &[PostMetadata], base_path: &str) -> String {
+    let mut out = String::new();
+    out.push_str("\n    <main>");
+    for post in posts {
+        let post_url = format!("{}/post/{}", base_path, &post.slug);
+        out.push_str(&format!(
+            "\n      <article>\n        <h2><a href=\"{}\">{}</a></h2>\n        <time>{}</time>\n        <p>{}</p>\n      </article>",
+            post_url,
+            escape_html(&post.title),
+            escape_html(&post.date),
+            escape_html(&post.summary),
+        ));
+    }
+    out.push_str("\n    </main>\n  ");
+    out
+}
+
+/// Generate SEO-optimized homepage and pagination pages.
+///
+/// For each page, injects SEO head tags and a static article list into
+/// `<div id="root">`. React will hydrate/replace the content on load.
+///
+/// - Page 1: `output_dir/index.html` (overwrites existing)
+/// - Page N: `output_dir/page/N/index.html`
+pub fn generate_homepage_seo(
+    output_dir: &Path,
+    config: &SiteConfig,
+    manifest: &[PostMetadata],
+) -> Result<(), EngineError> {
+    let index_path = output_dir.join("index.html");
+    if !index_path.exists() {
+        return Ok(());
+    }
+
+    let template = fs::read_to_string(&index_path)?;
+    let base_path = normalize_base_path_option(config.base_path.as_deref());
+    let total_pages = if manifest.is_empty() { 1 } else { (manifest.len() + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE };
+
+    for page in 1..=total_pages {
+        let start = (page - 1) * POSTS_PER_PAGE;
+        let end = std::cmp::min(start + POSTS_PER_PAGE, manifest.len());
+        let page_posts = &manifest[start..end];
+
+        let head_tags = generate_homepage_head(config, &base_path, page, total_pages);
+        let body_content = generate_post_list_html(page_posts, &base_path);
+
+        let mut html = template.clone();
+        html = remove_title_tag(&html);
+        html = html.replace("</head>", &format!("{}\n</head>", head_tags));
+        html = html.replace("<div id=\"root\"></div>", &format!("<div id=\"root\">{}</div>", body_content));
+
+        if page == 1 {
+            fs::write(&index_path, &html)?;
+        } else {
+            let page_dir = output_dir.join(format!("page/{}", page));
+            fs::create_dir_all(&page_dir)?;
+            fs::write(page_dir.join("index.html"), &html)?;
+        }
+    }
+
+    Ok(())
+}
+
 // ── Public API ─────────────────────────────────────────────────────
 
 /// Generate one SEO HTML page per post.
@@ -662,5 +808,176 @@ mod tests {
     fn remove_title_tag_no_title() {
         let input = "<head><meta charset=\"utf-8\"></head>";
         assert_eq!(remove_title_tag(input), input);
+    }
+
+    // ── Homepage SEO tests ─────────────────────────────────────────
+
+    #[test]
+    fn homepage_seo_injects_basic_meta() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("<title>My Blog</title>"));
+        assert!(html.contains("name=\"description\" content=\"A personal blog\""));
+        assert!(html.contains("name=\"author\" content=\"Alice\""));
+        assert!(html.contains("name=\"robots\" content=\"index, follow\""));
+        assert!(html.contains("rel=\"canonical\" href=\"https://example.com/\""));
+        assert!(!html.contains("App Shell"));
+    }
+
+    #[test]
+    fn homepage_seo_injects_og_tags() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("property=\"og:type\" content=\"website\""));
+        assert!(html.contains("property=\"og:url\" content=\"https://example.com/\""));
+        assert!(html.contains("property=\"og:title\" content=\"My Blog\""));
+        assert!(html.contains("property=\"og:image\" content=\"https://example.com/logo.png\""));
+    }
+
+    #[test]
+    fn homepage_seo_injects_twitter_card() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("name=\"twitter:card\" content=\"summary_large_image\""));
+        assert!(html.contains("name=\"twitter:image\" content=\"https://example.com/logo.png\""));
+    }
+
+    #[test]
+    fn homepage_seo_injects_json_ld() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("\"@type\": \"WebSite\""));
+        assert!(html.contains("\"name\": \"My Blog\""));
+    }
+
+    #[test]
+    fn homepage_seo_with_base_path() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let mut config = sample_config();
+        config.base_path = Some("/blog".to_string());
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("rel=\"canonical\" href=\"https://example.com/blog/\""));
+        assert!(html.contains("property=\"og:image\" content=\"https://example.com/blog/logo.png\""));
+    }
+
+    #[test]
+    fn homepage_seo_skips_og_without_site_url() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let mut config = sample_config();
+        config.site_url = None;
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("<title>My Blog</title>"));
+        assert!(!html.contains("og:type"));
+        assert!(!html.contains("twitter:card"));
+        assert!(!html.contains("application/ld+json"));
+    }
+
+    #[test]
+    fn homepage_seo_no_op_when_index_missing() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        let config = sample_config();
+        let result = generate_homepage_seo(&output_dir, &config, &[]);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn homepage_seo_includes_post_list() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        let posts = vec![sample_post()];
+        generate_homepage_seo(&output_dir, &config, &posts).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("<article>"));
+        assert!(html.contains("<a href=\"/post/hello-world\">Hello World</a>"));
+        assert!(html.contains("This is my first post"));
+    }
+
+    #[test]
+    fn homepage_seo_generates_pagination_pages() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        // Create 12 posts to trigger 2 pages
+        let posts: Vec<PostMetadata> = (0..12).map(|i| PostMetadata {
+            slug: format!("post-{}", i),
+            title: format!("Post {}", i),
+            date: "2024-01-01T00:00:00".to_string(),
+            tags: vec![],
+            categories: vec![],
+            summary: format!("Summary {}", i),
+            available_languages: vec![],
+            localized_meta: std::collections::HashMap::new(),
+        }).collect();
+
+        generate_homepage_seo(&output_dir, &config, &posts).unwrap();
+
+        // Page 1 exists and has first 10 posts
+        let page1 = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(page1.contains("post-0"));
+        assert!(page1.contains("post-9"));
+        assert!(!page1.contains("post-10"));
+        assert!(page1.contains("rel=\"next\""));
+        assert!(!page1.contains("rel=\"prev\""));
+
+        // Page 2 exists
+        let page2_path = output_dir.join("page/2/index.html");
+        assert!(page2_path.exists());
+        let page2 = fs::read_to_string(&page2_path).unwrap();
+        assert!(page2.contains("post-10"));
+        assert!(page2.contains("post-11"));
+        assert!(!page2.contains("post-0"));
+        assert!(page2.contains("rel=\"prev\""));
+        assert!(!page2.contains("rel=\"next\""));
+        assert!(page2.contains("<title>My Blog - Page 2</title>"));
     }
 }
