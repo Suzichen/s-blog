@@ -1,6 +1,6 @@
 {
   "name": "create-s-blog",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "bin": {
     "create-s-blog": "./dist/index.js"

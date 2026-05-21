@@ -50,6 +50,66 @@
       "default": "/",
       "description": "Base path for subdirectory deployment",
       "examples": ["/", "/blog/", "/my-site/"]
+    },
+    "links": {
+      "type": "object",
+      "description": "Friend links widget displayed in sidebar",
+      "required": ["enabled", "items"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Toggle the links widget on/off"
+        },
+        "items": {
+          "type": "object",
+          "description": "Key-value pairs: { \"Display Name\": \"URL\" }",
+          "additionalProperties": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "socialLinks": {
+      "type": "object",
+      "description": "Social icon links widget",
+      "required": ["enabled", "items"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Toggle the social links widget on/off"
+        },
+        "items": {
+          "type": "array",
+          "description": "Array of social link items",
+          "items": {
+            "type": "object",
+            "required": ["platform"],
+            "properties": {
+              "platform": {
+                "type": "string",
+                "description": "Platform name (github, rss, x, twitter, weibo, zhihu, bilibili, email, facebook, instagram, tiktok) or \"custom\""
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to link to. Optional for rss (auto-derived from siteUrl)"
+              },
+              "icon": {
+                "type": "string",
+                "description": "Custom icon image path"
+              },
+              "label": {
+                "type": "string",
+                "description": "Tooltip text. Defaults to platform name"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
