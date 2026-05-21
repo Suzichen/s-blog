@@ -100,7 +100,21 @@ my-blog/
   "author": "Your Name",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/username/repo"
+  "links": {
+    "enabled": true,
+    "items": {
+      "Friend Blog": "https://example.com"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/username/repo" },
+      { "platform": "x", "url": "https://x.com/username" },
+      { "platform": "custom", "url": "https://example.com", "icon": "/icons/my-icon.png", "label": "My Site" }
+    ]
+  }
 }
 ```
 
@@ -115,7 +129,32 @@ my-blog/
 | `language` | No | Default language code (`en`, `zh-CN`, `ja`). Affects i18n fallback behavior |
 | `timezone` | No | IANA timezone (e.g., `Asia/Shanghai`). Ensures correct post dates when building on CI |
 | `basePath` | No | Sub-directory deployment path (e.g., `/blog`). Defaults to `/` |
-| `github` | No | GitHub URL. Displays a GitHub icon link in the top-right corner |
+| `links` | No | Friend links widget (see below) |
+| `socialLinks` | No | Social icon links widget (see below) |
+
+#### Links Widget (`links`)
+
+Displays a list of text links in the right sidebar (desktop) or footer (mobile).
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `links.enabled` | Yes | Toggle the links widget on/off |
+| `links.items` | Yes | Key-value pairs: `{ "Display Name": "URL" }` |
+
+#### Social Links Widget (`socialLinks`)
+
+Displays a row of icon links. Built-in platforms: `github`, `rss`, `x`, `twitter`, `weibo`, `zhihu`, `bilibili`, `email`, `facebook`, `instagram`, `tiktok`.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `socialLinks.enabled` | Yes | Toggle the social links widget on/off |
+| `socialLinks.items` | Yes | Array of social link items |
+| `items[].platform` | Yes | Platform name (built-in) or `"custom"` for custom icons |
+| `items[].url` | Depends | URL to link to. Optional for `rss` (auto-derived from `siteUrl`), required for others |
+| `items[].icon` | No | Custom icon image path. Used when platform is `"custom"` or unrecognized |
+| `items[].label` | No | Tooltip text. Defaults to platform name |
+
+> **Note:** If `platform` is `"rss"` and `url` is omitted, the URL is automatically set to `{siteUrl}/rss.xml`. If `siteUrl` is not configured, the RSS item will not be rendered.
 
 ### Album Config (`album.config.json`)
 

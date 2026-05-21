@@ -6,5 +6,18 @@
   "favicon": "/favicon.ico",
   "__SITEURL__": "__SITEURL_VALUE__",
   "__AUTHOR__": "__AUTHOR_VALUE__",
-  "language": "en"
+  "language": "en",
+  "links": {
+    "enabled": true,
+    "items": {
+      "S-Blog": "https://s-blog.me"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/Suzichen/s-blog" }
+    ]
+  }
 }

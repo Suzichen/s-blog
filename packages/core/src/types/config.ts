@@ -1,11 +1,29 @@
+export interface SocialLinkItem {
+  platform: string;
+  url?: string;
+  icon?: string;
+  label?: string;
+}
+
+export interface LinksConfig {
+  enabled: boolean;
+  items: Record<string, string>;
+}
+
+export interface SocialLinksConfig {
+  enabled: boolean;
+  items: SocialLinkItem[];
+}
+
 export interface SiteConfig {
   title: string;
   description: string;
   logo: string;
   favicon: string;
-  siteUrl?: string; // Production URL, if not set, URL-dependent SEO features won't be generated
+  siteUrl?: string;
   author?: string;
-  language?: string; // Default language code (e.g., 'en', 'zh-CN', 'ja')
-  timezone?: string; // IANA timezone identifier (e.g., 'Asia/Shanghai')
-  github?: string; // GitHub repository URL
+  language?: string;
+  timezone?: string;
+  links?: LinksConfig;
+  socialLinks?: SocialLinksConfig;
 }

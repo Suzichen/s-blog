@@ -186,6 +186,13 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
         0
     };
 
+    crate::seo::generate_homepage_seo(&output_dir, &config, &manifest).map_err(|e| {
+        EngineError::BuildStepFailed {
+            step: "generate homepage SEO".into(),
+            reason: e.to_string(),
+        }
+    })?;
+
     crate::sitemap::generate_sitemap(
         &manifest,
         &output_dir.join("sitemap.xml"),

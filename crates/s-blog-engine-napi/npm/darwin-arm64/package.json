@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine-darwin-arm64",
-  "version": "0.3.8",
+  "version": "0.3.10",
   "description": "s-blog-engine native binding for macOS ARM64 (Apple Silicon)",
   "license": "MIT",
   "os": [
