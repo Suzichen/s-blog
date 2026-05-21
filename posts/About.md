@@ -175,7 +175,21 @@ npm update @s-blog/core @s-blog/engine
   "author": "Your Name",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/username/repo"
+  "links": {
+    "enabled": true,
+    "items": {
+      "Friend Blog": "https://example.com"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/username/repo" },
+      { "platform": "email", "url": "mailto:you@example.com" },
+      { "platform": "custom", "url": "https://example.com", "icon": "/icons/my-icon.png", "label": "My Site" }
+    ]
+  }
 }
 ```
 
@@ -190,7 +204,8 @@ npm update @s-blog/core @s-blog/engine
 | `language` | No | Default language (`en`, `zh-CN`, `ja`) |
 | `timezone` | No | IANA timezone for correct post dates |
 | `basePath` | No | Sub-directory deployment path (e.g., `/blog`) |
-| `github` | No | GitHub URL — shows icon link in top-right corner |
+| `links` | No | Friend links widget — text links in right sidebar (desktop) or footer (mobile) |
+| `socialLinks` | No | Social icon links widget — built-in icons for github, rss, x, weibo, zhihu, bilibili, email, facebook, instagram, tiktok; supports custom icons |
 
 ### Album Config (`album.config.json`)
 

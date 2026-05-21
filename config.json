@@ -7,5 +7,18 @@
   "author": "Suzichen",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/Suzichen/s-blog"
+  "links": {
+    "enabled": true,
+    "items": {
+      "Suzic's Blog": "https://s-blog.suzichen.me/"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "email", "url": "mailto:mail@suzichen.me" },
+      { "platform": "github", "url": "https://github.com/Suzichen/s-blog" }
+    ]
+  }
 }

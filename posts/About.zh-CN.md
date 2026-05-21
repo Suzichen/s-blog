@@ -175,7 +175,21 @@ npm update @s-blog/core @s-blog/engine
   "author": "Your Name",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/username/repo"
+  "links": {
+    "enabled": true,
+    "items": {
+      "友人博客": "https://example.com"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/username/repo" },
+      { "platform": "email", "url": "mailto:you@example.com" },
+      { "platform": "custom", "url": "https://example.com", "icon": "/icons/my-icon.png", "label": "我的站点" }
+    ]
+  }
 }
 ```
 
@@ -190,7 +204,8 @@ npm update @s-blog/core @s-blog/engine
 | `language` | 否 | 默认语言代码 (`en`, `zh-CN`, `ja`) |
 | `timezone` | 否 | IANA 时区，确保文章日期正确 |
 | `basePath` | 否 | 子目录部署路径（如 `/blog`） |
-| `github` | 否 | GitHub URL — 配置后在页面右上角显示图标链接 |
+| `links` | 否 | 友链插件 — 在右侧栏（桌面端）或页脚（移动端）显示文字链接 |
+| `socialLinks` | 否 | 社交链接插件 — 内置 github、rss、x、weibo、zhihu、bilibili、email、facebook、instagram、tiktok 图标，支持自定义图标 |
 
 ### 相册配置 (`album.config.json`)
 

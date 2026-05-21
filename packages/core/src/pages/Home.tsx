@@ -4,6 +4,7 @@ import { usePosts } from '@/hooks/usePosts';
 import PostList from '@/components/PostList';
 import Pagination from '@/components/Pagination';
 import Sidebar from '@/components/Sidebar';
+import RightSidebar from '@/components/RightSidebar';
 
 const POSTS_PER_PAGE = 10;
 
@@ -35,6 +36,12 @@ const Home: React.FC = () => {
       <aside className="hidden xl:block absolute top-0 -left-[300px] 2xl:-left-[360px] h-full w-[260px]">
         <div className="sticky top-[40px]">
           <Sidebar />
+        </div>
+      </aside>
+
+      <aside className="hidden xl:block absolute top-0 -right-[300px] 2xl:-right-[360px] h-full w-[260px]">
+        <div className="sticky top-[40px]">
+          <RightSidebar />
         </div>
       </aside>
     </div>

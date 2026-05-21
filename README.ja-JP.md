@@ -100,7 +100,21 @@ my-blog/
   "author": "Your Name",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/username/repo"
+  "links": {
+    "enabled": true,
+    "items": {
+      "友人ブログ": "https://example.com"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/username/repo" },
+      { "platform": "x", "url": "https://x.com/username" },
+      { "platform": "custom", "url": "https://example.com", "icon": "/icons/my-icon.png", "label": "マイサイト" }
+    ]
+  }
 }
 ```
 
@@ -115,7 +129,32 @@ my-blog/
 | `language` | いいえ | デフォルト言語コード (`en`, `zh-CN`, `ja`)。i18n フォールバック動作に影響 |
 | `timezone` | いいえ | IANA タイムゾーン（例：`Asia/Tokyo`）。CI でのビルド時に記事の日付を正確にする |
 | `basePath` | いいえ | サブディレクトリデプロイパス（例：`/blog`）。デフォルトは `/` |
-| `github` | いいえ | GitHub URL。設定するとページ右上に GitHub アイコンリンクを表示 |
+| `links` | いいえ | リンクウィジェット（下記参照） |
+| `socialLinks` | いいえ | ソーシャルアイコンリンクウィジェット（下記参照） |
+
+#### リンクウィジェット (`links`)
+
+右サイドバー（デスクトップ）またはフッター（モバイル）にテキストリンクのリストを表示します。
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `links.enabled` | はい | リンクウィジェットのオン/オフ |
+| `links.items` | はい | キーバリューペア：`{ "表示名": "URL" }` |
+
+#### ソーシャルリンクウィジェット (`socialLinks`)
+
+アイコンリンクの行を表示します。内蔵プラットフォーム：`github`、`rss`、`x`、`twitter`、`weibo`、`zhihu`、`bilibili`、`email`、`facebook`、`instagram`、`tiktok`。
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `socialLinks.enabled` | はい | ソーシャルリンクウィジェットのオン/オフ |
+| `socialLinks.items` | はい | ソーシャルリンク項目の配列 |
+| `items[].platform` | はい | プラットフォーム名（内蔵）またはカスタムアイコン用の `"custom"` |
+| `items[].url` | 場合による | リンク先 URL。`rss` は省略可（`siteUrl` から自動生成）、それ以外は必須 |
+| `items[].icon` | いいえ | カスタムアイコン画像パス。`"custom"` または未認識プラットフォーム用 |
+| `items[].label` | いいえ | ツールチップテキスト。デフォルトはプラットフォーム名 |
+
+> **注意：** `platform` が `"rss"` で `url` が省略された場合、URL は自動的に `{siteUrl}/rss.xml` に設定されます。`siteUrl` が未設定の場合、その RSS 項目はレンダリングされません。
 
 ### アルバム設定 (`album.config.json`)
 

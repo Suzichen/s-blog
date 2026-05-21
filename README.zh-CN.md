@@ -100,7 +100,21 @@ my-blog/
   "author": "Your Name",
   "language": "en",
   "timezone": "Asia/Tokyo",
-  "github": "https://github.com/username/repo"
+  "links": {
+    "enabled": true,
+    "items": {
+      "友人博客": "https://example.com"
+    }
+  },
+  "socialLinks": {
+    "enabled": true,
+    "items": [
+      { "platform": "rss" },
+      { "platform": "github", "url": "https://github.com/username/repo" },
+      { "platform": "x", "url": "https://x.com/username" },
+      { "platform": "custom", "url": "https://example.com", "icon": "/icons/my-icon.png", "label": "我的站点" }
+    ]
+  }
 }
 ```
 
@@ -115,7 +129,32 @@ my-blog/
 | `language` | 否 | 默认语言代码 (`en`, `zh-CN`, `ja`)。影响 i18n 回退行为 |
 | `timezone` | 否 | IANA 时区标识（如 `Asia/Shanghai`）。确保在 CI 环境构建时文章日期正确 |
 | `basePath` | 否 | 子目录部署路径（如 `/blog`）。默认为 `/` |
-| `github` | 否 | GitHub URL。配置后在页面右上角显示 GitHub 图标链接 |
+| `links` | 否 | 友链插件（见下方） |
+| `socialLinks` | 否 | 社交图标链接插件（见下方） |
+
+#### 友链插件 (`links`)
+
+在右侧栏（桌面端）或页脚（移动端）显示文字链接列表。
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `links.enabled` | 是 | 开启/关闭友链插件 |
+| `links.items` | 是 | 键值对：`{ "显示名称": "URL" }` |
+
+#### 社交链接插件 (`socialLinks`)
+
+显示一组图标链接。内置平台：`github`、`rss`、`x`、`twitter`、`weibo`、`zhihu`、`bilibili`、`email`、`facebook`、`instagram`、`tiktok`。
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `socialLinks.enabled` | 是 | 开启/关闭社交链接插件 |
+| `socialLinks.items` | 是 | 社交链接项数组 |
+| `items[].platform` | 是 | 平台名（内置）或 `"custom"` 使用自定义图标 |
+| `items[].url` | 视情况 | 链接 URL。`rss` 可省略（自动从 `siteUrl` 推导），其他平台必填 |
+| `items[].icon` | 否 | 自定义图标图片路径。用于 `"custom"` 或未识别的平台 |
+| `items[].label` | 否 | 鼠标悬停提示文字。默认为平台名 |
+
+> **注意：** 当 `platform` 为 `"rss"` 且未配置 `url` 时，URL 自动设为 `{siteUrl}/rss.xml`。如果 `siteUrl` 未配置，该 RSS 项不会渲染。
 
 ### 相册配置 (`album.config.json`)
 

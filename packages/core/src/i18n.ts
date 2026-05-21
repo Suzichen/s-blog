@@ -43,6 +43,10 @@ const resources = {
         "prev": "Previous",
         "next": "Next"
       },
+      "widget": {
+        "links": "Links",
+        "social": "Social"
+      },
       "post": {
         "noLocalizedVersion": "This article is not available in English. Showing the original version."
       }
@@ -87,6 +91,10 @@ const resources = {
         "prev": "上一页",
         "next": "下一页"
       },
+      "widget": {
+        "links": "友链",
+        "social": "社交链接"
+      },
       "post": {
         "noLocalizedVersion": "此文章暂无中文版本，已为您展示作者原文"
       }
@@ -130,6 +138,10 @@ const resources = {
       "pagination": {
         "prev": "前のページ",
         "next": "次のページ"
+      },
+      "widget": {
+        "links": "リンク",
+        "social": "ソーシャル"
       },
       "post": {
         "noLocalizedVersion": "この記事の日本語版はありません。原文を表示しています。"

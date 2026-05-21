@@ -26,7 +26,7 @@ All content is processed at build time by the Rust engine and served as static f
 
 ### Customization
 
-- Edit `config.json` to change site settings (title, description, language, GitHub link, etc.)
+- Edit `config.json` to change site settings (title, description, language, links, social links, etc.)
 - Edit `album.config.json` to configure photo albums
 - Add posts as Markdown files in `posts/`
 - Add album photos in `albums/`
