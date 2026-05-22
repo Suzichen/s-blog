@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import TableOfContents from '@/components/TableOfContents';
+import StickyToc from '@/components/StickyToc';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.css'; 
 import { format } from 'date-fns';
@@ -27,6 +28,11 @@ const PostDetail: React.FC = () => {
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerPhotos, setViewerPhotos] = useState<PhotoItem[]>([]);
   const imagesRef = useRef<{ src: string; caption: string }[]>([]);
+  const mobileTocRef = useRef<HTMLDivElement>(null);
+  const [stickyToc, setStickyToc] = useState(false);
+
+  // Reset sticky state on page navigation
+  useEffect(() => { setStickyToc(false); }, [slug]);
 
   // Reset every render - ReactMarkdown will re-register all images
   imagesRef.current = [];
@@ -71,6 +77,21 @@ const PostDetail: React.FC = () => {
     if (el) el.scrollIntoView();
   }, [hash]);
 
+  // Mobile sticky TOC: observe when inline TOC leaves viewport
+  useEffect(() => {
+    const el = mobileTocRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+        setStickyToc(true);
+      } else {
+        setStickyToc(false);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [content]);
+
   if (!post) {
     if (loading) return <div>{t('common.loading')}</div>; 
     return <div>{t('common.postNotFound')}</div>;
@@ -99,9 +120,12 @@ const PostDetail: React.FC = () => {
         </header>
         
         {/* Mobile TOC - inline collapsible */}
-        <div className="xl:hidden mb-6">
+        <div ref={mobileTocRef} className="xl:hidden mb-6">
           <TableOfContents content={content} collapsible />
         </div>
+
+        {/* Mobile TOC - sticky when scrolled past */}
+        <StickyToc content={content} visible={stickyToc} />
 
         <div className="markdown-body">
           <ReactMarkdown 

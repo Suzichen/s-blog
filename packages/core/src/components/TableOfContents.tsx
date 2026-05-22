@@ -6,6 +6,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 interface TableOfContentsProps {
   content: string;
   collapsible?: boolean;
+  compact?: boolean;
+  expanded?: boolean;
+  onExpandChange?: (expanded: boolean) => void;
 }
 
 interface Heading {
@@ -14,9 +17,19 @@ interface Heading {
   id: string;
 }
 
-const TableOfContents: React.FC<TableOfContentsProps> = ({ content, collapsible = false }) => {
+const TableOfContents: React.FC<TableOfContentsProps> = ({ content, collapsible = false, compact = false, expanded: controlledExpanded, onExpandChange }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
+  const isControlled = controlledExpanded !== undefined;
+  const isExpanded = isControlled ? controlledExpanded : internalExpanded;
+  const toggleExpanded = () => {
+    const next = !isExpanded;
+    if (isControlled) {
+      onExpandChange?.(next);
+    } else {
+      setInternalExpanded(next);
+    }
+  };
   const slugger = new GithubSlugger();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -107,15 +120,15 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, collapsible 
 
   if (collapsible) {
     return (
-      <nav className="bg-bg-alt border border-border rounded p-4" aria-label="Table of Contents">
+      <nav className={`bg-bg-alt border border-border rounded ${compact ? 'p-2' : 'p-4'}`} aria-label="Table of Contents">
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 w-full text-left font-bold text-primary bg-transparent border-none cursor-pointer p-0"
+          onClick={toggleExpanded}
+          className={`flex items-center gap-2 w-full text-left font-bold text-primary bg-transparent border-none cursor-pointer p-0 ${compact ? 'text-sm' : ''}`}
         >
           <span className="text-xs">{isExpanded ? '▼' : '▶'}</span>
           <span>{t('common.toc')}</span>
         </button>
-        {isExpanded && <div className="mt-3">{tocList}</div>}
+        {isExpanded && <div className={compact ? 'mt-2 max-h-[60vh] overflow-y-auto overscroll-contain' : 'mt-3'}>{tocList}</div>}
       </nav>
     );
   }
