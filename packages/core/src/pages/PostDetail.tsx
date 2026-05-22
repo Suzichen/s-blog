@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useLocation, useNavigationType, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -10,7 +10,9 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { usePost } from '@/hooks/usePost';
 import { restoreScrollForKey } from '@/hooks/useScrollToTop';
-import LazyImage from '@/components/LazyImage';
+import ImageWithCaption from '@/components/ImageWithCaption';
+import PhotoViewer from '@/components/PhotoViewer';
+import type { PhotoItem } from '@/types/album';
 
 const PostDetail: React.FC = () => {
   const { t } = useTranslation();
@@ -20,6 +22,25 @@ const PostDetail: React.FC = () => {
   const navigate = useNavigate();
   
   const { post, content, loading, isFallback, prevPost, nextPost } = usePost(slug);
+
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerPhotos, setViewerPhotos] = useState<PhotoItem[]>([]);
+  const imagesRef = useRef<{ src: string; caption: string }[]>([]);
+
+  // Reset every render - ReactMarkdown will re-register all images
+  imagesRef.current = [];
+
+  const openViewer = useCallback((index: number) => {
+    setViewerPhotos(imagesRef.current.map((img) => ({
+      filename: img.caption,
+      thumbnailUrl: img.src,
+      originalUrl: img.src,
+      exif: { cameraMake: null, cameraModel: null, focalLength: null, aperture: null, shutterSpeed: null, iso: null },
+    })));
+    setViewerIndex(index);
+    setViewerOpen(true);
+  }, []);
 
   // After content renders: handle hash scroll or POP restore
   useEffect(() => {
@@ -60,7 +81,7 @@ const PostDetail: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full max-w-[800px] mx-auto pb-8 px-4 xl:px-0 xl:max-w-content">
+    <div className="relative w-full max-w-[800px] mx-auto pb-8 px-2 md:px-4 xl:px-0 xl:max-w-content">
       <article>
         {isFallback && (
           <div className="mb-4 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 text-sm rounded-lg">
@@ -87,7 +108,21 @@ const PostDetail: React.FC = () => {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSlug]}
               components={{
-                img: ({ node, ...props }) => <LazyImage {...props} />,
+                img: ({ src, alt, title }) => {
+                  const caption = title || alt || '';
+                  const index = imagesRef.current.length;
+                  if (src) {
+                    imagesRef.current.push({ src, caption });
+                  }
+                  return (
+                    <ImageWithCaption
+                      src={src}
+                      alt={alt}
+                      title={title}
+                      onClick={() => src && openViewer(index)}
+                    />
+                  );
+                },
                 a: ({ node, href, ...props }) => {
                   if (href?.startsWith('#')) {
                     return (
@@ -143,6 +178,14 @@ const PostDetail: React.FC = () => {
             <TableOfContents content={content} />
         </div>
       </aside>
+
+      {viewerOpen && (
+        <PhotoViewer
+          photos={viewerPhotos}
+          initialIndex={viewerIndex}
+          onClose={() => setViewerOpen(false)}
+        />
+      )}
     </div>
   );
 };
