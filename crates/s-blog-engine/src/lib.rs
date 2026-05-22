@@ -20,6 +20,7 @@ pub mod robots;
 pub mod path_util;
 pub mod shell;
 pub mod mime;
+pub mod progress;
 pub mod build;
 pub mod serve;
 

@@ -7,6 +7,7 @@
 
 use std::fs;
 use std::path::Path;
+use std::time::Instant;
 
 use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
@@ -15,6 +16,7 @@ use crate::error::EngineError;
 use crate::exif::{read_exif, ExifData};
 use crate::image_proc::is_photo_file;
 use crate::path_util::normalize_base_path_option;
+use crate::progress::BuildProgress;
 use crate::AlbumConfig;
 
 // ── Output types ───────────────────────────────────────────────────
@@ -99,7 +101,7 @@ pub fn generate_albums_data_with_base(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
-    generate_albums_impl(albums_dir, output_dir, config, base_path, false)
+    generate_albums_impl(albums_dir, output_dir, config, base_path, false, None)
 }
 
 /// Like [`generate_albums_data_with_base`] but skips thumbnail generation.
@@ -110,7 +112,19 @@ pub fn generate_albums_index_only(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
-    generate_albums_impl(albums_dir, output_dir, config, base_path, true)
+    generate_albums_impl(albums_dir, output_dir, config, base_path, true, None)
+}
+
+/// Like [`generate_albums_data_with_base`] but with progress output support.
+/// Used by the build pipeline to show per-photo progress.
+pub fn generate_albums_data_with_progress(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+    progress: Option<&BuildProgress>,
+) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, false, progress)
 }
 
 fn generate_albums_impl(
@@ -119,6 +133,7 @@ fn generate_albums_impl(
     config: &AlbumConfig,
     base_path: Option<&str>,
     skip_thumbnails: bool,
+    progress: Option<&BuildProgress>,
 ) -> Result<AlbumsOutput, EngineError> {
     let bp = normalize_base_path_option(base_path);
     let generated_dir = output_dir.join("generated");
@@ -138,6 +153,10 @@ fn generate_albums_impl(
 
     let mut summaries = Vec::new();
     let mut details = Vec::new();
+
+    if let Some(p) = progress {
+        p.albums_start(config.albums.len());
+    }
 
     for entry in &config.albums {
         let dirname = &entry.dir;
@@ -178,8 +197,10 @@ fn generate_albums_impl(
             let thumbs_dir = public_albums_dir.join("thumbs");
             fs::create_dir_all(&thumbs_dir)?;
 
+            let album_start = Instant::now();
+            let total = photo_files.len();
             let mut photos = Vec::new();
-            for filename in &photo_files {
+            for (i, filename) in photo_files.iter().enumerate() {
                 let src_path = album_src.join(filename);
                 let stem = Path::new(filename)
                     .file_stem()
@@ -196,6 +217,10 @@ fn generate_albums_impl(
                     }
                 }
 
+                if let Some(p) = progress {
+                    p.photo_progress(dirname, i + 1, total);
+                }
+
                 let exif = read_exif(&src_path);
 
                 photos.push(PhotoItem {
@@ -204,6 +229,10 @@ fn generate_albums_impl(
                     original_url: format!("{bp}/albums/{dirname}/{filename}"),
                     exif,
                 });
+            }
+
+            if let Some(p) = progress {
+                p.photo_album_done(dirname, photos.len(), &album_start);
             }
             photos
         } else {
