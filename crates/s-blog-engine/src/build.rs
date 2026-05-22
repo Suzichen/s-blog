@@ -11,6 +11,7 @@ use std::time::Instant;
 use serde::{Deserialize, Serialize};
 
 use crate::error::EngineError;
+use crate::progress::BuildProgress;
 use crate::{AlbumConfig, SiteConfig};
 
 /// Build options — all fields have sensible defaults for zero-config usage.
@@ -63,6 +64,7 @@ const EXCLUDE: &[&str] = &[".DS_Store", "Thumbs.db", ".gitkeep", ".git"];
 /// Returns [`EngineError::BuildStepFailed`] if any step fails.
 pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     let start = Instant::now();
+    let progress = BuildProgress::new();
 
     let work_dir = &opts.work_dir;
     let output_dir = if opts.output_dir.is_relative() {
@@ -109,6 +111,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     };
 
     // Step 1: Clean dist
+    progress.step_start("Clean dist");
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir).map_err(|e| EngineError::BuildStepFailed {
             step: "clean dist".into(),
@@ -121,6 +124,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     })?;
 
     // Step 2: Copy app shell (with basePath rewrite)
+    progress.step_done("Clean dist", "");
+    progress.step_start("Copy shell");
     if !shell_dir.exists() {
         return Err(EngineError::BuildStepFailed {
             step: "copy shell".into(),
@@ -147,6 +152,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     }
 
     // Step 3: Generate posts data
+    progress.step_done("Copy shell", &format!("{shell_files_count} files"));
+    progress.step_start("Generate posts");
     let posts_dir = work_dir.join("posts");
     let manifest = if posts_dir.exists() {
         crate::posts::generate_posts_data(&posts_dir, &output_dir, &config).map_err(|e| {
@@ -161,12 +168,15 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     let posts_count = manifest.len() as u32;
 
     // Step 4: Generate albums data
+    progress.step_done("Generate posts", &format!("{posts_count} posts"));
+    progress.step_start("Generate albums");
     let albums_dir = work_dir.join("albums");
-    let albums_output = crate::albums::generate_albums_data_with_base(
+    let albums_output = crate::albums::generate_albums_data_with_progress(
         &albums_dir,
         &output_dir,
         &album_config,
         config.base_path.as_deref(),
+        Some(&progress),
     )
     .map_err(|e| EngineError::BuildStepFailed {
         step: "generate albums".into(),
@@ -175,6 +185,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     let albums_count = albums_output.summaries.len() as u32;
 
     // Step 5: Generate SEO + sitemap + rss + robots
+    progress.step_done("Generate albums", &format!("{albums_count} albums"));
+    progress.step_start("Generate SEO");
     let template_path = shell_dir.join("index.html");
     let seo_pages_count = if template_path.exists() {
         crate::seo::generate_seo_pages(&manifest, &template_path, &output_dir, &config)
@@ -218,6 +230,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     })?;
 
     // Step 6: Copy static assets
+    progress.step_done("Generate SEO", &format!("{seo_pages_count} pages"));
+    progress.step_start("Copy static");
     let mut static_files_count: u32 = 0;
 
     // Copy albums/ originals
@@ -264,6 +278,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     }
 
     let duration_ms = start.elapsed().as_millis() as u64;
+    progress.step_done("Copy static", &format!("{static_files_count} files"));
 
     Ok(BuildResult {
         posts_count,

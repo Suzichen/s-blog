@@ -180,3 +180,23 @@
   max-width: 100%;
   border-radius: 4px;
 }
+
+/* Figure and caption for post images */
+.markdown-body figure.post-figure {
+  margin: 1.5em 0;
+}
+
+.markdown-body figure.post-figure + figure.post-figure {
+  margin-top: 1em;
+}
+
+.markdown-body figure.post-figure figcaption {
+  font-size: 0.85em;
+  color: var(--color-secondary);
+  margin-top: 0.4em;
+  padding-left: 0.2em;
+}
+
+.markdown-body figure.post-figure figcaption .figcaption-icon {
+  font-size: 0.9em;
+}

@@ -18,7 +18,16 @@ export default {
       },
       maxWidth: {
         'content': 'var(--max-width)',
-      }
+      },
+      keyframes: {
+        'slide-down': {
+          from: { transform: 'translateY(-100%)' },
+          to: { transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'slide-down': 'slide-down 0.2s ease-out',
+      },
     },
   },
   plugins: [],
