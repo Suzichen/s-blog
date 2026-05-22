@@ -306,9 +306,64 @@ fn generate_homepage_head(config: &SiteConfig, base_path: &str, page: usize, tot
     out
 }
 
+// ── HTML lang injection ─────────────────────────────────────────────
+
+/// Inject `lang` attribute into the `<html>` tag.
+///
+/// Handles both `<html>` (no attributes) and `<html ...>` (existing attributes).
+/// If the tag already contains a `lang` attribute, it is left unchanged.
+fn inject_html_lang(html: &str, lang: &str) -> String {
+    if let Some(pos) = html.find("<html") {
+        let rest = &html[pos..];
+        let close = rest.find('>').unwrap_or(rest.len());
+        let tag = &rest[..close];
+        // Already has lang attribute — skip
+        if tag.contains("lang=") {
+            return html.to_string();
+        }
+        if tag == "<html" {
+            // bare <html>
+            let mut result = String::with_capacity(html.len() + 12);
+            result.push_str(&html[..pos]);
+            result.push_str(&format!("<html lang=\"{}\">", lang));
+            result.push_str(&html[pos + "<html>".len()..]);
+            return result;
+        }
+        // <html with other attributes
+        let mut result = String::with_capacity(html.len() + 12);
+        result.push_str(&html[..pos]);
+        result.push_str(&format!("<html lang=\"{}\" ", lang));
+        result.push_str(&html[pos + "<html ".len()..]);
+        return result;
+    }
+    html.to_string()
+}
+
+// ── Skeleton screen ────────────────────────────────────────────────
+
+const SKELETON_HTML: &str = r#"
+    <style>@keyframes sbp{0%,100%{opacity:.4}50%{opacity:1}}.sb-sk{animation:sbp 1.5s ease-in-out infinite;background:#e5e7eb;border-radius:4px}</style>
+    <header style="padding:1rem 2rem;border-bottom:1px solid #eee;display:flex;align-items:center;gap:1rem">
+      <div class="sb-sk" style="width:80px;height:80px;border-radius:50%;flex-shrink:0"></div>
+      <div style="flex:1">
+        <div class="sb-sk" style="width:160px;height:24px;margin-bottom:8px"></div>
+        <div class="sb-sk" style="width:220px;height:14px"></div>
+      </div>
+      <nav style="display:flex;gap:12px">
+        <div class="sb-sk" style="width:48px;height:16px"></div>
+        <div class="sb-sk" style="width:48px;height:16px"></div>
+        <div class="sb-sk" style="width:48px;height:16px"></div>
+      </nav>
+    </header>"#;
+
 /// Generate the article list HTML for the `<div id="root">` content.
-fn generate_post_list_html(posts: &[PostMetadata], base_path: &str) -> String {
+fn generate_post_list_html(posts: &[PostMetadata], base_path: &str, title: &str) -> String {
     let mut out = String::new();
+    out.push_str(SKELETON_HTML);
+    out.push_str(&format!(
+        "\n    <h1 style=\"position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0\">{}</h1>",
+        escape_html(title)
+    ));
     out.push_str("\n    <main>");
     for post in posts {
         let post_url = format!("{}/post/{}", base_path, &post.slug);
@@ -343,6 +398,7 @@ pub fn generate_homepage_seo(
 
     let template = fs::read_to_string(&index_path)?;
     let base_path = normalize_base_path_option(config.base_path.as_deref());
+    let lang = config.language.as_deref().unwrap_or("en");
     let total_pages = if manifest.is_empty() { 1 } else { (manifest.len() + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE };
 
     for page in 1..=total_pages {
@@ -351,9 +407,10 @@ pub fn generate_homepage_seo(
         let page_posts = &manifest[start..end];
 
         let head_tags = generate_homepage_head(config, &base_path, page, total_pages);
-        let body_content = generate_post_list_html(page_posts, &base_path);
+        let body_content = generate_post_list_html(page_posts, &base_path, &config.title);
 
         let mut html = template.clone();
+        html = inject_html_lang(&html, lang);
         html = remove_title_tag(&html);
         html = html.replace("</head>", &format!("{}\n</head>", head_tags));
         html = html.replace("<div id=\"root\"></div>", &format!("<div id=\"root\">{}</div>", body_content));
@@ -388,6 +445,7 @@ pub fn generate_seo_pages(
 ) -> Result<usize, EngineError> {
     let template = fs::read_to_string(template_path)?;
     let base_path = normalize_base_path_option(config.base_path.as_deref());
+    let lang = config.language.as_deref().unwrap_or("en");
 
     let post_output_dir = output_dir.join("post");
     fs::create_dir_all(&post_output_dir)?;
@@ -398,6 +456,7 @@ pub fn generate_seo_pages(
         let seo_tags = generate_seo_html(post, config, &base_path);
 
         let mut html = template.clone();
+        html = inject_html_lang(&html, lang);
 
         // Rewrite relative asset paths to absolute (SEO pages live in
         // /post/{slug}/ so relative `./assets/` would break).
@@ -979,5 +1038,125 @@ mod tests {
         assert!(page2.contains("rel=\"prev\""));
         assert!(!page2.contains("rel=\"next\""));
         assert!(page2.contains("<title>My Blog - Page 2</title>"));
+    }
+
+    // ── inject_html_lang tests ─────────────────────────────────────
+
+    #[test]
+    fn inject_html_lang_bare_tag() {
+        let html = "<!DOCTYPE html>\n<html>\n<head>";
+        let result = inject_html_lang(html, "zh");
+        assert!(result.contains("<html lang=\"zh\">"));
+    }
+
+    #[test]
+    fn inject_html_lang_with_existing_attrs() {
+        let html = "<!DOCTYPE html>\n<html class=\"no-js\">\n<head>";
+        let result = inject_html_lang(html, "ja");
+        assert!(result.contains("<html lang=\"ja\" class=\"no-js\">"));
+    }
+
+    #[test]
+    fn inject_html_lang_no_html_tag() {
+        let html = "<head><title>Test</title></head>";
+        let result = inject_html_lang(html, "en");
+        assert_eq!(result, html);
+    }
+
+    #[test]
+    fn inject_html_lang_already_present() {
+        let html = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>";
+        let result = inject_html_lang(html, "ja");
+        // Should not double-inject
+        assert_eq!(result, html);
+    }
+
+    // ── hidden h1 tests ────────────────────────────────────────────
+
+    #[test]
+    fn homepage_seo_injects_hidden_h1() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        let posts = vec![sample_post()];
+        generate_homepage_seo(&output_dir, &config, &posts).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("<h1 style=\"position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0\">My Blog</h1>"));
+    }
+
+    // ── skeleton screen tests ──────────────────────────────────────
+
+    #[test]
+    fn homepage_seo_includes_skeleton() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        let posts = vec![sample_post()];
+        generate_homepage_seo(&output_dir, &config, &posts).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        // Skeleton exists
+        assert!(html.contains("sb-sk"));
+        // SEO tags still present
+        assert!(html.contains("<main>"));
+        assert!(html.contains("<article>"));
+        assert!(html.contains("<h2>"));
+    }
+
+    // ── html lang injection in generated pages ─────────────────────
+
+    #[test]
+    fn homepage_seo_injects_html_lang() {
+        let tmp = TempDir::new().unwrap();
+        let output_dir = tmp.path().join("dist");
+        fs::create_dir_all(&output_dir).unwrap();
+        fs::write(output_dir.join("index.html"), minimal_template()).unwrap();
+
+        let config = sample_config();
+        generate_homepage_seo(&output_dir, &config, &[]).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("index.html")).unwrap();
+        assert!(html.contains("<html lang=\"en\">"));
+    }
+
+    #[test]
+    fn seo_pages_inject_html_lang() {
+        let tmp = TempDir::new().unwrap();
+        let template_path = tmp.path().join("index.html");
+        fs::write(&template_path, minimal_template()).unwrap();
+
+        let output_dir = tmp.path().join("dist");
+        let mut config = sample_config();
+        config.language = Some("ja".to_string());
+        let posts = vec![sample_post()];
+
+        generate_seo_pages(&posts, &template_path, &output_dir, &config).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("post/hello-world/index.html")).unwrap();
+        assert!(html.contains("<html lang=\"ja\">"));
+    }
+
+    #[test]
+    fn seo_pages_default_lang_en() {
+        let tmp = TempDir::new().unwrap();
+        let template_path = tmp.path().join("index.html");
+        fs::write(&template_path, minimal_template()).unwrap();
+
+        let output_dir = tmp.path().join("dist");
+        let mut config = sample_config();
+        config.language = None;
+        let posts = vec![sample_post()];
+
+        generate_seo_pages(&posts, &template_path, &output_dir, &config).unwrap();
+
+        let html = fs::read_to_string(output_dir.join("post/hello-world/index.html")).unwrap();
+        assert!(html.contains("<html lang=\"en\">"));
     }
 }
