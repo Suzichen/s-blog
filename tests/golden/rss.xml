@@ -10,8 +10,8 @@
     <item>
       <title>Comma Separated Tags</title>
       <description>This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.  C...</description>
-      <link>https://test-blog.example.com/post/comma-separated-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/comma-separated-tags</guid>
+      <link>https://test-blog.example.com/post/comma-separated-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/comma-separated-tags/</guid>
       <pubDate>Wed, 22 May 2024 07:45:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Backend</category>
@@ -23,8 +23,8 @@
     <item>
       <title>Post With Invalid Date</title>
       <description>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...</description>
-      <link>https://test-blog.example.com/post/invalid-date</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/invalid-date</guid>
+      <link>https://test-blog.example.com/post/invalid-date/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/invalid-date/</guid>
       <pubDate>Tue, 28 Apr 2026 05:11:30 GMT</pubDate>
       <author>Test Author</author>
       <category>Testing</category>
@@ -33,16 +33,16 @@
     <item>
       <title>no-frontmatter</title>
       <description>This is a post with no frontmatter at all. It starts directly with content.  The parser should handle this edge case gracefully. The slug ...</description>
-      <link>https://test-blog.example.com/post/no-frontmatter</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/no-frontmatter</guid>
+      <link>https://test-blog.example.com/post/no-frontmatter/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/no-frontmatter/</guid>
       <pubDate>Tue, 28 Apr 2026 05:11:30 GMT</pubDate>
       <author>Test Author</author>
     </item>
     <item>
       <title>Post With Description Field</title>
       <description>This summary comes from the description field, not preview or body content.</description>
-      <link>https://test-blog.example.com/post/with-description</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/with-description</guid>
+      <link>https://test-blog.example.com/post/with-description/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/with-description/</guid>
       <pubDate>Sat, 10 Aug 2024 02:00:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Content</category>
@@ -52,8 +52,8 @@
     <item>
       <title>Post With Explicit Preview</title>
       <description>This is a custom preview text that should be used instead of auto-generated summary.</description>
-      <link>https://test-blog.example.com/post/with-preview</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/with-preview</guid>
+      <link>https://test-blog.example.com/post/with-preview/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/with-preview/</guid>
       <pubDate>Sun, 30 Jun 2024 23:00:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Content</category>
@@ -63,8 +63,8 @@
     <item>
       <title>Post With Timezone</title>
       <description>This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...</description>
-      <link>https://test-blog.example.com/post/with-timezone</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/with-timezone</guid>
+      <link>https://test-blog.example.com/post/with-timezone/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/with-timezone/</guid>
       <pubDate>Sat, 15 Jun 2024 01:30:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Technical</category>
@@ -74,8 +74,8 @@
     <item>
       <title>Space Separated Tags</title>
       <description>This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into prope...</description>
-      <link>https://test-blog.example.com/post/space-separated-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/space-separated-tags</guid>
+      <link>https://test-blog.example.com/post/space-separated-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/space-separated-tags/</guid>
       <pubDate>Wed, 10 Apr 2024 00:00:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Frontend</category>
@@ -86,8 +86,8 @@
     <item>
       <title>Post With Tags and Categories</title>
       <description>This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.  Tags ar...</description>
-      <link>https://test-blog.example.com/post/with-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/with-tags</guid>
+      <link>https://test-blog.example.com/post/with-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/with-tags/</guid>
       <pubDate>Wed, 20 Mar 2024 05:30:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Development</category>
@@ -99,8 +99,8 @@
     <item>
       <title>Post With Excerpt Field</title>
       <description>This summary comes from the excerpt field, the lowest priority custom field.</description>
-      <link>https://test-blog.example.com/post/with-excerpt</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/with-excerpt</guid>
+      <link>https://test-blog.example.com/post/with-excerpt/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/with-excerpt/</guid>
       <pubDate>Wed, 28 Feb 2024 06:30:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Content</category>
@@ -110,8 +110,8 @@
     <item>
       <title>Simple Post</title>
       <description>This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.  The po...</description>
-      <link>https://test-blog.example.com/post/simple</link>
-      <guid isPermaLink="true">https://test-blog.example.com/post/simple</guid>
+      <link>https://test-blog.example.com/post/simple/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/post/simple/</guid>
       <pubDate>Mon, 15 Jan 2024 01:00:00 GMT</pubDate>
       <author>Test Author</author>
     </item>

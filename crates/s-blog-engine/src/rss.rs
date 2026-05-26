@@ -118,7 +118,7 @@ fn build_rss_xml(
         let post_url = if site_url.is_empty() {
             String::new()
         } else {
-            get_full_url(site_url, base_path, &format!("/post/{}", post.slug))
+            get_full_url(site_url, base_path, &format!("/post/{}/", post.slug))
         };
         let pub_date = format_rfc822_date(&post.date, now_rfc822);
         let categories: Vec<&str> = post
@@ -293,8 +293,8 @@ mod tests {
 
         assert!(xml.contains("<title>Hello World</title>"));
         assert!(xml.contains("<description>This is my first post</description>"));
-        assert!(xml.contains("<link>https://example.com/post/hello-world</link>"));
-        assert!(xml.contains("<guid isPermaLink=\"true\">https://example.com/post/hello-world</guid>"));
+        assert!(xml.contains("<link>https://example.com/post/hello-world/</link>"));
+        assert!(xml.contains("<guid isPermaLink=\"true\">https://example.com/post/hello-world/</guid>"));
         assert!(xml.contains("<pubDate>Mon, 15 Jan 2024 10:30:00 GMT</pubDate>"));
         assert!(xml.contains("<author>Alice</author>"));
     }
