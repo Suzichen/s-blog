@@ -209,7 +209,7 @@ proptest! {
 
         for p in &posts {
             let expected_loc = format!(
-                "<loc>https://example.com/post/{}</loc>",
+                "<loc>https://example.com/post/{}/</loc>",
                 p.slug
             );
             prop_assert!(
@@ -366,7 +366,7 @@ proptest! {
             );
 
             let expected_link = format!(
-                "<link>https://example.com/post/{}</link>",
+                "<link>https://example.com/post/{}/</link>",
                 p.slug
             );
             prop_assert!(
@@ -376,7 +376,7 @@ proptest! {
             );
 
             let expected_guid = format!(
-                "<guid isPermaLink=\"true\">https://example.com/post/{}</guid>",
+                "<guid isPermaLink=\"true\">https://example.com/post/{}/</guid>",
                 p.slug
             );
             prop_assert!(

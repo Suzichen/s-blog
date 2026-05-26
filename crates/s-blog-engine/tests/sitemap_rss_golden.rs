@@ -112,7 +112,7 @@ fn normalize_sitemap(xml: &str) -> String {
                 }
                 // Dynamic-date slugs
                 for slug in DYNAMIC_DATE_SLUGS {
-                    if t.contains(&format!("/post/{}</loc>", slug)) {
+                    if t.contains(&format!("/post/{}/</loc>", slug)) {
                         return true;
                     }
                 }
@@ -281,7 +281,7 @@ fn rust_sitemap_contains_all_slugs() {
     let manifest = golden_manifest();
 
     for post in &manifest {
-        let expected_loc = format!("/post/{}</loc>", post.slug);
+        let expected_loc = format!("/post/{}/</loc>", post.slug);
         assert!(
             actual.contains(&expected_loc),
             "sitemap missing slug {:?}",
@@ -393,7 +393,7 @@ fn rust_rss_contains_all_slugs() {
     let manifest = golden_manifest();
 
     for post in &manifest {
-        let expected_link = format!("/post/{}</link>", post.slug);
+        let expected_link = format!("/post/{}/</link>", post.slug);
         assert!(
             actual.contains(&expected_link),
             "RSS missing slug {:?}",

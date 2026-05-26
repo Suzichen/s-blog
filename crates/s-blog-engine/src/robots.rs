@@ -21,6 +21,17 @@ fn build_robots_txt(site_url: Option<&str>, base_path: &str) -> String {
     content.push_str("# https://www.robotstxt.org/robotstxt.html\n");
     content.push_str("User-agent: *\n");
     content.push_str("Allow: /\n");
+    // Disallow SPA-only aggregation routes that have no dedicated static HTML.
+    // These fall back to the homepage shell and get flagged as soft 404 by Google.
+    // "/archives" (no slash) blocks both /archives and /archives/2024.
+    // "/tags/", "/categories/", "/page/" block only sub-paths (no top-level route exists).
+    for path in &["/archives", "/tags/", "/categories/", "/page/"] {
+        if base_path.is_empty() {
+            content.push_str(&format!("Disallow: {}\n", path));
+        } else {
+            content.push_str(&format!("Disallow: {}{}\n", base_path, path));
+        }
+    }
     content.push('\n');
 
     if let Some(url) = site_url {
@@ -88,6 +99,10 @@ mod tests {
         let content = build_robots_txt(Some("https://example.com"), "");
         assert!(content.contains("User-agent: *"));
         assert!(content.contains("Allow: /"));
+        assert!(content.contains("Disallow: /archives\n"));
+        assert!(content.contains("Disallow: /tags/"));
+        assert!(content.contains("Disallow: /categories/"));
+        assert!(content.contains("Disallow: /page/"));
         assert!(content.contains("Sitemap: https://example.com/sitemap.xml"));
     }
 
@@ -103,6 +118,7 @@ mod tests {
     fn robots_txt_with_base_path() {
         let content = build_robots_txt(Some("https://example.com"), "/blog");
         assert!(content.contains("Sitemap: https://example.com/blog/sitemap.xml"));
+        assert!(content.contains("Disallow: /blog/archives\n"));
     }
 
     #[test]
@@ -170,6 +186,10 @@ mod tests {
         let expected = "# https://www.robotstxt.org/robotstxt.html\n\
                         User-agent: *\n\
                         Allow: /\n\
+                        Disallow: /archives\n\
+                        Disallow: /tags/\n\
+                        Disallow: /categories/\n\
+                        Disallow: /page/\n\
                         \n\
                         Sitemap: https://test-blog.example.com/sitemap.xml\n";
         assert_eq!(content, expected);
@@ -181,6 +201,10 @@ mod tests {
         let expected = "# https://www.robotstxt.org/robotstxt.html\n\
                         User-agent: *\n\
                         Allow: /\n\
+                        Disallow: /blog/archives\n\
+                        Disallow: /blog/tags/\n\
+                        Disallow: /blog/categories/\n\
+                        Disallow: /blog/page/\n\
                         \n\
                         Sitemap: https://test-blog.example.com/blog/sitemap.xml\n";
         assert_eq!(content, expected);

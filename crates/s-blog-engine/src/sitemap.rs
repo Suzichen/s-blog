@@ -58,7 +58,7 @@ fn build_sitemap_xml(
 
     // Posts
     for post in posts {
-        let post_url = get_full_url(site_url, base_path, &format!("/post/{}", post.slug));
+        let post_url = get_full_url(site_url, base_path, &format!("/post/{}/", post.slug));
         let lastmod = if post.date.is_empty() {
             today.to_string()
         } else {
@@ -188,7 +188,7 @@ mod tests {
             "2024-06-01",
         );
 
-        assert!(xml.contains("<loc>https://example.com/post/hello-world</loc>"));
+        assert!(xml.contains("<loc>https://example.com/post/hello-world/</loc>"));
         assert!(xml.contains("<priority>0.8</priority>"));
         assert!(xml.contains("<changefreq>monthly</changefreq>"));
     }
@@ -236,7 +236,7 @@ mod tests {
         );
 
         assert!(xml.contains("<loc>https://example.com/blog/</loc>"));
-        assert!(xml.contains("<loc>https://example.com/blog/post/hello-world</loc>"));
+        assert!(xml.contains("<loc>https://example.com/blog/post/hello-world/</loc>"));
     }
 
     #[test]
@@ -254,7 +254,7 @@ mod tests {
 
         let xml = build_sitemap_xml(&[post], "https://example.com", "", "2024-06-01");
 
-        assert!(xml.contains("<loc>https://example.com/post/a&amp;b&lt;c</loc>"));
+        assert!(xml.contains("<loc>https://example.com/post/a&amp;b&lt;c/</loc>"));
     }
 
     #[test]
@@ -294,7 +294,7 @@ mod tests {
         let content = fs::read_to_string(&output).unwrap();
         assert!(content.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
         assert!(content.contains("https://example.com/"));
-        assert!(content.contains("https://example.com/post/hello-world"));
+        assert!(content.contains("https://example.com/post/hello-world/"));
     }
 
     #[test]
@@ -337,8 +337,8 @@ mod tests {
 
         // Homepage + 2 posts = 3 URL blocks
         assert_eq!(xml.matches("<url>").count(), 3);
-        assert!(xml.contains("<loc>https://example.com/post/hello-world</loc>"));
-        assert!(xml.contains("<loc>https://example.com/post/second-post</loc>"));
+        assert!(xml.contains("<loc>https://example.com/post/hello-world/</loc>"));
+        assert!(xml.contains("<loc>https://example.com/post/second-post/</loc>"));
     }
 
     #[test]
