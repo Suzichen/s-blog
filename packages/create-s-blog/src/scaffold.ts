@@ -37,7 +37,7 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
 export function injectConfigValues(_template: string, input: UserInput): string {
   const lines: string[] = [];
   lines.push('{');
-  lines.push('  "$schema": "https://unpkg.com/@s-blog/core/schemas/config.schema.json",');
+  lines.push('  "$schema": "./node_modules/@s-blog/core/schemas/config.schema.json",');
   lines.push('  // Site title displayed in header and browser tab');
   lines.push(`  "title": ${JSON.stringify(input.name)},`);
   lines.push('  // Site description for SEO meta tags');
@@ -97,7 +97,7 @@ export function injectConfigValues(_template: string, input: UserInput): string 
 export function injectAlbumConfigSchema(_template: string): string {
   const lines: string[] = [];
   lines.push('{');
-  lines.push('  "$schema": "https://unpkg.com/@s-blog/core/schemas/album.config.schema.json",');
+  lines.push('  "$schema": "./node_modules/@s-blog/core/schemas/album.config.schema.json",');
   lines.push('  // Set to false to disable the album feature entirely');
   lines.push('  "enabled": true,');
   lines.push('  "albums": [');
