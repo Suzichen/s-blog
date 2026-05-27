@@ -21,8 +21,6 @@
     "build:shell": "vite build --config vite.shell.config.ts",
     "build:all": "npm run build && npm run build:shell",
     "prepublishOnly": "npm run build:all",
-    "build:posts": "npx tsx ../../scripts/generate-posts-data.ts",
-    "build:albums": "npx tsx ../../scripts/generate-albums-data.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

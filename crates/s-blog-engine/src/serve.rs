@@ -140,10 +140,11 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
     let config_path = work_dir.join("config.json");
     let config: SiteConfig = if config_path.exists() {
         let config_raw = fs::read_to_string(&config_path).unwrap_or_default();
-        serde_json::from_str(&config_raw).map_err(|e| EngineError::BuildStepFailed {
-            step: "parse config.json".into(),
-            reason: e.to_string(),
-        })?
+        serde_json::from_reader(json_comments::StripComments::new(config_raw.as_bytes()))
+            .map_err(|e| EngineError::BuildStepFailed {
+                step: "parse config.json".into(),
+                reason: e.to_string(),
+            })?
     } else {
         return Err(EngineError::ConfigNotFound(config_path));
     };
@@ -153,7 +154,7 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
     let album_config: Option<AlbumConfig> = if album_config_path.exists() {
         fs::read_to_string(&album_config_path)
             .ok()
-            .and_then(|raw| serde_json::from_str(&raw).ok())
+            .and_then(|raw| serde_json::from_reader(json_comments::StripComments::new(raw.as_bytes())).ok())
     } else {
         None
     };
@@ -288,6 +289,22 @@ fn handle_request(
     // Priority 2: work_dir files (posts/, albums/, config.json, public/ root files, etc.)
     let candidate = state.work_dir.join(rel);
     if candidate.is_file() {
+        // Strip JSONC comments before serving config files to browser
+        if rel == "config.json" || rel == "album.config.json" {
+            if let Ok(raw) = fs::read_to_string(&candidate) {
+                use std::io::Read;
+                let mut stripped = String::new();
+                if json_comments::StripComments::new(raw.as_bytes())
+                    .read_to_string(&mut stripped)
+                    .is_ok()
+                {
+                    return Ok(Response::builder()
+                        .header("content-type", "application/json")
+                        .body(Full::new(Bytes::from(stripped)))
+                        .unwrap());
+                }
+            }
+        }
         return Ok(serve_file(&candidate));
     }
 
