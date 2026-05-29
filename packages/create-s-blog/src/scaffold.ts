@@ -24,56 +24,88 @@ export function generatePackageJson(input: UserInput): Record<string, unknown> {
       build: 's-blog build',
     },
     dependencies: {
-      '@s-blog/core': '^0.3.7',
-      '@s-blog/engine': '^0.3.11',
+      '@s-blog/core': '^0.3.8',
+      '@s-blog/engine': '^0.3.14',
     },
   };
 }
 
 /**
- * Inject user-provided values into the config.json template content.
- * Replaces placeholders with actual values and handles optional fields.
+ * Generate config.json as JSONC with inline comments.
+ * Template file is no longer used — output is built directly from user input.
  */
-export function injectConfigValues(template: string, input: UserInput): string {
-  // Parse the JSON template
-  const config = JSON.parse(template);
+export function injectConfigValues(_template: string, input: UserInput): string {
+  const lines: string[] = [];
+  lines.push('{');
+  lines.push('  "$schema": "./node_modules/@s-blog/core/schemas/config.schema.json",');
+  lines.push('  // Site title displayed in header and browser tab');
+  lines.push(`  "title": ${JSON.stringify(input.name)},`);
+  lines.push('  // Site description for SEO meta tags');
+  lines.push(`  "description": ${JSON.stringify(input.description)},`);
+  lines.push('  "logo": "/logo.png",');
+  lines.push('  "favicon": "/favicon.ico",');
 
-  // Replace the $schema placeholder
-  config['$schema'] = 'https://unpkg.com/@s-blog/core/schemas/config.schema.json';
-  delete config['__SCHEMA__'];
-
-  // Set required fields
-  config.title = input.name;
-  config.description = input.description;
-
-  // Handle optional siteUrl
-  delete config['__SITEURL__'];
   if (input.siteUrl) {
-    config.siteUrl = input.siteUrl;
+    lines.push('  // Production URL — required for sitemap, RSS, Open Graph');
+    lines.push(`  "siteUrl": ${JSON.stringify(input.siteUrl)},`);
+  } else {
+    lines.push('  // Production URL — required for sitemap, RSS, Open Graph');
+    lines.push('  // "siteUrl": "https://example.com",');
   }
 
-  // Handle optional author
-  delete config['__AUTHOR__'];
   if (input.author) {
-    config.author = input.author;
+    lines.push(`  "author": ${JSON.stringify(input.author)},`);
+  } else {
+    lines.push('  // "author": "Your Name",');
   }
 
-  // Handle optional timezone
+  lines.push('  // Default language: "en", "zh-CN", or "ja"');
+  lines.push('  "language": "en",');
+
   if (input.timezone) {
-    config.timezone = input.timezone;
+    lines.push('  // IANA timezone — ensures correct post dates on CI builds');
+    lines.push(`  "timezone": ${JSON.stringify(input.timezone)},`);
+  } else {
+    lines.push('  // IANA timezone — ensures correct post dates on CI builds');
+    lines.push('  // "timezone": "Asia/Tokyo",');
   }
 
-  return JSON.stringify(config, null, 2);
+  lines.push('  // Sub-directory deployment path (e.g., "/blog"). Defaults to "/"');
+  lines.push('  // "basePath": "/blog",');
+  lines.push('  "links": {');
+  lines.push('    "enabled": true,');
+  lines.push('    "items": {');
+  lines.push('      "S-Blog": "https://s-blog.me"');
+  lines.push('    }');
+  lines.push('  },');
+  lines.push('  // Built-in platforms: github, rss, x, twitter, weibo, zhihu, bilibili, email, facebook, instagram, tiktok');
+  lines.push('  "socialLinks": {');
+  lines.push('    "enabled": true,');
+  lines.push('    "items": [');
+  lines.push('      { "platform": "rss" },');
+  lines.push('      { "platform": "github", "url": "https://github.com/Suzichen/s-blog" }');
+  lines.push('    ]');
+  lines.push('  }');
+  lines.push('}');
+  return lines.join('\n');
 }
 
 /**
- * Inject schema URL into album.config.json template.
+ * Generate album.config.json as JSONC with inline comments.
+ * Template file is no longer used — output is built directly.
  */
-export function injectAlbumConfigSchema(template: string): string {
-  const config = JSON.parse(template);
-  config['$schema'] = 'https://unpkg.com/@s-blog/core/schemas/album.config.schema.json';
-  delete config['__SCHEMA__'];
-  return JSON.stringify(config, null, 2);
+export function injectAlbumConfigSchema(_template: string): string {
+  const lines: string[] = [];
+  lines.push('{');
+  lines.push('  "$schema": "./node_modules/@s-blog/core/schemas/album.config.schema.json",');
+  lines.push('  // Set to false to disable the album feature entirely');
+  lines.push('  "enabled": true,');
+  lines.push('  "albums": [');
+  lines.push('    // "dir": folder name under albums/, "name": display name (optional), "cover": cover photo filename (optional)');
+  lines.push('    { "dir": "blog" }');
+  lines.push('  ]');
+  lines.push('}');
+  return lines.join('\n');
 }
 
 /**

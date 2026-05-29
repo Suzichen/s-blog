@@ -342,7 +342,7 @@ fn inject_html_lang(html: &str, lang: &str) -> String {
 // ── Skeleton screen ────────────────────────────────────────────────
 
 const SKELETON_HTML: &str = r#"
-    <style>@keyframes sbp{0%,100%{opacity:.4}50%{opacity:1}}.sb-sk{animation:sbp 1.5s ease-in-out infinite;background:#e5e7eb;border-radius:4px}</style>
+    <style>@keyframes sbp{0%,100%{opacity:.4}50%{opacity:1}}.sb-sk{animation:sbp 1.5s ease-in-out infinite;background:#e5e7eb;border-radius:4px}.sb-main{opacity:0;position:absolute;pointer-events:none}</style>
     <header style="padding:1rem 2rem;border-bottom:1px solid #eee;display:flex;align-items:center;gap:1rem">
       <div class="sb-sk" style="width:80px;height:80px;border-radius:50%;flex-shrink:0"></div>
       <div style="flex:1">
@@ -354,7 +354,12 @@ const SKELETON_HTML: &str = r#"
         <div class="sb-sk" style="width:48px;height:16px"></div>
         <div class="sb-sk" style="width:48px;height:16px"></div>
       </nav>
-    </header>"#;
+    </header>
+    <div style="max-width:800px;margin:0 auto;padding:2rem 1rem">
+      <div style="margin-bottom:3rem"><div class="sb-sk" style="width:70%;height:22px;margin-bottom:12px"></div><div class="sb-sk" style="width:30%;height:14px;margin-bottom:10px"></div><div class="sb-sk" style="width:100%;height:14px;margin-bottom:6px"></div><div class="sb-sk" style="width:85%;height:14px"></div></div>
+      <div style="margin-bottom:3rem"><div class="sb-sk" style="width:55%;height:22px;margin-bottom:12px"></div><div class="sb-sk" style="width:25%;height:14px;margin-bottom:10px"></div><div class="sb-sk" style="width:100%;height:14px;margin-bottom:6px"></div><div class="sb-sk" style="width:90%;height:14px"></div></div>
+      <div style="margin-bottom:3rem"><div class="sb-sk" style="width:60%;height:22px;margin-bottom:12px"></div><div class="sb-sk" style="width:28%;height:14px;margin-bottom:10px"></div><div class="sb-sk" style="width:95%;height:14px;margin-bottom:6px"></div><div class="sb-sk" style="width:80%;height:14px"></div></div>
+    </div>"#;
 
 /// Generate the article list HTML for the `<div id="root">` content.
 fn generate_post_list_html(posts: &[PostMetadata], base_path: &str, title: &str) -> String {
@@ -364,13 +369,14 @@ fn generate_post_list_html(posts: &[PostMetadata], base_path: &str, title: &str)
         "\n    <h1 style=\"position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0\">{}</h1>",
         escape_html(title)
     ));
-    out.push_str("\n    <main>");
+    out.push_str("\n    <main class=\"sb-main\">");
     for post in posts {
         let post_url = format!("{}/post/{}", base_path, &post.slug);
         out.push_str(&format!(
-            "\n      <article>\n        <h2><a href=\"{}\">{}</a></h2>\n        <time>{}</time>\n        <p>{}</p>\n      </article>",
+            "\n      <article>\n        <h2><a href=\"{}\">{}</a></h2>\n        <time datetime=\"{}\">{}</time>\n        <p>{}</p>\n      </article>",
             post_url,
             escape_html(&post.title),
+            escape_html(&post.date),
             escape_html(&post.date),
             escape_html(&post.summary),
         ));
@@ -1105,7 +1111,7 @@ mod tests {
         // Skeleton exists
         assert!(html.contains("sb-sk"));
         // SEO tags still present
-        assert!(html.contains("<main>"));
+        assert!(html.contains("<main"));
         assert!(html.contains("<article>"));
         assert!(html.contains("<h2>"));
     }

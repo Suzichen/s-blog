@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@s-blog/core": "workspace:*",
-    "@s-blog/engine": "0.3.12",
+    "@s-blog/engine": "0.3.15",
     "@types/github-slugger": "^1.3.0",
     "date-fns": "^4.1.0",
     "exifr": "^7.1.3",

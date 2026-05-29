@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://unpkg.com/@s-blog/core/schemas/config.schema.json",
   "title": "S-Blog Site Configuration",
@@ -37,8 +37,8 @@
     },
     "language": {
       "type": "string",
-      "description": "Default language code (e.g., en, zh-CN, ja)",
-      "examples": ["en", "zh-CN", "ja", "ja-JP"]
+      "description": "Default language code",
+      "enum": ["en", "zh-CN", "ja"]
     },
     "timezone": {
       "type": "string",

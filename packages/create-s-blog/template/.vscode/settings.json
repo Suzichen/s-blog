@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "config.json": "jsonc",
+    "album.config.json": "jsonc"
+  }
+}

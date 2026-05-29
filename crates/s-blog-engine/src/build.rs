@@ -87,11 +87,12 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
         step: "read config.json".into(),
         reason: e.to_string(),
     })?;
-    let config: SiteConfig = serde_json::from_str(&config_raw).map_err(|e| {
-        EngineError::BuildStepFailed {
-            step: "parse config.json".into(),
-            reason: e.to_string(),
-        }
+    let config: SiteConfig = serde_json::from_reader(
+        json_comments::StripComments::new(config_raw.as_bytes()),
+    )
+    .map_err(|e| EngineError::BuildStepFailed {
+        step: "parse config.json".into(),
+        reason: e.to_string(),
     })?;
 
     let album_config_path = work_dir.join("album.config.json");
@@ -102,7 +103,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
                 reason: e.to_string(),
             }
         })?;
-        serde_json::from_str(&raw).map_err(|e| EngineError::BuildStepFailed {
+        serde_json::from_reader(json_comments::StripComments::new(raw.as_bytes()))
+            .map_err(|e| EngineError::BuildStepFailed {
             step: "parse album.config.json".into(),
             reason: e.to_string(),
         })?
@@ -215,7 +217,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
         reason: e.to_string(),
     })?;
 
-    crate::rss::generate_rss(&manifest, &output_dir.join("rss.xml"), &config).map_err(|e| {
+    crate::rss::generate_rss(&manifest, &output_dir.join("rss.xml"), &config, Some(&posts_dir)).map_err(|e| {
         EngineError::BuildStepFailed {
             step: "generate rss".into(),
             reason: e.to_string(),
@@ -265,11 +267,23 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
         }
     }
 
-    // Copy config files
+    // Copy config files (strip JSONC comments for browser compatibility)
     for f in &["config.json", "album.config.json"] {
         let src = work_dir.join(f);
         if src.exists() {
-            fs::copy(&src, output_dir.join(f)).map_err(|e| EngineError::BuildStepFailed {
+            let raw = fs::read_to_string(&src).map_err(|e| EngineError::BuildStepFailed {
+                step: "copy static".into(),
+                reason: e.to_string(),
+            })?;
+            use std::io::Read;
+            let mut clean = String::new();
+            json_comments::StripComments::new(raw.as_bytes())
+                .read_to_string(&mut clean)
+                .map_err(|e| EngineError::BuildStepFailed {
+                    step: "copy static".into(),
+                    reason: e.to_string(),
+                })?;
+            fs::write(output_dir.join(f), &clean).map_err(|e| EngineError::BuildStepFailed {
                 step: "copy static".into(),
                 reason: e.to_string(),
             })?;
