@@ -162,7 +162,7 @@ fn gen_rss(posts: &[GenPost], config: &SiteConfig) -> (TempDir, String) {
     let tmp = TempDir::new().unwrap();
     let output = tmp.path().join("rss.xml");
     let manifest: Vec<PostMetadata> = posts.iter().map(to_metadata).collect();
-    generate_rss(&manifest, &output, config).unwrap();
+    generate_rss(&manifest, &output, config, None).unwrap();
     let content = fs::read_to_string(&output).unwrap();
     (tmp, content)
 }
@@ -532,7 +532,7 @@ fn no_site_url_skips_rss() {
         localized_meta: std::collections::HashMap::new(),
     }];
 
-    generate_rss(&manifest, &output, &config).unwrap();
+    generate_rss(&manifest, &output, &config, None).unwrap();
     assert!(!output.exists(), "RSS must not be generated without siteUrl");
 }
 
@@ -558,7 +558,7 @@ fn empty_manifest_rss_has_no_items() {
     let output = tmp.path().join("rss.xml");
     let config = default_config();
 
-    generate_rss(&[], &output, &config).unwrap();
+    generate_rss(&[], &output, &config, None).unwrap();
     let xml = fs::read_to_string(&output).unwrap();
 
     assert_eq!(xml.matches("<item>").count(), 0, "no items expected");

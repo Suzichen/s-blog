@@ -78,6 +78,12 @@ fn split_frontmatter(content: &str) -> (&str, &str) {
     }
 }
 
+/// Public access to the raw frontmatter split.
+/// Returns `(yaml_str, body)` — useful when only the body is needed.
+pub fn split_frontmatter_raw(content: &str) -> (&str, &str) {
+    split_frontmatter(content)
+}
+
 /// Normalise a YAML value into a `Vec<String>`.
 ///
 /// Accepts:

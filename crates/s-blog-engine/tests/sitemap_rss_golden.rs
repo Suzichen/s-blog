@@ -316,7 +316,7 @@ fn run_rss() -> tempfile::TempDir {
     let tmp = tempfile::TempDir::new().unwrap();
     let output_path = tmp.path().join("rss.xml");
 
-    generate_rss(&manifest, &output_path, &config)
+    generate_rss(&manifest, &output_path, &config, Some(&fixtures_dir().join("posts")))
         .expect("generate_rss should succeed");
 
     tmp
@@ -496,7 +496,7 @@ fn rust_rss_skipped_without_site_url() {
     let tmp = tempfile::TempDir::new().unwrap();
     let output_path = tmp.path().join("rss.xml");
 
-    let result = generate_rss(&manifest, &output_path, &config);
+    let result = generate_rss(&manifest, &output_path, &config, None);
     assert!(result.is_ok());
     assert!(
         !output_path.exists(),

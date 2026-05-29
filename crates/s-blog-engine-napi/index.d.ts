@@ -32,7 +32,7 @@ export declare function generateSeoPages(manifestJson: string, templatePath: str
 /** Generate `sitemap.xml`. */
 export declare function generateSitemap(manifestJson: string, outputPath: string, configJson: string): void
 /** Generate `rss.xml`. */
-export declare function generateRss(manifestJson: string, outputPath: string, configJson: string): void
+export declare function generateRss(manifestJson: string, outputPath: string, configJson: string, postsDir?: string | undefined | null): void
 /** Generate `robots.txt`. */
 export declare function generateRobots(outputPath: string, configJson: string): void
 /**

@@ -217,7 +217,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
         reason: e.to_string(),
     })?;
 
-    crate::rss::generate_rss(&manifest, &output_dir.join("rss.xml"), &config).map_err(|e| {
+    crate::rss::generate_rss(&manifest, &output_dir.join("rss.xml"), &config, Some(&posts_dir)).map_err(|e| {
         EngineError::BuildStepFailed {
             step: "generate rss".into(),
             reason: e.to_string(),

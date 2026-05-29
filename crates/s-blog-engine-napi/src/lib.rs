@@ -157,6 +157,7 @@ pub fn generate_rss(
     manifest_json: String,
     output_path: String,
     config_json: String,
+    posts_dir: Option<String>,
 ) -> napi::Result<()> {
     let manifest: Vec<PostMetadata> = serde_json::from_str(&manifest_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid manifest JSON: {e}")))?;
@@ -168,6 +169,7 @@ pub fn generate_rss(
         &manifest,
         Path::new(&output_path),
         &config,
+        posts_dir.as_deref().map(Path::new),
     )?;
 
     Ok(())

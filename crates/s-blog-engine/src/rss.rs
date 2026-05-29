@@ -8,10 +8,15 @@ use std::fs;
 use std::path::Path;
 
 use log::warn;
+use pulldown_cmark::{Parser, Options, html};
 
 use crate::error::EngineError;
 use crate::path_util::{normalize_base_path_option, build_full_url};
 use crate::{PostMetadata, SiteConfig};
+
+/// Maximum number of posts to include in the RSS feed.
+/// Not hardcoded as a magic number so it can be easily made configurable later.
+const RSS_MAX_ITEMS: usize = 20;
 
 // ── XML escaping ───────────────────────────────────────────────────
 
@@ -68,6 +73,30 @@ fn format_rfc822_date(iso_date: &str, now_rfc822: &str) -> String {
     now_rfc822.to_string()
 }
 
+// ── Markdown rendering ─────────────────────────────────────────────
+
+/// Read a post's markdown file and render it to HTML.
+/// Returns `None` if the file cannot be read.
+fn render_post_html(posts_dir: &Path, slug: &str) -> Option<String> {
+    let path = posts_dir.join(format!("{}.md", slug));
+    let raw = fs::read_to_string(&path).ok()?;
+    // Reuse existing frontmatter splitter to get body
+    let (_, body) = crate::frontmatter::split_frontmatter_raw(&raw);
+    let mut opts = Options::empty();
+    opts.insert(Options::ENABLE_TABLES);
+    opts.insert(Options::ENABLE_STRIKETHROUGH);
+    opts.insert(Options::ENABLE_TASKLISTS);
+    let parser = Parser::new_ext(body, opts);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+    Some(html_output)
+}
+
+/// Escape `]]>` sequences that would break CDATA sections.
+fn escape_cdata(s: &str) -> String {
+    s.replace("]]>", "]]]]><![CDATA[>")
+}
+
 // ── RSS XML generation ─────────────────────────────────────────────
 
 /// Build the RSS 2.0 XML string.
@@ -79,6 +108,7 @@ fn build_rss_xml(
     config: &SiteConfig,
     base_path: &str,
     now_rfc822: &str,
+    posts_dir: Option<&Path>,
 ) -> String {
     let site_url = config.site_url.as_deref().unwrap_or("");
     let title = &config.title;
@@ -94,7 +124,14 @@ fn build_rss_xml(
 
     let mut xml = String::new();
     xml.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    xml.push_str("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
+    if !base_url.is_empty() {
+        xml.push_str(&format!(
+            "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\" xml:base=\"{}\">\n",
+            escape_xml(&base_url)
+        ));
+    } else {
+        xml.push_str("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">\n");
+    }
     xml.push_str("  <channel>\n");
     xml.push_str(&format!("    <title>{}</title>\n", escape_xml(title)));
     xml.push_str(&format!(
@@ -151,6 +188,13 @@ fn build_rss_xml(
         for cat in &categories {
             xml.push_str(&format!("      <category>{}</category>\n", escape_xml(cat)));
         }
+        if let Some(dir) = posts_dir {
+            if let Some(html_content) = render_post_html(dir, &post.slug) {
+                xml.push_str("      <content:encoded><![CDATA[");
+                xml.push_str(&escape_cdata(&html_content));
+                xml.push_str("]]></content:encoded>\n");
+            }
+        }
         xml.push_str("    </item>\n");
     }
 
@@ -171,6 +215,7 @@ pub fn generate_rss(
     manifest: &[PostMetadata],
     output_path: &Path,
     config: &SiteConfig,
+    posts_dir: Option<&Path>,
 ) -> Result<(), EngineError> {
     let site_url = match config.site_url.as_deref() {
         Some(url) if !url.is_empty() => url,
@@ -187,7 +232,8 @@ pub fn generate_rss(
         .format("%a, %d %b %Y %H:%M:%S GMT")
         .to_string();
 
-    let xml = build_rss_xml(manifest, config, &base_path, &now_rfc822);
+    let items = &manifest[..manifest.len().min(RSS_MAX_ITEMS)];
+    let xml = build_rss_xml(items, config, &base_path, &now_rfc822, posts_dir);
 
     // Ensure parent directory exists
     if let Some(parent) = output_path.parent() {
@@ -196,7 +242,7 @@ pub fn generate_rss(
 
     fs::write(output_path, &xml)?;
 
-    log::info!("Generated rss.xml with {} items", manifest.len());
+    log::info!("Generated rss.xml with {} items", items.len());
     if !base_path.is_empty() {
         log::info!("  BasePath: {}", base_path);
     }
@@ -245,10 +291,11 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.starts_with("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-        assert!(xml.contains("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">"));
+        assert!(xml.contains("<rss version=\"2.0\""));
         assert!(xml.ends_with("</rss>"));
     }
 
@@ -259,6 +306,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains("<title>My Blog</title>"));
@@ -275,6 +323,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains(
@@ -289,6 +338,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains("<title>Hello World</title>"));
@@ -306,6 +356,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         // Categories come first, then tags (matching TS: [...categories, ...tags])
@@ -324,6 +375,7 @@ mod tests {
             &config,
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains("<language>zh-CN</language>"));
@@ -339,11 +391,12 @@ mod tests {
             &config,
             "/blog",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains("<link>https://example.com/blog/</link>"));
         assert!(xml.contains("<atom:link href=\"https://example.com/blog/rss.xml\""));
-        assert!(xml.contains("<link>https://example.com/blog/post/hello-world</link>"));
+        assert!(xml.contains("<link>https://example.com/blog/post/hello-world/</link>"));
     }
 
     #[test]
@@ -364,6 +417,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(xml.contains("<title>A &lt;b&gt;bold&lt;/b&gt; &amp; &quot;quoted&quot; title</title>"));
@@ -380,6 +434,7 @@ mod tests {
             &config,
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert!(!xml.contains("<author>"));
@@ -399,7 +454,7 @@ mod tests {
         };
 
         let now = "Mon, 01 Jan 2024 00:00:00 GMT";
-        let xml = build_rss_xml(&[post], &sample_config(), "", now);
+        let xml = build_rss_xml(&[post], &sample_config(), "", now, None);
 
         assert!(xml.contains(&format!("<pubDate>{}</pubDate>", now)));
     }
@@ -411,7 +466,7 @@ mod tests {
         let mut config = sample_config();
         config.site_url = None;
 
-        let result = generate_rss(&[sample_post()], &output, &config);
+        let result = generate_rss(&[sample_post()], &output, &config, None);
         assert!(result.is_ok());
         assert!(!output.exists());
     }
@@ -423,7 +478,7 @@ mod tests {
         let mut config = sample_config();
         config.site_url = Some(String::new());
 
-        let result = generate_rss(&[sample_post()], &output, &config);
+        let result = generate_rss(&[sample_post()], &output, &config, None);
         assert!(result.is_ok());
         assert!(!output.exists());
     }
@@ -434,7 +489,7 @@ mod tests {
         let output = tmp.path().join("dist/rss.xml");
         let config = sample_config();
 
-        let result = generate_rss(&[sample_post()], &output, &config);
+        let result = generate_rss(&[sample_post()], &output, &config, None);
         assert!(result.is_ok());
         assert!(output.exists());
 
@@ -450,7 +505,7 @@ mod tests {
         let output = tmp.path().join("deep/nested/dir/rss.xml");
         let config = sample_config();
 
-        let result = generate_rss(&[sample_post()], &output, &config);
+        let result = generate_rss(&[sample_post()], &output, &config, None);
         assert!(result.is_ok());
         assert!(output.exists());
     }
@@ -494,6 +549,7 @@ mod tests {
             &sample_config(),
             "",
             "Mon, 01 Jan 2024 00:00:00 GMT",
+            None,
         );
 
         assert_eq!(xml.matches("<item>").count(), 2);
