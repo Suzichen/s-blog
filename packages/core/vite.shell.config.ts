@@ -30,7 +30,7 @@ export default defineConfig({
     // Clean the output directory before building
     emptyOutDir: true,
     
-    rollupOptions: {
+    rolldownOptions: {
       // Use shell-entry.tsx as the entry point
       input: {
         main: path.resolve(__dirname, 'index.html'),
