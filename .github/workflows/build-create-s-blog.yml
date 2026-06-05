@@ -49,7 +49,7 @@ jobs:
         run: npm install
 
       - name: Build native module
-        run: npx @napi-rs/cli build --platform --release --target ${{ matrix.target }} --cargo-crate create-s-blog
+        run: npx @napi-rs/cli build --platform --release --target ${{ matrix.target }} --cargo-name create-s-blog
 
       - name: List build output
         shell: bash
