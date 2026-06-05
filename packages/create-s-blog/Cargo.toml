@@ -6,6 +6,7 @@ description = "NAPI-RS bindings for s-blog-scaffold — exposes scaffold to Node
 license = "MIT"
 
 [lib]
+name = "create_s_blog"
 crate-type = ["cdylib"]
 path = "rust-src/lib.rs"
 

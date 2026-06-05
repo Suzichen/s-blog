@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:rs": "npx @napi-rs/cli build --platform --release --cargo-name create-s-blog",
+    "build:rs": "npx @napi-rs/cli build --platform --release",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
