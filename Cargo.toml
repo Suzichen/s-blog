@@ -3,6 +3,8 @@ resolver = "2"
 members = [
     "crates/s-blog-engine",
     "crates/s-blog-engine-napi",
+    "crates/s-blog-scaffold",
+    "packages/create-s-blog",
 ]
 
 # Optimise image-heavy deps even in dev/test builds so that thumbnail
