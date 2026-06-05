@@ -60,7 +60,9 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 | 文件 | 字段 |
 |------|------|
 | `package.json` | `dependencies["@s-blog/engine"]` |
-| `package-lock.json` | 所有 `@s-blog/engine*` 相关的 `version` 和 `resolved` |
+| `package-lock.json` | 所有 `@s-blog/engine*` 和 `create-s-blog*` 相关的 `version` 和 `resolved` |
+
+> ⚠️ 改完版本号后必须 `npm install` 更新 `package-lock.json`，否则 deploy 的 `npm ci` 会失败。
 
 ### 5. Schema（按需）
 
