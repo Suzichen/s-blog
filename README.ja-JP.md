@@ -271,3 +271,19 @@ posts/
 - [Gemini CLI](https://geminicli.com/)
 - [Gemini CLI in Zed](https://zed.dev/acp/agent/gemini-cli)
 - [Kiro CLI](https://kiro.dev/cli)
+
+## 謝辞
+
+本プロジェクトは多くの優れたオープンソースプロジェクトの上に構築されています：
+
+- [React](https://react.dev/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [react-markdown](https://github.com/remarkjs/react-markdown) & [remark-gfm](https://github.com/remarkjs/remark-gfm)
+- [i18next](https://www.i18next.com/)
+- [NAPI-RS](https://napi.rs/)
+- [Tokio](https://tokio.rs/)
+- [Hyper](https://hyper.rs/)
+- [pulldown-cmark](https://github.com/pulldown-cmark/pulldown-cmark)
+- [image](https://github.com/image-rs/image) & [webp](https://github.com/nickkross/libwebp-rs)
+- [Ech0](https://github.com/lin-snow/ech0)

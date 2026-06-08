@@ -5,7 +5,7 @@ The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
 ## What This Package Provides
 
 - **Pre-built App Shell** — Production-ready `index.html` + hashed JS/CSS assets (React SPA)
-- **UI Components** — Post list, post detail with Markdown rendering, photo albums, search overlay, language switcher, etc.
+- **UI Components** — Post list, post detail with Markdown rendering, photo albums, memo timeline (Ech0 integration), search overlay, language switcher, etc.
 - **Routing** — Pre-configured React Router with code-splitting (lazy-loaded routes)
 - **i18n** — Built-in internationalization (English, Chinese, Japanese)
 - **JSON Schemas** — Validation schemas for `config.json` and `album.config.json`
