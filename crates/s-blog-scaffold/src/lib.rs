@@ -42,6 +42,7 @@ pub struct ScaffoldInput {
 /// 4. Generates customized `package.json`
 /// 5. Generates `config.json` (JSONC with comments)
 /// 6. Generates `album.config.json` (JSONC with comments)
+/// 7. Generates `memo.config.json` (JSONC with comments, disabled by default)
 pub fn scaffold(input: &ScaffoldInput) -> Result<(), ScaffoldError> {
     let target = Path::new(&input.target_dir);
     let template = Path::new(&input.template_dir);
@@ -73,6 +74,10 @@ pub fn scaffold(input: &ScaffoldInput) -> Result<(), ScaffoldError> {
     // Generate album.config.json
     let album_config = generate_album_config_json();
     fs::write(target.join("album.config.json"), album_config + "\n")?;
+
+    // Generate memo.config.json
+    let memo_config = generate_memo_config_json();
+    fs::write(target.join("memo.config.json"), memo_config + "\n")?;
 
     Ok(())
 }
@@ -195,6 +200,24 @@ fn generate_album_config_json() -> String {
     lines.push("    // \"dir\": folder name under albums/, \"name\": display name (optional), \"cover\": cover photo filename (optional)".to_string());
     lines.push(r#"    { "dir": "blog" }"#.to_string());
     lines.push("  ]".to_string());
+    lines.push("}".to_string());
+    lines.join("\n")
+}
+
+fn generate_memo_config_json() -> String {
+    let mut lines = Vec::new();
+    lines.push("{".to_string());
+    lines.push(r#"  "$schema": "./node_modules/@s-blog/core/schemas/memo.config.schema.json","#.to_string());
+    lines.push("  // Set to true and configure serverUrl to enable the Memo module".to_string());
+    lines.push(r#"  "enabled": false,"#.to_string());
+    lines.push("  // Data provider — currently only \"ech0\" is supported".to_string());
+    lines.push(r#"  "provider": "ech0","#.to_string());
+    lines.push("  // Your Ech0 instance URL (e.g., https://ech0.example.com)".to_string());
+    lines.push(r#"  "serverUrl": "https://your-ech0-instance.com","#.to_string());
+    lines.push("  // Number of memos to load per page".to_string());
+    lines.push(r#"  "pageSize": 20"#.to_string());
+    lines.push("  // Custom page title (optional, falls back to i18n default)".to_string());
+    lines.push("  // \"title\": \"Memo\"".to_string());
     lines.push("}".to_string());
     lines.join("\n")
 }

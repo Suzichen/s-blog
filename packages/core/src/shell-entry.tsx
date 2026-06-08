@@ -13,6 +13,7 @@ import { createRoot } from 'react-dom/client';
 import { RuntimeConfigLoader, type RuntimeSiteConfig } from './RuntimeConfigLoader';
 import { SBlogApp } from './index';
 import type { AlbumConfig } from './types/album-config';
+import type { MemoConfig } from './types/memo-config';
 
 /**
  * ShellApp - The root component for the App Shell
@@ -23,8 +24,8 @@ import type { AlbumConfig } from './types/album-config';
 const ShellApp: React.FC = () => {
   return (
     <RuntimeConfigLoader>
-      {(siteConfig: RuntimeSiteConfig, albumConfig: AlbumConfig) => (
-        <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} />
+      {(siteConfig: RuntimeSiteConfig, albumConfig: AlbumConfig, memoConfig: MemoConfig) => (
+        <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig} />
       )}
     </RuntimeConfigLoader>
   );

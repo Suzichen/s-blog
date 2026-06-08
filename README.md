@@ -213,6 +213,36 @@ The build process automatically:
 
 Thumbnails are generated incrementally — unchanged photos are skipped.
 
+## Memo Module (Ech0 Integration)
+
+Display a personal memo/microblog timeline powered by [Ech0](https://github.com/lin-snow/ech0). Memos are fetched at runtime from your Ech0 instance — no build step required.
+
+### Prerequisites
+
+- A running [Ech0](https://github.com/lin-snow/ech0) instance accessible from the browser
+
+### Configuration (`memo.config.json`)
+
+Create `memo.config.json` in your project root:
+
+```json
+{
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://your-ech0-instance.com",
+  "pageSize": 20,
+  "title": "Memo"
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `enabled` | Yes | Toggle the memo module on/off |
+| `provider` | Yes | Data provider. Currently only `"ech0"` is supported |
+| `serverUrl` | Yes | URL of your Ech0 instance |
+| `pageSize` | No | Number of memos per load. Default: 20 |
+| `title` | No | Custom page title. Falls back to i18n default ("Memo" / "动态" / "メモ") |
+
 ## SEO
 
 When `siteUrl` is configured, the build automatically generates:

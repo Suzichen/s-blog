@@ -1,10 +1,12 @@
 import React, { createContext, useContext } from 'react';
 import type { SiteConfig } from './types/config';
 import type { AlbumConfig } from './types/album-config';
+import type { MemoConfig } from './types/memo-config';
 
 interface SBlogContextValue {
   siteConfig: SiteConfig;
   albumConfig: AlbumConfig;
+  memoConfig: MemoConfig;
 }
 
 const SBlogContext = createContext<SBlogContextValue | null>(null);
@@ -12,10 +14,11 @@ const SBlogContext = createContext<SBlogContextValue | null>(null);
 export const SBlogProvider: React.FC<{
   siteConfig: SiteConfig;
   albumConfig: AlbumConfig;
+  memoConfig: MemoConfig;
   children: React.ReactNode;
-}> = ({ siteConfig, albumConfig, children }) => {
+}> = ({ siteConfig, albumConfig, memoConfig, children }) => {
   return (
-    <SBlogContext.Provider value={{ siteConfig, albumConfig }}>
+    <SBlogContext.Provider value={{ siteConfig, albumConfig, memoConfig }}>
       {children}
     </SBlogContext.Provider>
   );
@@ -31,4 +34,10 @@ export function useAlbumConfig(): AlbumConfig {
   const ctx = useContext(SBlogContext);
   if (!ctx) throw new Error('useAlbumConfig must be used within SBlogProvider');
   return ctx.albumConfig;
+}
+
+export function useMemoConfig(): MemoConfig {
+  const ctx = useContext(SBlogContext);
+  if (!ctx) throw new Error('useMemoConfig must be used within SBlogProvider');
+  return ctx.memoConfig;
 }

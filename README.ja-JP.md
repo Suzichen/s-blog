@@ -213,6 +213,36 @@ posts/
 
 サムネイルはインクリメンタルに生成され、変更のない写真はスキップされます。
 
+## メモモジュール（Ech0 連携）
+
+[Ech0](https://github.com/lin-snow/ech0) を利用した個人メモ/マイクロブログのタイムライン表示。データはランタイムで Ech0 インスタンスから取得され、ビルドは不要です。
+
+### 前提条件
+
+- ブラウザからアクセス可能な [Ech0](https://github.com/lin-snow/ech0) インスタンス
+
+### 設定 (`memo.config.json`)
+
+プロジェクトルートに `memo.config.json` を作成：
+
+```json
+{
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://your-ech0-instance.com",
+  "pageSize": 20,
+  "title": "メモ"
+}
+```
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `enabled` | はい | メモモジュールのオン/オフ |
+| `provider` | はい | データソース。現在 `"ech0"` のみ対応 |
+| `serverUrl` | はい | Ech0 インスタンスの URL |
+| `pageSize` | いいえ | 1回あたりの読み込み件数。デフォルト: 20 |
+| `title` | いいえ | カスタムページタイトル。省略時は i18n デフォルト名を使用 |
+
 ## SEO
 
 `siteUrl` を設定すると、ビルド時に自動生成：

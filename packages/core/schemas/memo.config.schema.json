@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://unpkg.com/@s-blog/core/schemas/memo.config.schema.json",
+  "title": "S-Blog Memo Configuration",
+  "description": "Configuration schema for s-blog memo module (Ech0 integration)",
+  "type": "object",
+  "required": ["enabled", "provider", "serverUrl"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference URL for editor intellisense"
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Toggle the memo module on/off"
+    },
+    "provider": {
+      "type": "string",
+      "enum": ["ech0"],
+      "description": "Memo data provider. Currently only supports \"ech0\""
+    },
+    "serverUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Ech0 instance URL (e.g., https://your-ech0-instance.com)"
+    },
+    "pageSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 20,
+      "description": "Number of memos to load per page"
+    },
+    "title": {
+      "type": "string",
+      "description": "Custom page title. Falls back to i18n default if omitted"
+    }
+  },
+  "additionalProperties": false
+}

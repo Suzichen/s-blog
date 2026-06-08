@@ -268,7 +268,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     }
 
     // Copy config files (strip JSONC comments for browser compatibility)
-    for f in &["config.json", "album.config.json"] {
+    for f in &["config.json", "album.config.json", "memo.config.json"] {
         let src = work_dir.join(f);
         if src.exists() {
             let raw = fs::read_to_string(&src).map_err(|e| EngineError::BuildStepFailed {

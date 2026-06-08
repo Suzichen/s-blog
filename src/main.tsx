@@ -4,9 +4,10 @@ import { SBlogApp } from '@s-blog/core'
 import '@s-blog/core/style.css'
 import { siteConfig } from './config'
 import { albumConfig } from './album.config'
+import { memoConfig } from './memo.config'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} />
+    <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig} />
   </React.StrictMode>,
 )
