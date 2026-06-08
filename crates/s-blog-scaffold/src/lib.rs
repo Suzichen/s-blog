@@ -121,8 +121,8 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     lines.push("    \"build\": \"s-blog build\"".to_string());
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
-    lines.push("    \"@s-blog/core\": \"^0.3.8\",".to_string());
-    lines.push("    \"@s-blog/engine\": \"^0.3.14\"".to_string());
+    lines.push("    \"@s-blog/core\": \"^0.3.9\",".to_string());
+    lines.push("    \"@s-blog/engine\": \"^0.3.16\"".to_string());
     lines.push("  }".to_string());
     lines.push("}".to_string());
     lines.join("\n")
