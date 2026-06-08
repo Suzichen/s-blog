@@ -213,6 +213,36 @@ posts/
 
 缩略图增量生成 — 未更改的照片会被跳过。
 
+## Memo 模块（Ech0 集成）
+
+基于 [Ech0](https://github.com/lin-snow/ech0) 展示个人动态/微博时间线。数据在运行时从 Ech0 实例获取，无需重新构建。
+
+### 前置条件
+
+- 一个正在运行的 [Ech0](https://github.com/lin-snow/ech0) 实例，可从浏览器访问
+
+### 配置 (`memo.config.json`)
+
+在项目根目录创建 `memo.config.json`：
+
+```json
+{
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://your-ech0-instance.com",
+  "pageSize": 20,
+  "title": "动态"
+}
+```
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `enabled` | 是 | 开启/关闭 Memo 模块 |
+| `provider` | 是 | 数据源，目前仅支持 `"ech0"` |
+| `serverUrl` | 是 | Ech0 实例 URL |
+| `pageSize` | 否 | 每次加载条数，默认 20 |
+| `title` | 否 | 自定义页面标题，缺省使用 i18n 默认名称（"Memo" / "动态" / "メモ"） |
+
 ## SEO
 
 配置 `siteUrl` 后，构建会自动生成：
@@ -241,3 +271,19 @@ posts/
 - [Gemini CLI](https://geminicli.com/)
 - [Gemini CLI in Zed](https://zed.dev/acp/agent/gemini-cli)
 - [Kiro CLI](https://kiro.dev/cli)
+
+## 致谢
+
+本项目的构建离不开众多优秀的开源项目：
+
+- [React](https://react.dev/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [react-markdown](https://github.com/remarkjs/react-markdown) & [remark-gfm](https://github.com/remarkjs/remark-gfm)
+- [i18next](https://www.i18next.com/)
+- [NAPI-RS](https://napi.rs/)
+- [Tokio](https://tokio.rs/)
+- [Hyper](https://hyper.rs/)
+- [pulldown-cmark](https://github.com/pulldown-cmark/pulldown-cmark)
+- [image](https://github.com/image-rs/image) & [webp](https://github.com/nickkross/libwebp-rs)
+- [Ech0](https://github.com/lin-snow/ech0)

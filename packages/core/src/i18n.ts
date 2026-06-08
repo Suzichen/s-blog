@@ -10,7 +10,8 @@ const resources = {
         "home": "Home",
         "tags": "Tags",
         "categories": "Categories",
-        "albums": "Albums"
+        "albums": "Albums",
+        "memo": "Memo"
       },
       "common": {
         "readMore": "Read more",
@@ -49,6 +50,12 @@ const resources = {
       },
       "post": {
         "noLocalizedVersion": "This article is not available in English. Showing the original version."
+      },
+      "memo": {
+        "loadMore": "Load More",
+        "noMemos": "No memos yet.",
+        "error": "Failed to load memos.",
+        "retry": "Retry"
       }
     }
   },
@@ -58,7 +65,8 @@ const resources = {
         "home": "首页",
         "tags": "标签",
         "categories": "分类",
-        "albums": "相册"
+        "albums": "相册",
+        "memo": "动态"
       },
       "common": {
         "readMore": "阅读更多",
@@ -97,6 +105,12 @@ const resources = {
       },
       "post": {
         "noLocalizedVersion": "此文章暂无中文版本，已为您展示作者原文"
+      },
+      "memo": {
+        "loadMore": "加载更多",
+        "noMemos": "暂无动态",
+        "error": "加载失败",
+        "retry": "重试"
       }
     }
   },
@@ -106,7 +120,8 @@ const resources = {
         "home": "ホーム",
         "tags": "タグ",
         "categories": "カテゴリー",
-        "albums": "アルバム"
+        "albums": "アルバム",
+        "memo": "メモ"
       },
       "common": {
         "readMore": "続きを読む",
@@ -145,6 +160,12 @@ const resources = {
       },
       "post": {
         "noLocalizedVersion": "この記事の日本語版はありません。原文を表示しています。"
+      },
+      "memo": {
+        "loadMore": "もっと見る",
+        "noMemos": "メモはまだありません",
+        "error": "読み込みに失敗しました",
+        "retry": "再試行"
       }
     }
   }

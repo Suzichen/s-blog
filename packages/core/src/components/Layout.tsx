@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useSiteConfig, useAlbumConfig } from '../context';
+import { useSiteConfig, useAlbumConfig, useMemoConfig } from '../context';
 import BackToTop from './BackToTop';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchOverlay from './SearchOverlay';
@@ -18,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { t } = useTranslation();
   const siteConfig = useSiteConfig();
   const albumConfig = useAlbumConfig();
+  const memoConfig = useMemoConfig();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
@@ -43,6 +44,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Link to="/archives" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{t('common.archives', 'Archives')}</Link>
                 {albumConfig.enabled && (
                   <Link to="/albums" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{t('nav.albums')}</Link>
+                )}
+                {memoConfig.enabled && (
+                  <Link to="/memo" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{memoConfig.title || t('nav.memo')}</Link>
                 )}
               </div>
               <div className="flex gap-3 items-center">

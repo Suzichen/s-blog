@@ -213,6 +213,36 @@ posts/
 
 サムネイルはインクリメンタルに生成され、変更のない写真はスキップされます。
 
+## メモモジュール（Ech0 連携）
+
+[Ech0](https://github.com/lin-snow/ech0) を利用した個人メモ/マイクロブログのタイムライン表示。データはランタイムで Ech0 インスタンスから取得され、ビルドは不要です。
+
+### 前提条件
+
+- ブラウザからアクセス可能な [Ech0](https://github.com/lin-snow/ech0) インスタンス
+
+### 設定 (`memo.config.json`)
+
+プロジェクトルートに `memo.config.json` を作成：
+
+```json
+{
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://your-ech0-instance.com",
+  "pageSize": 20,
+  "title": "メモ"
+}
+```
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `enabled` | はい | メモモジュールのオン/オフ |
+| `provider` | はい | データソース。現在 `"ech0"` のみ対応 |
+| `serverUrl` | はい | Ech0 インスタンスの URL |
+| `pageSize` | いいえ | 1回あたりの読み込み件数。デフォルト: 20 |
+| `title` | いいえ | カスタムページタイトル。省略時は i18n デフォルト名を使用 |
+
 ## SEO
 
 `siteUrl` を設定すると、ビルド時に自動生成：
@@ -241,3 +271,19 @@ posts/
 - [Gemini CLI](https://geminicli.com/)
 - [Gemini CLI in Zed](https://zed.dev/acp/agent/gemini-cli)
 - [Kiro CLI](https://kiro.dev/cli)
+
+## 謝辞
+
+本プロジェクトは多くの優れたオープンソースプロジェクトの上に構築されています：
+
+- [React](https://react.dev/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [react-markdown](https://github.com/remarkjs/react-markdown) & [remark-gfm](https://github.com/remarkjs/remark-gfm)
+- [i18next](https://www.i18next.com/)
+- [NAPI-RS](https://napi.rs/)
+- [Tokio](https://tokio.rs/)
+- [Hyper](https://hyper.rs/)
+- [pulldown-cmark](https://github.com/pulldown-cmark/pulldown-cmark)
+- [image](https://github.com/image-rs/image) & [webp](https://github.com/nickkross/libwebp-rs)
+- [Ech0](https://github.com/lin-snow/ech0)

@@ -54,6 +54,10 @@ function mockFetchResponses(responses: Record<string, Response | Error>) {
     if (response instanceof Error) {
       return Promise.reject(response);
     }
+    if (response === undefined) {
+      // Return 404 for unregistered URLs (e.g., optional memo.config.json)
+      return Promise.resolve(createMockResponse({}, false, 404, 'Not Found'));
+    }
     return Promise.resolve(response);
   });
 }
@@ -96,7 +100,7 @@ describe('RuntimeConfigLoader', () => {
       });
 
       // Verify children function was called with correct arguments
-      expect(childrenFn).toHaveBeenCalledWith(validSiteConfig, validAlbumConfig);
+      expect(childrenFn).toHaveBeenCalledWith(validSiteConfig, validAlbumConfig, { enabled: false, provider: 'ech0', serverUrl: '' });
     });
 
     it('should use custom config paths when provided', async () => {
@@ -163,7 +167,10 @@ describe('RuntimeConfigLoader', () => {
         if (url === '/config.json') {
           return configPromise;
         }
-        return Promise.resolve(createMockResponse(validAlbumConfig));
+        if (url === '/album.config.json') {
+          return Promise.resolve(createMockResponse(validAlbumConfig));
+        }
+        return Promise.resolve(createMockResponse({}, false, 404, 'Not Found'));
       });
 
       // Act
@@ -306,7 +313,10 @@ describe('RuntimeConfigLoader', () => {
         if (url === '/config.json') {
           return Promise.resolve(invalidJsonResponse);
         }
-        return Promise.resolve(createMockResponse(validAlbumConfig));
+        if (url === '/album.config.json') {
+          return Promise.resolve(createMockResponse(validAlbumConfig));
+        }
+        return Promise.resolve(createMockResponse({}, false, 404, 'Not Found'));
       });
 
       // Act
@@ -348,7 +358,10 @@ describe('RuntimeConfigLoader', () => {
         if (url === '/album.config.json') {
           return Promise.resolve(invalidJsonResponse);
         }
-        return Promise.resolve(createMockResponse(validSiteConfig));
+        if (url === '/config.json') {
+          return Promise.resolve(createMockResponse(validSiteConfig));
+        }
+        return Promise.resolve(createMockResponse({}, false, 404, 'Not Found'));
       });
 
       // Act
@@ -684,7 +697,15 @@ describe('RuntimeConfigLoader', () => {
         resolveConfig = resolve;
       });
 
-      global.fetch = vi.fn(() => configPromise);
+      global.fetch = vi.fn((url: string) => {
+        if (url === '/config.json') {
+          return configPromise;
+        }
+        if (url === '/album.config.json') {
+          return configPromise;
+        }
+        return Promise.resolve(createMockResponse({}, false, 404, 'Not Found'));
+      });
 
       // Act
       const { unmount } = render(

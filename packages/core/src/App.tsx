@@ -1,8 +1,7 @@
-
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSiteConfig, useAlbumConfig } from './context';
+import { useSiteConfig, useAlbumConfig, useMemoConfig } from './context';
 import Layout from './components/Layout';
 
 // Lazy-load route-level pages for code splitting
@@ -13,11 +12,13 @@ const TagDetail = React.lazy(() => import('./pages/TagDetail'));
 const Archives = React.lazy(() => import('./pages/Archives'));
 const Albums = React.lazy(() => import('./pages/Albums'));
 const AlbumDetail = React.lazy(() => import('./pages/AlbumDetail'));
+const Memo = React.lazy(() => import('./pages/Memo'));
 
 const App: React.FC = () => {
   const { i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const albumConfig = useAlbumConfig();
+  const memoConfig = useMemoConfig();
 
   // Effect to update lang on change (for switcher)
   React.useEffect(() => {
@@ -51,6 +52,7 @@ const App: React.FC = () => {
             <Route path="/archives/:year/:month" element={<Archives />} />
             <Route path="/albums" element={albumConfig.enabled ? <Albums /> : <Navigate to="/" replace />} />
             <Route path="/albums/:dirname" element={albumConfig.enabled ? <AlbumDetail /> : <Navigate to="/" replace />} />
+            <Route path="/memo" element={memoConfig.enabled ? <Memo /> : <Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </Layout>

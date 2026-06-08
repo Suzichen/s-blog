@@ -42,6 +42,7 @@ my-blog/
 │   └── _redirects
 ├── config.json           # Site configuration (with your answers filled in)
 ├── album.config.json     # Album configuration
+├── memo.config.json      # Memo module configuration (Ech0 integration, disabled by default)
 ├── package.json          # { "dev": "s-blog serve", "build": "s-blog build" }
 └── .gitignore
 ```
@@ -100,6 +101,28 @@ npm run build    # Build for production → dist/
   ]
 }
 ```
+
+### `memo.config.json`
+
+Enables the Memo module powered by [Ech0](https://github.com/lin-snow/ech0). Disabled by default.
+
+```json
+{
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://your-ech0-instance.com",
+  "pageSize": 20,
+  "title": "Memo"
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `enabled` | Yes | Toggle the memo module on/off |
+| `provider` | Yes | Data provider (currently only `"ech0"`) |
+| `serverUrl` | Yes | Ech0 instance URL |
+| `pageSize` | No | Memos per load (default: 20) |
+| `title` | No | Custom page title (falls back to i18n default) |
 
 ## License
 

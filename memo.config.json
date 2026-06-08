@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/@s-blog/core/schemas/memo.config.schema.json",
+  "enabled": true,
+  "provider": "ech0",
+  "serverUrl": "https://ech0.suzichen.me/",
+  "pageSize": 20
+}

@@ -290,7 +290,7 @@ fn handle_request(
     let candidate = state.work_dir.join(rel);
     if candidate.is_file() {
         // Strip JSONC comments before serving config files to browser
-        if rel == "config.json" || rel == "album.config.json" {
+        if rel == "config.json" || rel == "album.config.json" || rel == "memo.config.json" {
             if let Ok(raw) = fs::read_to_string(&candidate) {
                 use std::io::Read;
                 let mut stripped = String::new();

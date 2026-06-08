@@ -1,6 +1,7 @@
 import React, { useState, useEffect, type ReactNode } from 'react';
 import type { SiteConfig } from './types/config';
 import type { AlbumConfig } from './types/album-config';
+import type { MemoConfig } from './types/memo-config';
 
 /**
  * Extended SiteConfig with optional basePath for subdirectory deployment
@@ -35,8 +36,10 @@ export interface RuntimeConfigLoaderProps {
   configPath?: string;
   /** Path to the album configuration file (default: "/album.config.json") */
   albumConfigPath?: string;
+  /** Path to the memo configuration file (default: "/memo.config.json") */
+  memoConfigPath?: string;
   /** Render function that receives the loaded configurations */
-  children: (siteConfig: RuntimeSiteConfig, albumConfig: AlbumConfig) => ReactNode;
+  children: (siteConfig: RuntimeSiteConfig, albumConfig: AlbumConfig, memoConfig: MemoConfig) => ReactNode;
 }
 
 /** Required fields that must be present in config.json */
@@ -80,6 +83,28 @@ function validateAlbumConfig(config: unknown): { valid: true; config: AlbumConfi
   }
   
   return { valid: true, config: configObj as unknown as AlbumConfig };
+}
+
+const DEFAULT_MEMO_CONFIG: MemoConfig = { enabled: false, provider: 'ech0', serverUrl: '' };
+
+/**
+ * Validates that the memo configuration has the required structure
+ */
+function validateMemoConfig(config: unknown): { valid: true; config: MemoConfig } | { valid: false; missingField: string } {
+  if (typeof config !== 'object' || config === null) {
+    return { valid: false, missingField: 'memo config object' };
+  }
+  const configObj = config as Record<string, unknown>;
+  if (typeof configObj.enabled !== 'boolean') {
+    return { valid: false, missingField: 'enabled' };
+  }
+  if (typeof configObj.provider !== 'string') {
+    return { valid: false, missingField: 'provider' };
+  }
+  if (typeof configObj.serverUrl !== 'string') {
+    return { valid: false, missingField: 'serverUrl' };
+  }
+  return { valid: true, config: configObj as unknown as MemoConfig };
 }
 
 /**
@@ -199,10 +224,11 @@ const ErrorDisplay: React.FC<{ error: ConfigError }> = ({ error }) => (
 export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
   configPath = '/config.json',
   albumConfigPath = '/album.config.json',
+  memoConfigPath = '/memo.config.json',
   children,
 }) => {
   const [state, setState] = useState<LoadingState>({ status: 'loading' });
-  const [configs, setConfigs] = useState<{ siteConfig: RuntimeSiteConfig; albumConfig: AlbumConfig } | null>(null);
+  const [configs, setConfigs] = useState<{ siteConfig: RuntimeSiteConfig; albumConfig: AlbumConfig; memoConfig: MemoConfig } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,10 +236,11 @@ export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
     async function loadConfigs() {
       setState({ status: 'loading' });
 
-      // Fetch both configuration files in parallel
-      const [siteResult, albumResult] = await Promise.all([
+      // Fetch configuration files in parallel (memo config is optional — 404 yields default)
+      const [siteResult, albumResult, memoResult] = await Promise.all([
         fetchConfig<RuntimeSiteConfig>(configPath, validateSiteConfig),
         fetchConfig<AlbumConfig>(albumConfigPath, validateAlbumConfig),
+        fetchConfig<MemoConfig>(memoConfigPath, validateMemoConfig),
       ]);
 
       if (cancelled) return;
@@ -230,10 +257,14 @@ export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
         return;
       }
 
-      // Both configs loaded successfully
+      // Memo config is optional — use default if fetch/parse/validation fails
+      const memoConfig = memoResult.success ? memoResult.data : DEFAULT_MEMO_CONFIG;
+
+      // All configs loaded successfully
       setConfigs({
         siteConfig: siteResult.data,
         albumConfig: albumResult.data,
+        memoConfig,
       });
       setState({ status: 'ready' });
     }
@@ -243,7 +274,7 @@ export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [configPath, albumConfigPath]);
+  }, [configPath, albumConfigPath, memoConfigPath]);
 
   // Show loading indicator
   if (state.status === 'loading') {
@@ -257,7 +288,7 @@ export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
 
   // Render children with loaded configs
   if (state.status === 'ready' && configs) {
-    return <>{children(configs.siteConfig, configs.albumConfig)}</>;
+    return <>{children(configs.siteConfig, configs.albumConfig, configs.memoConfig)}</>;
   }
 
   // Fallback (should not reach here)
