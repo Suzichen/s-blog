@@ -36,6 +36,35 @@
         },
         "additionalProperties": false
       }
+    },
+    "provider": {
+      "type": "object",
+      "description": "S3-compatible storage provider for external media hosting",
+      "required": ["type", "endpoint", "region", "bucket", "publicUrl"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["s3"],
+          "description": "Provider type (currently only 's3' is supported)"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "S3 endpoint URL (e.g. https://<account_id>.r2.cloudflarestorage.com)"
+        },
+        "region": {
+          "type": "string",
+          "description": "S3 region (e.g. 'auto' for R2, 'ap-northeast-1' for AWS)"
+        },
+        "bucket": {
+          "type": "string",
+          "description": "S3 bucket name"
+        },
+        "publicUrl": {
+          "type": "string",
+          "description": "Public CDN URL for serving original images"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
