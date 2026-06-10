@@ -1,20 +1,5 @@
 # S-Blog 发版指南
 
-## [Unreleased]
-
-### Added
-- **Media Sync**: S3-compatible storage provider support for photo albums
-  - New `s-blog sync --media` command to upload originals, thumbnails, and index JSON
-  - `--dry-run` flag to preview uploads without executing
-  - Hybrid fingerprint strategy (SHA-256 for ≤5MB, size+mtime for >5MB) with `.sblog-sync.lock`
-  - Graceful Ctrl+C handling with one-time lock file save
-  - Auto-pull thumbnails from S3 during CI build (no local photos needed)
-  - Provider config in `album.config.json` with templates for Cloudflare R2, AWS S3, Backblaze B2, MinIO
-- **Album size warning**: Build warns when `albums/` exceeds 500MB without a provider configured
-- **Scaffold template**: New projects include `album.config.example.json` and `.env.example`
-
----
-
 ## 包依赖关系
 
 ```

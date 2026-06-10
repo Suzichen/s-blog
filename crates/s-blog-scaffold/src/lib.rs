@@ -129,7 +129,7 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
     lines.push("    \"@s-blog/core\": \"^0.3.9\",".to_string());
-    lines.push("    \"@s-blog/engine\": \"^0.3.16\"".to_string());
+    lines.push("    \"@s-blog/engine\": \"^0.3.17\"".to_string());
     lines.push("  }".to_string());
     lines.push("}".to_string());
     lines.join("\n")
