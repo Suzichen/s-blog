@@ -63,6 +63,12 @@ pub fn scaffold(input: &ScaffoldInput) -> Result<(), ScaffoldError> {
         fs::rename(&gitignore_src, target.join(".gitignore"))?;
     }
 
+    // Rename _env.example → .env.example
+    let env_example_src = target.join("_env.example");
+    if env_example_src.exists() {
+        fs::rename(&env_example_src, target.join(".env.example"))?;
+    }
+
     // Generate package.json
     let package_json = generate_package_json(input);
     fs::write(target.join("package.json"), package_json + "\n")?;
@@ -118,11 +124,12 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     }
     lines.push("  \"scripts\": {".to_string());
     lines.push("    \"dev\": \"s-blog serve\",".to_string());
-    lines.push("    \"build\": \"s-blog build\"".to_string());
+    lines.push("    \"build\": \"s-blog build\",".to_string());
+    lines.push("    \"sync\": \"s-blog sync --media\"".to_string());
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
     lines.push("    \"@s-blog/core\": \"^0.3.9\",".to_string());
-    lines.push("    \"@s-blog/engine\": \"^0.3.16\"".to_string());
+    lines.push("    \"@s-blog/engine\": \"^0.3.17\"".to_string());
     lines.push("  }".to_string());
     lines.push("}".to_string());
     lines.join("\n")

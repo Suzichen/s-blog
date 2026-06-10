@@ -40,3 +40,7 @@ tests/.tmp-test*
 *.node
 crates/s-blog-engine-napi/artifacts/
 .cache
+
+# Environment secrets
+.env
+.sync-build

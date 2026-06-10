@@ -109,6 +109,7 @@ fn write_albums(albums: &[GenAlbum]) -> (TempDir, AlbumConfig) {
     let config = AlbumConfig {
         enabled: true,
         albums: entries,
+        provider: None,
     };
 
     (dir, config)
@@ -373,6 +374,7 @@ fn disabled_config_produces_empty_output() {
     let config = AlbumConfig {
         enabled: false,
         albums: vec![],
+        provider: None,
     };
 
     let result = generate_albums_data(&albums_root, dir.path(), &config).unwrap();
@@ -417,6 +419,7 @@ fn invalid_dirnames_excluded_from_output() {
                 cover: None,
             },
         ],
+        provider: None,
     };
 
     let result = generate_albums_data(&albums_root, dir.path(), &config).unwrap();

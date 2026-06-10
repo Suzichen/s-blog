@@ -213,6 +213,81 @@ The build process automatically:
 
 Thumbnails are generated incrementally — unchanged photos are skipped.
 
+## Media Sync (S3-compatible Storage)
+
+For large album collections, you can offload original photos to S3-compatible storage (Cloudflare R2, AWS S3, Backblaze B2, MinIO) while keeping lightweight thumbnails in your deployment.
+
+### Setup
+
+1. Add a `provider` block to `album.config.json`:
+
+```jsonc
+{
+  "enabled": true,
+  "albums": [...],
+  "provider": {
+    "type": "s3",
+    "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
+    "region": "auto",
+    "bucket": "my-blog-media",
+    "publicUrl": "https://media.yourdomain.com"
+  }
+}
+```
+
+2. Create `.env` with your credentials:
+
+```
+S3_ACCESS_KEY=your-access-key-id
+S3_SECRET_KEY=your-secret-access-key
+```
+
+### Commands
+
+```bash
+# Upload originals + thumbnails + index JSON to S3
+s-blog sync --media
+
+# Preview what would be uploaded
+s-blog sync --media --dry-run
+```
+
+### How It Works
+
+| Mode | Behavior |
+|------|----------|
+| **No provider** (default) | Original photos are copied to `dist/`. Standard static hosting. |
+| **Provider + local `albums/`** | Thumbnails generated locally. Originals served from CDN (`publicUrl`). |
+| **Provider + no local `albums/`** (CI) | Thumbnails and JSON pulled from S3. No local photos needed. |
+
+### CI Workflow
+
+When using a provider, you don't need to commit photos to git:
+
+```yaml
+# .github/workflows/deploy.yml
+env:
+  S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+  S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+steps:
+  - uses: actions/checkout@v4
+  - run: npm install
+  - run: npx s-blog build   # Pulls thumbnails from S3 automatically
+  - run: # deploy dist/
+```
+
+The sync lock file (`.sblog-sync.lock`) should be committed to git — it tracks which files have been uploaded.
+
+### Incremental Upload
+
+`sync --media` uses a hybrid fingerprint strategy to avoid re-uploading unchanged files:
+- Files ≤ 5MB: SHA-256 content hash
+- Files > 5MB: size + modification time
+
+Failed uploads (after 3 retries) are logged and skipped without blocking the rest.
+
+> **Note:** The S3 `ListObjects` API returns at most 1000 keys per request. If a single album exceeds 1000 photos, only the first 1000 thumbnails will be pulled during CI build. For most blogs this is not a concern.
+
 ## Memo Module (Ech0 Integration)
 
 Display a personal memo/microblog timeline powered by [Ech0](https://github.com/lin-snow/ech0). Memos are fetched at runtime from your Ech0 instance — no build step required.

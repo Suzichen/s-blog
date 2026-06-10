@@ -136,6 +136,12 @@ fn generate_albums_impl(
     progress: Option<&BuildProgress>,
 ) -> Result<AlbumsOutput, EngineError> {
     let bp = normalize_base_path_option(base_path);
+    // When provider is configured, original images are served from CDN
+    let origin_prefix = config
+        .provider
+        .as_ref()
+        .map(|p| p.public_url.trim_end_matches('/').to_string())
+        .unwrap_or_else(|| bp.clone());
     let generated_dir = output_dir.join("generated");
     fs::create_dir_all(&generated_dir)?;
 
@@ -226,7 +232,7 @@ fn generate_albums_impl(
                 photos.push(PhotoItem {
                     filename: filename.clone(),
                     thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
-                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    original_url: format!("{origin_prefix}/albums/{dirname}/{filename}"),
                     exif,
                 });
             }
@@ -240,7 +246,7 @@ fn generate_albums_impl(
                 PhotoItem {
                     filename: filename.clone(),
                     thumbnail_url: format!("{bp}/albums/{dirname}/{filename}"),
-                    original_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    original_url: format!("{origin_prefix}/albums/{dirname}/{filename}"),
                     exif: read_exif(&album_src.join(filename)),
                 }
             }).collect()
@@ -432,6 +438,7 @@ mod tests {
         let config = AlbumConfig {
             enabled: false,
             albums: vec![],
+            provider: None,
         };
 
         let result = generate_albums_data(&albums_dir, tmp.path(), &config).unwrap();
@@ -458,6 +465,7 @@ mod tests {
                 name: None,
                 cover: None,
             }],
+            provider: None,
         };
 
         let result = generate_albums_data(&albums_dir, tmp.path(), &config).unwrap();
@@ -477,6 +485,7 @@ mod tests {
                 name: None,
                 cover: None,
             }],
+            provider: None,
         };
 
         let result = generate_albums_data(&albums_dir, tmp.path(), &config).unwrap();
@@ -539,6 +548,7 @@ mod tests {
                 name: Some("Test".into()),
                 cover: None,
             }],
+            provider: None,
         };
 
         let result =
@@ -582,6 +592,7 @@ mod tests {
                 name: Some("Test".into()),
                 cover: None,
             }],
+            provider: None,
         };
 
         // Using the original function (no base_path)

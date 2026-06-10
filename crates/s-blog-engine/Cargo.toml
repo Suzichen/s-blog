@@ -27,7 +27,7 @@ webp = "0.3"
 kamadak-exif = "0.5"
 
 # Async runtime (sync feature for oneshot channels)
-tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros"] }
+tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros", "time"] }
 
 # HTTP server
 hyper = { version = "1", features = ["server", "http1"] }
@@ -43,6 +43,18 @@ pulldown-cmark = "0.12"
 
 # Logging
 log = "0.4"
+
+# Hashing (SHA-256 for sync lock fingerprints)
+sha2 = "0.10"
+
+# S3-compatible storage client
+rust-s3 = { version = "0.35", default-features = false, features = ["tokio-rustls-tls"] }
+
+# Environment variable loading
+dotenvy = "0.15"
+
+# Ctrl+C signal handling
+ctrlc = "3.4"
 
 # NAPI (optional — only used for error conversion when building bindings)
 napi = { version = "2", default-features = false, features = ["napi4"], optional = true }

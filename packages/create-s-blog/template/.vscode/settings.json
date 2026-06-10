@@ -2,6 +2,7 @@
   "files.associations": {
     "config.json": "jsonc",
     "album.config.json": "jsonc",
-    "memo.config.json": "jsonc"
+    "memo.config.json": "jsonc",
+    "*.example.json": "jsonc"
   }
 }

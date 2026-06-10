@@ -48,3 +48,9 @@ export declare function buildCommand(optionsJson: string): string
  * then blocks until the process receives a termination signal.
  */
 export declare function serveCommand(optionsJson: string): void
+/**
+ * Sync local album media to S3-compatible storage.
+ *
+ * Accepts a JSON string of `SyncOptions`, returns a JSON string of `SyncResult`.
+ */
+export declare function syncMediaCommand(optionsJson: string): string

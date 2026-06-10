@@ -213,6 +213,79 @@ posts/
 
 缩略图增量生成 — 未更改的照片会被跳过。
 
+## 媒体同步 (S3 兼容存储)
+
+对于大型相册集合，可以将原图托管到 S3 兼容的存储服务（Cloudflare R2、AWS S3、Backblaze B2、MinIO），部署时仅保留轻量的缩略图。
+
+### 配置
+
+1. 在 `album.config.json` 中添加 `provider` 配置块：
+
+```jsonc
+{
+  "enabled": true,
+  "albums": [...],
+  "provider": {
+    "type": "s3",
+    "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
+    "region": "auto",
+    "bucket": "my-blog-media",
+    "publicUrl": "https://media.yourdomain.com"
+  }
+}
+```
+
+2. 创建 `.env` 文件配置密钥：
+
+```
+S3_ACCESS_KEY=your-access-key-id
+S3_SECRET_KEY=your-secret-access-key
+```
+
+### 命令
+
+```bash
+# 上传原图 + 缩略图 + 索引 JSON 到 S3
+s-blog sync --media
+
+# 预览待上传文件（不实际上传）
+s-blog sync --media --dry-run
+```
+
+### 工作模式
+
+| 模式 | 行为 |
+|------|------|
+| **无 provider**（默认） | 原图复制到 `dist/`，标准静态托管 |
+| **有 provider + 本地有 `albums/`** | 缩略图本地生成，原图从 CDN 加载（`publicUrl`） |
+| **有 provider + 本地无 `albums/`**（CI） | 缩略图和 JSON 从 S3 拉取，无需本地图片 |
+
+### CI 工作流
+
+使用 provider 后，无需将图片提交到 git：
+
+```yaml
+# .github/workflows/deploy.yml
+env:
+  S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+  S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+steps:
+  - uses: actions/checkout@v4
+  - run: npm install
+  - run: npx s-blog build   # 自动从 S3 拉取缩略图
+  - run: # 部署 dist/
+```
+
+同步锁文件（`.sblog-sync.lock`）需要提交到 git —— 它记录了已上传文件的状态。
+
+### 增量上传
+
+`sync --media` 使用混合指纹策略避免重复上传：
+- 文件 ≤ 5MB：SHA-256 内容哈希
+- 文件 > 5MB：文件大小 + 修改时间
+
+上传失败（3 次重试后）会记录日志并跳过，不阻塞后续文件。
+
 ## Memo 模块（Ech0 集成）
 
 基于 [Ech0](https://github.com/lin-snow/ech0) 展示个人动态/微博时间线。数据在运行时从 Ech0 实例获取，无需重新构建。
