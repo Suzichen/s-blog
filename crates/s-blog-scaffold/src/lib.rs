@@ -124,7 +124,8 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     }
     lines.push("  \"scripts\": {".to_string());
     lines.push("    \"dev\": \"s-blog serve\",".to_string());
-    lines.push("    \"build\": \"s-blog build\"".to_string());
+    lines.push("    \"build\": \"s-blog build\",".to_string());
+    lines.push("    \"sync\": \"s-blog sync --media\"".to_string());
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
     lines.push("    \"@s-blog/core\": \"^0.3.9\",".to_string());
