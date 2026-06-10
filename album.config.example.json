@@ -1,0 +1,50 @@
+{
+  "enabled": true,
+  "albums": [
+    { "dir": "blog" },
+    { "dir": "Sakura", "name": "春", "cover": "DSC_1666.jpg" }
+  ]
+  // ─── Provider 配置 (S3 兼容) ───────────────────────────────────
+  // 密钥请配置在 .env 文件中（参考 .env.example）:
+  //   S3_ACCESS_KEY=your-access-key
+  //   S3_SECRET_KEY=your-secret-key
+  //
+  // 取消注释下方对应厂商的配置块即可启用。
+  // 启用后运行: s-blog sync --media
+  //
+  // ── Cloudflare R2 ──────────────────────────────────────────────
+  // ,"provider": {
+  //   "type": "s3",
+  //   "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
+  //   "region": "auto",
+  //   "bucket": "s-blog-media",
+  //   "publicUrl": "https://media.yourdomain.com"
+  // }
+  //
+  // ── AWS S3 ─────────────────────────────────────────────────────
+  // ,"provider": {
+  //   "type": "s3",
+  //   "endpoint": "https://s3.ap-northeast-1.amazonaws.com",
+  //   "region": "ap-northeast-1",
+  //   "bucket": "s-blog-media",
+  //   "publicUrl": "https://s-blog-media.s3.ap-northeast-1.amazonaws.com"
+  // }
+  //
+  // ── Backblaze B2 ───────────────────────────────────────────────
+  // ,"provider": {
+  //   "type": "s3",
+  //   "endpoint": "https://s3.us-west-004.backblazeb2.com",
+  //   "region": "us-west-004",
+  //   "bucket": "s-blog-media",
+  //   "publicUrl": "https://s-blog-media.s3.us-west-004.backblazeb2.com"
+  // }
+  //
+  // ── MinIO (self-hosted) ────────────────────────────────────────
+  // ,"provider": {
+  //   "type": "s3",
+  //   "endpoint": "http://localhost:9000",
+  //   "region": "us-east-1",
+  //   "bucket": "s-blog-media",
+  //   "publicUrl": "http://localhost:9000/s-blog-media"
+  // }
+}

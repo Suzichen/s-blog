@@ -213,6 +213,79 @@ posts/
 
 サムネイルはインクリメンタルに生成され、変更のない写真はスキップされます。
 
+## メディア同期（S3互換ストレージ）
+
+大規模なアルバムコレクションの場合、オリジナル写真をS3互換ストレージ（Cloudflare R2、AWS S3、Backblaze B2、MinIO）にオフロードし、デプロイには軽量なサムネイルのみを保持できます。
+
+### セットアップ
+
+1. `album.config.json` に `provider` ブロックを追加：
+
+```jsonc
+{
+  "enabled": true,
+  "albums": [...],
+  "provider": {
+    "type": "s3",
+    "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
+    "region": "auto",
+    "bucket": "my-blog-media",
+    "publicUrl": "https://media.yourdomain.com"
+  }
+}
+```
+
+2. `.env` ファイルに認証情報を設定：
+
+```
+S3_ACCESS_KEY=your-access-key-id
+S3_SECRET_KEY=your-secret-access-key
+```
+
+### コマンド
+
+```bash
+# オリジナル + サムネイル + インデックスJSONをS3にアップロード
+s-blog sync --media
+
+# アップロード予定ファイルをプレビュー
+s-blog sync --media --dry-run
+```
+
+### 動作モード
+
+| モード | 動作 |
+|--------|------|
+| **providerなし**（デフォルト） | オリジナル写真を `dist/` にコピー。標準的な静的ホスティング |
+| **provider + ローカル `albums/` あり** | サムネイルをローカル生成。オリジナルはCDN（`publicUrl`）から配信 |
+| **provider + ローカル `albums/` なし**（CI） | サムネイルとJSONをS3からプル。ローカルに写真不要 |
+
+### CIワークフロー
+
+provider使用時、写真をgitにコミットする必要はありません：
+
+```yaml
+# .github/workflows/deploy.yml
+env:
+  S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+  S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+steps:
+  - uses: actions/checkout@v4
+  - run: npm install
+  - run: npx s-blog build   # S3からサムネイルを自動プル
+  - run: # dist/ をデプロイ
+```
+
+同期ロックファイル（`.sblog-sync.lock`）はgitにコミットしてください — アップロード済みファイルの状態を追跡します。
+
+### 増分アップロード
+
+`sync --media` はハイブリッドフィンガープリント戦略で重複アップロードを回避：
+- ファイル ≤ 5MB：SHA-256コンテンツハッシュ
+- ファイル > 5MB：ファイルサイズ + 更新日時
+
+アップロード失敗（3回リトライ後）はログに記録しスキップ、後続ファイルをブロックしません。
+
 ## メモモジュール（Ech0 連携）
 
 [Ech0](https://github.com/lin-snow/ech0) を利用した個人メモ/マイクロブログのタイムライン表示。データはランタイムで Ech0 インスタンスから取得され、ビルドは不要です。

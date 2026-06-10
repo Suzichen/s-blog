@@ -212,6 +212,7 @@ fn rust_disabled_config_produces_empty_index() {
     let config = AlbumConfig {
         enabled: false,
         albums: vec![],
+        provider: None,
     };
     let albums_dir = fixtures_dir().join("albums");
     let out = tempfile::TempDir::new().unwrap();

@@ -23,6 +23,7 @@ pub mod mime;
 pub mod progress;
 pub mod build;
 pub mod serve;
+pub mod media_sync;
 
 // Re-export primary types for convenience.
 pub use error::EngineError;
@@ -57,11 +58,25 @@ fn default_base_path() -> Option<String> {
     Some("/".to_string())
 }
 
+/// S3-compatible provider configuration for external media hosting.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderConfig {
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub endpoint: String,
+    pub region: String,
+    pub bucket: String,
+    pub public_url: String,
+}
+
 /// Album-level configuration (mirrors `album.config.json`).
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AlbumConfig {
     pub enabled: bool,
     pub albums: Vec<AlbumEntry>,
+    #[serde(default)]
+    pub provider: Option<ProviderConfig>,
 }
 
 /// A single album entry inside [`AlbumConfig`].

@@ -14,6 +14,7 @@ Usage: s-blog <command> [options]
 Commands:
   build   Build the blog for production deployment
   serve   Start a development preview server
+  sync    Sync media files to S3-compatible storage
 
 Options:
   --version  Show version number
@@ -38,6 +39,16 @@ Start a development preview server.
 
 Options:
   --port <number>  Port to listen on (default: 3000)`);
+}
+
+function printSyncHelp() {
+  console.log(`Usage: s-blog sync --media [options]
+
+Sync local album media to S3-compatible storage.
+
+Options:
+  --media     Sync album media files (required)
+  --dry-run   Preview files to upload without uploading`);
 }
 
 function getFlag(flag) {
@@ -120,6 +131,35 @@ if (command === 'build') {
 
   try {
     engine.serveCommand(JSON.stringify(opts));
+  } catch (e) {
+    process.stderr.write(`Error: ${e.message}\n`);
+    process.exit(1);
+  }
+} else if (command === 'sync') {
+  if (hasFlag('--help')) {
+    printSyncHelp();
+    process.exit(0);
+  }
+
+  if (!hasFlag('--media')) {
+    process.stderr.write(`Error: Missing --media flag. Run "s-blog sync --help" for usage.\n`);
+    process.exit(1);
+  }
+
+  const engine = loadEngine();
+  const opts = {};
+  if (hasFlag('--dry-run')) opts.dryRun = true;
+
+  try {
+    const resultJson = engine.syncMediaCommand(JSON.stringify(opts));
+    const result = JSON.parse(resultJson);
+    console.log(`\nSync completed in ${result.durationMs}ms`);
+    console.log(`  Uploaded: ${result.uploaded}`);
+    console.log(`  Skipped: ${result.skipped}`);
+    if (result.failed.length > 0) {
+      console.log(`  Failed: ${result.failed.length}`);
+      result.failed.forEach(f => console.log(`    - ${f}`));
+    }
   } catch (e) {
     process.stderr.write(`Error: ${e.message}\n`);
     process.exit(1);

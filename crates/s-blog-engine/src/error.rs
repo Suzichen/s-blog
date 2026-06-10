@@ -38,16 +38,16 @@ pub enum EngineError {
     #[error("YAML error: {0}")]
     Yaml(#[from] serde_yaml::Error),
 
-    #[error("错误：找不到配置文件：{0}")]
+    #[error("Configuration file not found: {0}")]
     ConfigNotFound(PathBuf),
 
-    #[error("错误：构建步骤 '{step}' 失败：{reason}")]
+    #[error("Build step '{step}' failed: {reason}")]
     BuildStepFailed { step: String, reason: String },
 
-    #[error("错误：端口 {port} 已被占用")]
+    #[error("Port {port} is already in use")]
     PortInUse { port: u16 },
 
-    #[error("错误：找不到服务目录：{0}\n提示：请先运行 `s-blog build`")]
+    #[error("Serve directory not found: {0}\nHint: run `s-blog build` first")]
     ServeDirNotFound(PathBuf),
 }
 

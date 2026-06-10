@@ -109,7 +109,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
             reason: e.to_string(),
         })?
     } else {
-        AlbumConfig { enabled: false, albums: vec![] }
+        AlbumConfig { enabled: false, albums: vec![], provider: None }
     };
 
     // Step 1: Clean dist
@@ -131,7 +131,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     if !shell_dir.exists() {
         return Err(EngineError::BuildStepFailed {
             step: "copy shell".into(),
-            reason: format!("找不到 app shell 目录：{}", shell_dir.display()),
+            reason: format!("App shell directory not found: {}", shell_dir.display()),
         });
     }
     let shell_files_count = copy_dir(&shell_dir, &output_dir)?;
@@ -173,18 +173,44 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     progress.step_done("Generate posts", &format!("{posts_count} posts"));
     progress.step_start("Generate albums");
     let albums_dir = work_dir.join("albums");
-    let albums_output = crate::albums::generate_albums_data_with_progress(
-        &albums_dir,
-        &output_dir,
-        &album_config,
-        config.base_path.as_deref(),
-        Some(&progress),
-    )
-    .map_err(|e| EngineError::BuildStepFailed {
-        step: "generate albums".into(),
-        reason: e.to_string(),
-    })?;
-    let albums_count = albums_output.summaries.len() as u32;
+
+    // Warn if albums directory exceeds 500MB and no provider is configured
+    if albums_dir.is_dir() && album_config.provider.is_none() {
+        let size = crate::media_sync::calculate_dir_size(&albums_dir);
+        let threshold = 500 * 1024 * 1024;
+        if size > threshold {
+            let size_mb = size as f64 / (1024.0 * 1024.0);
+            log::warn!(
+                "⚠ albums/ total size {size_mb:.1}MB (exceeds 500MB). Consider configuring a provider in album.config.json for external hosting"
+            );
+        }
+    }
+
+    // Provider mode without local albums: pull thumbs + JSON from S3
+    let albums_count = if album_config.provider.is_some() && !albums_dir.is_dir() {
+        crate::media_sync::pull_build_assets(
+            album_config.provider.as_ref().unwrap(),
+            &album_config,
+            &output_dir,
+        )
+        .map_err(|e| EngineError::BuildStepFailed {
+            step: "pull albums from S3".into(),
+            reason: e.to_string(),
+        })?
+    } else {
+        let albums_output = crate::albums::generate_albums_data_with_progress(
+            &albums_dir,
+            &output_dir,
+            &album_config,
+            config.base_path.as_deref(),
+            Some(&progress),
+        )
+        .map_err(|e| EngineError::BuildStepFailed {
+            step: "generate albums".into(),
+            reason: e.to_string(),
+        })?;
+        albums_output.summaries.len() as u32
+    };
 
     // Step 5: Generate SEO + sitemap + rss + robots
     progress.step_done("Generate albums", &format!("{albums_count} albums"));
@@ -236,8 +262,8 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     progress.step_start("Copy static");
     let mut static_files_count: u32 = 0;
 
-    // Copy albums/ originals
-    if albums_dir.exists() {
+    // Copy albums/ originals (skip when provider is configured — originals served from CDN)
+    if albums_dir.exists() && album_config.provider.is_none() {
         static_files_count += copy_dir(&albums_dir, &output_dir.join("albums"))?;
     }
 

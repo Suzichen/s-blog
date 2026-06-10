@@ -9,6 +9,7 @@ use std::path::Path;
 
 use napi_derive::napi;
 use s_blog_engine::build::{BuildOptions, BuildResult};
+use s_blog_engine::media_sync::SyncOptions;
 use s_blog_engine::serve::ServeOptions;
 use s_blog_engine::{AlbumConfig, PostMetadata, SiteConfig};
 
@@ -236,4 +237,21 @@ pub fn serve_command(options_json: String) -> napi::Result<()> {
 
     handle.shutdown();
     Ok(())
+}
+
+// ── Sync Media ──────────────────────────────────────────────────────
+
+/// Sync local album media to S3-compatible storage.
+///
+/// Accepts a JSON string of `SyncOptions`, returns a JSON string of `SyncResult`.
+#[napi]
+pub fn sync_media_command(options_json: String) -> napi::Result<String> {
+    let opts: SyncOptions = serde_json::from_str(&options_json)
+        .map_err(|e| napi::Error::from_reason(format!("Invalid sync options: {e}")))?;
+
+    let result = s_blog_engine::media_sync::sync_media(opts)
+        .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+    serde_json::to_string(&result)
+        .map_err(|e| napi::Error::from_reason(format!("Failed to serialize result: {e}")))
 }
