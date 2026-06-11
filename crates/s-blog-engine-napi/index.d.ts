@@ -52,5 +52,20 @@ export declare function serveCommand(optionsJson: string): void
  * Sync local album media to S3-compatible storage.
  *
  * Accepts a JSON string of `SyncOptions`, returns a JSON string of `SyncResult`.
+ * Prints progress to stdout for CLI usage.
  */
 export declare function syncMediaCommand(optionsJson: string): string
+/**
+ * Sync media with a JS progress callback. Designed for Tauri/GUI integration.
+ * Runs on a background thread (libuv thread pool), does NOT block the JS event loop.
+ *
+ * The callback receives a JSON string for each progress event:
+ * `{"type":"generating_thumbnail","current":1,"total":44,"file":"album/photo.jpg"}`
+ * `{"type":"uploading_thumbnail","current":1,"total":44}`
+ * `{"type":"uploading","current":1,"total":11,"file":"album/photo.jpg"}`
+ * `{"type":"scanning","total":11}`
+ * `{"type":"done"}`
+ *
+ * Returns a Promise that resolves to the result JSON string.
+ */
+export declare function syncMediaWithProgress(optionsJson: string, callback: (arg: string) => any): Promise<unknown>
