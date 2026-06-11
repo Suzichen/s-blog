@@ -9,6 +9,8 @@ use std::time::UNIX_EPOCH;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+use futures::stream::{self, StreamExt};
+
 use crate::error::EngineError;
 use crate::image_proc::is_photo_file;
 
@@ -55,11 +57,14 @@ pub enum SyncProgress {
 pub struct SyncConfig {
     pub work_dir: std::path::PathBuf,
     pub dry_run: bool,
+    /// Number of concurrent thumbnail generation tasks.
+    /// `0` means auto-detect: `(available_parallelism / 2).clamp(2, 8)`.
+    pub thumb_concurrency: usize,
 }
 
 impl Default for SyncConfig {
     fn default() -> Self {
-        Self { work_dir: std::path::PathBuf::from("."), dry_run: false }
+        Self { work_dir: std::path::PathBuf::from("."), dry_run: false, thumb_concurrency: 0 }
     }
 }
 
@@ -168,7 +173,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
-use futures::stream::{self, StreamExt};
 use s3::bucket::Bucket;
 use s3::creds::Credentials;
 use s3::Region;
@@ -523,23 +527,51 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
                 }
 
                 let thumb_total = thumb_tasks.len() as u32;
+                let concurrency = if config.thumb_concurrency == 0 {
+                    let cpus = std::thread::available_parallelism()
+                        .map(|n| n.get())
+                        .unwrap_or(4);
+                    (cpus / 2).clamp(2, 8)
+                } else {
+                    config.thumb_concurrency
+                };
 
-                // Pipeline: producer generates thumbs, consumer uploads
+                // Pipeline: producer generates thumbs concurrently, consumer uploads
                 let (tx, mut rx) = tokio::sync::mpsc::channel::<(String, std::path::PathBuf)>(16);
                 let interrupted2 = interrupted.clone();
 
-                let producer = tokio::task::spawn_blocking(move || {
-                    for (remote_key, src_path, dest_path) in thumb_tasks.into_iter() {
-                        if interrupted2.load(Ordering::SeqCst) { break; }
-                        match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
-                            Ok(()) => {
-                                if tx.blocking_send((remote_key, dest_path)).is_err() {
-                                    break;
+                let producer = tokio::spawn(async move {
+                    let results = stream::iter(thumb_tasks)
+                        .map(|(remote_key, src_path, dest_path)| {
+                            let interrupted = interrupted2.clone();
+                            tokio::task::spawn_blocking(move || {
+                                if interrupted.load(Ordering::SeqCst) {
+                                    return None;
+                                }
+                                match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
+                                    Ok(()) => Some((remote_key, dest_path)),
+                                    Err(e) => {
+                                        log::warn!("[sync] Thumbnail failed {}: {e}", src_path.display());
+                                        None
+                                    }
+                                }
+                            })
+                        })
+                        .buffer_unordered(concurrency)
+                        .filter_map(|join_result| async {
+                            match join_result {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    log::warn!("[sync] Thumbnail task panicked: {e}");
+                                    None
                                 }
                             }
-                            Err(e) => {
-                                log::warn!("[sync] Thumbnail failed {}: {e}", src_path.display());
-                            }
+                        });
+
+                    tokio::pin!(results);
+                    while let Some((remote_key, dest_path)) = results.next().await {
+                        if tx.send((remote_key, dest_path)).await.is_err() {
+                            break;
                         }
                     }
                 });
@@ -548,6 +580,11 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
                 while let Some((remote_key, local_path)) = rx.recv().await {
                     if interrupted.load(Ordering::SeqCst) { break; }
                     thumb_count += 1;
+                    report(SyncProgress::GeneratingThumbnail {
+                        current: thumb_count,
+                        total: thumb_total,
+                        file: remote_key.clone(),
+                    });
                     report(SyncProgress::UploadingThumbnail { current: thumb_count, total: thumb_total });
                     let _ = upload_with_retry(&bucket, &local_path, &remote_key, 3).await;
                 }
@@ -749,7 +786,7 @@ mod tests {
             r#"{"enabled":true,"albums":[]}"#,
         ).unwrap();
         fs::create_dir(tmp.path().join("albums")).unwrap();
-        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: false };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: false, ..Default::default() };
         let err = sync_media(opts).unwrap_err();
         assert!(err.to_string().contains("provider"));
     }
@@ -764,7 +801,7 @@ mod tests {
             tmp.path().join("album.config.json"),
             r#"{"enabled":true,"albums":[{"dir":"test"}],"provider":{"type":"s3","endpoint":"http://x","region":"auto","bucket":"b","publicUrl":"http://x"}}"#,
         ).unwrap();
-        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true, ..Default::default() };
         let result = sync_media(opts).unwrap();
         assert_eq!(result.uploaded, 0);
         assert_eq!(result.skipped, 0);
@@ -788,7 +825,7 @@ mod tests {
         lock.files.insert("test/photo.jpg".into(), fp);
         save_lock(&lock, &tmp.path().join(".sblog-sync.lock")).unwrap();
 
-        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true, ..Default::default() };
         let result = sync_media(opts).unwrap();
         assert_eq!(result.uploaded, 0);
         assert_eq!(result.skipped, 1);
@@ -809,7 +846,7 @@ mod tests {
         let events = Arc::new(Mutex::new(Vec::new()));
         let events_clone = events.clone();
 
-        let config = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let config = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true, ..Default::default() };
         let ctx = SyncContext {
             on_progress: Some(Box::new(move |evt| {
                 events_clone.lock().unwrap().push(format!("{:?}", evt));
