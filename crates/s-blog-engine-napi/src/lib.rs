@@ -9,8 +9,8 @@ use std::path::Path;
 
 use napi_derive::napi;
 use s_blog_engine::build::{BuildOptions, BuildResult};
-use s_blog_engine::media_sync::SyncOptions;
-use s_blog_engine::serve::ServeOptions;
+use s_blog_engine::media_sync::SyncConfig;
+use s_blog_engine::serve::ServeConfig;
 use s_blog_engine::{AlbumConfig, PostMetadata, SiteConfig};
 
 // ── Posts ───────────────────────────────────────────────────────────
@@ -218,7 +218,7 @@ pub fn build_command(options_json: String) -> napi::Result<String> {
 /// then blocks until the process receives a termination signal.
 #[napi]
 pub fn serve_command(options_json: String) -> napi::Result<()> {
-    let opts: ServeOptions = serde_json::from_str(&options_json)
+    let opts: ServeConfig = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid serve options: {e}")))?;
 
     let mut handle = s_blog_engine::serve::serve(opts)
@@ -244,14 +244,99 @@ pub fn serve_command(options_json: String) -> napi::Result<()> {
 /// Sync local album media to S3-compatible storage.
 ///
 /// Accepts a JSON string of `SyncOptions`, returns a JSON string of `SyncResult`.
+/// Prints progress to stdout for CLI usage.
 #[napi]
 pub fn sync_media_command(options_json: String) -> napi::Result<String> {
-    let opts: SyncOptions = serde_json::from_str(&options_json)
+    use s_blog_engine::media_sync::{SyncContext, SyncProgress};
+
+    let opts: SyncConfig = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid sync options: {e}")))?;
 
-    let result = s_blog_engine::media_sync::sync_media(opts)
+    let ctx = SyncContext {
+        on_progress: Some(Box::new(|evt| {
+            match evt {
+                SyncProgress::GeneratingThumbnail { current, total, file } => {
+                    println!("[sync] Generating thumbnail ({current}/{total}) {file}");
+                }
+                _ => {}
+            }
+        })),
+    };
+
+    let result = s_blog_engine::media_sync::sync_media_with_context(opts, Some(ctx))
         .map_err(|e| napi::Error::from_reason(e.to_string()))?;
 
     serde_json::to_string(&result)
         .map_err(|e| napi::Error::from_reason(format!("Failed to serialize result: {e}")))
+}
+
+/// Sync media with a JS progress callback. Designed for Tauri/GUI integration.
+/// Runs on a background thread (libuv thread pool), does NOT block the JS event loop.
+///
+/// The callback receives a JSON string for each progress event:
+/// `{"type":"generating_thumbnail","current":1,"total":44,"file":"album/photo.jpg"}`
+/// `{"type":"uploading_thumbnail","current":1,"total":44}`
+/// `{"type":"uploading","current":1,"total":11,"file":"album/photo.jpg"}`
+/// `{"type":"scanning","total":11}`
+/// `{"type":"done"}`
+///
+/// Returns a Promise that resolves to the result JSON string.
+#[napi]
+pub fn sync_media_with_progress(
+    options_json: String,
+    callback: napi::threadsafe_function::ThreadsafeFunction<String, napi::threadsafe_function::ErrorStrategy::Fatal>,
+) -> napi::Result<napi::bindgen_prelude::AsyncTask<SyncMediaTask>> {
+    let opts: SyncConfig = serde_json::from_str(&options_json)
+        .map_err(|e| napi::Error::from_reason(format!("Invalid sync options: {e}")))?;
+
+    Ok(napi::bindgen_prelude::AsyncTask::new(SyncMediaTask { opts, callback }))
+}
+
+pub struct SyncMediaTask {
+    opts: SyncConfig,
+    callback: napi::threadsafe_function::ThreadsafeFunction<String, napi::threadsafe_function::ErrorStrategy::Fatal>,
+}
+
+impl napi::Task for SyncMediaTask {
+    type Output = String;
+    type JsValue = String;
+
+    fn compute(&mut self) -> napi::Result<Self::Output> {
+        use s_blog_engine::media_sync::{SyncContext, SyncProgress};
+
+        let callback = self.callback.clone();
+        let ctx = SyncContext {
+            on_progress: Some(Box::new(move |evt| {
+                let json = match &evt {
+                    SyncProgress::Scanning { total } => {
+                        format!(r#"{{"type":"scanning","total":{total}}}"#)
+                    }
+                    SyncProgress::Uploading { current, total, file } => {
+                        format!(r#"{{"type":"uploading","current":{current},"total":{total},"file":"{file}"}}"#)
+                    }
+                    SyncProgress::GeneratingThumbnail { current, total, file } => {
+                        format!(r#"{{"type":"generating_thumbnail","current":{current},"total":{total},"file":"{file}"}}"#)
+                    }
+                    SyncProgress::UploadingThumbnail { current, total } => {
+                        format!(r#"{{"type":"uploading_thumbnail","current":{current},"total":{total}}}"#)
+                    }
+                    SyncProgress::Done => {
+                        r#"{"type":"done"}"#.to_string()
+                    }
+                };
+                callback.call(json, napi::threadsafe_function::ThreadsafeFunctionCallMode::NonBlocking);
+            })),
+        };
+
+        let result = s_blog_engine::media_sync::sync_media_with_context(
+            self.opts.clone(), Some(ctx),
+        ).map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+        serde_json::to_string(&result)
+            .map_err(|e| napi::Error::from_reason(format!("Failed to serialize result: {e}")))
+    }
+
+    fn resolve(&mut self, _env: napi::Env, output: Self::Output) -> napi::Result<Self::JsValue> {
+        Ok(output)
+    }
 }

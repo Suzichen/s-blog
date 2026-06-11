@@ -72,6 +72,19 @@ pub fn is_valid_dirname(s: &str) -> bool {
 
 // Uses the shared `normalize_base_path_option` from `path_util`.
 
+// ── Thumbnail mode ──────────────────────────────────────────────────
+
+/// Controls thumbnail behavior in album generation.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum ThumbnailMode {
+    /// Generate thumbnail files on disk + use thumbs URL. (build)
+    Generate,
+    /// Skip thumbnails entirely, URL points to original image. (serve)
+    SkipFallbackOriginal,
+    /// Don't generate thumbnail files, but URL still references thumbs path. (sync JSON export)
+    MetadataOnly,
+}
+
 // ── Public API ─────────────────────────────────────────────────────
 
 /// Generate album data from the given albums directory and configuration.
@@ -101,7 +114,7 @@ pub fn generate_albums_data_with_base(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
-    generate_albums_impl(albums_dir, output_dir, config, base_path, false, None)
+    generate_albums_impl(albums_dir, output_dir, config, base_path, ThumbnailMode::Generate, None)
 }
 
 /// Like [`generate_albums_data_with_base`] but skips thumbnail generation.
@@ -112,7 +125,7 @@ pub fn generate_albums_index_only(
     config: &AlbumConfig,
     base_path: Option<&str>,
 ) -> Result<AlbumsOutput, EngineError> {
-    generate_albums_impl(albums_dir, output_dir, config, base_path, true, None)
+    generate_albums_impl(albums_dir, output_dir, config, base_path, ThumbnailMode::SkipFallbackOriginal, None)
 }
 
 /// Like [`generate_albums_data_with_base`] but with progress output support.
@@ -124,7 +137,19 @@ pub fn generate_albums_data_with_progress(
     base_path: Option<&str>,
     progress: Option<&BuildProgress>,
 ) -> Result<AlbumsOutput, EngineError> {
-    generate_albums_impl(albums_dir, output_dir, config, base_path, false, progress)
+    generate_albums_impl(albums_dir, output_dir, config, base_path, ThumbnailMode::Generate, progress)
+}
+
+/// Generate only the JSON metadata (albums-index + per-album detail) with correct
+/// thumbnail URLs (`/albums/{dir}/thumbs/{stem}.webp`) but without writing any
+/// thumbnail files to disk. Used by sync to produce index JSON for S3 upload.
+pub fn generate_albums_metadata_only(
+    albums_dir: &Path,
+    output_dir: &Path,
+    config: &AlbumConfig,
+    base_path: Option<&str>,
+) -> Result<AlbumsOutput, EngineError> {
+    generate_albums_impl(albums_dir, output_dir, config, base_path, ThumbnailMode::MetadataOnly, None)
 }
 
 fn generate_albums_impl(
@@ -132,7 +157,7 @@ fn generate_albums_impl(
     output_dir: &Path,
     config: &AlbumConfig,
     base_path: Option<&str>,
-    skip_thumbnails: bool,
+    thumb_mode: ThumbnailMode,
     progress: Option<&BuildProgress>,
 ) -> Result<AlbumsOutput, EngineError> {
     let bp = normalize_base_path_option(base_path);
@@ -199,7 +224,28 @@ fn generate_albums_impl(
 
         // Generate thumbnails (skipped in serve mode)
         let public_albums_dir = output_dir.join("albums").join(dirname);
-        let photos = if !skip_thumbnails {
+        let photos = if thumb_mode == ThumbnailMode::SkipFallbackOriginal {
+            photo_files.iter().map(|filename| {
+                PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/{filename}"),
+                    original_url: format!("{origin_prefix}/albums/{dirname}/{filename}"),
+                    exif: read_exif(&album_src.join(filename)),
+                }
+            }).collect()
+        } else if thumb_mode == ThumbnailMode::MetadataOnly {
+            // Produce correct thumbs URLs without generating files on disk
+            photo_files.iter().map(|filename| {
+                let stem = Path::new(filename).file_stem().unwrap_or_default().to_string_lossy();
+                let thumb_filename = format!("{stem}.webp");
+                PhotoItem {
+                    filename: filename.clone(),
+                    thumbnail_url: format!("{bp}/albums/{dirname}/thumbs/{thumb_filename}"),
+                    original_url: format!("{origin_prefix}/albums/{dirname}/{filename}"),
+                    exif: read_exif(&album_src.join(filename)),
+                }
+            }).collect()
+        } else {
             let thumbs_dir = public_albums_dir.join("thumbs");
             fs::create_dir_all(&thumbs_dir)?;
 
@@ -241,20 +287,11 @@ fn generate_albums_impl(
                 p.photo_album_done(dirname, photos.len(), &album_start);
             }
             photos
-        } else {
-            photo_files.iter().map(|filename| {
-                PhotoItem {
-                    filename: filename.clone(),
-                    thumbnail_url: format!("{bp}/albums/{dirname}/{filename}"),
-                    original_url: format!("{origin_prefix}/albums/{dirname}/{filename}"),
-                    exif: read_exif(&album_src.join(filename)),
-                }
-            }).collect()
         };
 
         // Build summary (requirement 2.6.3)
         let name = entry.name.clone().unwrap_or_else(|| dirname.clone());
-        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp, skip_thumbnails);
+        let cover = build_cover_url(dirname, entry.cover.as_deref(), &photo_files, &bp, thumb_mode);
 
         let summary = AlbumSummary {
             dirname: dirname.clone(),
@@ -306,12 +343,14 @@ fn build_cover_url(
     configured_cover: Option<&str>,
     photo_files: &[String],
     base_path: &str,
-    skip_thumbnails: bool,
+    thumb_mode: ThumbnailMode,
 ) -> Option<String> {
+    let use_thumbs = thumb_mode != ThumbnailMode::SkipFallbackOriginal;
+
     // Check configured cover
     if let Some(cover_file) = configured_cover {
         if photo_files.iter().any(|f| f == cover_file) {
-            if skip_thumbnails {
+            if !use_thumbs {
                 return Some(format!("{base_path}/albums/{dirname}/{cover_file}"));
             }
             let stem = Path::new(cover_file)
@@ -324,7 +363,7 @@ fn build_cover_url(
 
     // Fall back to first photo
     photo_files.first().map(|first| {
-        if skip_thumbnails {
+        if !use_thumbs {
             format!("{base_path}/albums/{dirname}/{first}")
         } else {
             let stem = Path::new(first)
@@ -362,28 +401,28 @@ mod tests {
     #[test]
     fn build_cover_url_configured_cover_exists() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("b.jpg"), &photos, "", false);
+        let result = build_cover_url("travel", Some("b.jpg"), &photos, "", ThumbnailMode::Generate);
         assert_eq!(result, Some("/albums/travel/thumbs/b.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_configured_cover_missing_falls_back() {
         let photos = vec!["a.jpg".to_string(), "b.jpg".to_string()];
-        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "", false);
+        let result = build_cover_url("travel", Some("nonexistent.jpg"), &photos, "", ThumbnailMode::Generate);
         assert_eq!(result, Some("/albums/travel/thumbs/a.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_no_config_uses_first() {
         let photos = vec!["first.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "", false);
+        let result = build_cover_url("travel", None, &photos, "", ThumbnailMode::Generate);
         assert_eq!(result, Some("/albums/travel/thumbs/first.webp".to_string()));
     }
 
     #[test]
     fn build_cover_url_empty_album() {
         let photos: Vec<String> = Vec::new();
-        let result = build_cover_url("travel", None, &photos, "", false);
+        let result = build_cover_url("travel", None, &photos, "", ThumbnailMode::Generate);
         assert_eq!(result, None);
     }
 
@@ -521,7 +560,7 @@ mod tests {
     #[test]
     fn build_cover_url_with_base_path() {
         let photos = vec!["a.jpg".to_string()];
-        let result = build_cover_url("travel", None, &photos, "/blog", false);
+        let result = build_cover_url("travel", None, &photos, "/blog", ThumbnailMode::Generate);
         assert_eq!(
             result,
             Some("/blog/albums/travel/thumbs/a.webp".to_string())

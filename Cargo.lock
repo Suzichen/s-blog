@@ -2144,6 +2144,7 @@ dependencies = [
  "chrono-tz",
  "ctrlc",
  "dotenvy",
+ "futures",
  "http-body-util",
  "hyper 1.9.0",
  "hyper-util",

@@ -307,3 +307,101 @@ println!("相机: {:?} {:?}", exif.camera_make, exif.camera_model);
 - 缩略图生成支持增量构建（已存在且较新的缩略图会跳过）
 - 日志通过 `log` crate 输出，Tauri 项目中可用 `env_logger` 或 `tauri-plugin-log` 接收
 - `SiteConfig` 使用 `#[serde(rename_all = "camelCase")]`，可直接从 camelCase JSON 反序列化
+
+## Tauri 集成（Runtime 共享 & 进度回调）
+
+在 Tauri 应用中，应用本身已有一个 tokio runtime。为避免 engine 内部再创建 runtime（导致资源泄漏），可通过 `ServeContext` / `SyncContext` 传入外部 Handle。
+
+### 开发服务器（无泄漏启停）
+
+```rust
+use std::sync::Mutex;
+use s_blog_engine::serve::{ServeConfig, ServeContext, ServeHandle, serve_with_context};
+
+// Tauri state 中存储 handle
+struct AppState {
+    serve_handle: Mutex<Option<ServeHandle>>,
+}
+
+// ServeHandle 是 Send 的，可安全存入 Mutex 跨线程共享
+
+#[tauri::command]
+async fn start_server(state: tauri::State<'_, AppState>) -> Result<String, String> {
+    // serve_with_context 本身不调用 block_on（使用 std::net::TcpListener 绑定端口），
+    // 可安全在 async 上下文中调用
+    let config = ServeConfig {
+        work_dir: "/path/to/project".into(),
+        port: 3000,
+        ..Default::default()
+    };
+    let ctx = ServeContext {
+        runtime: Some(tokio::runtime::Handle::current()),
+    };
+
+    let handle = serve_with_context(config, Some(ctx))
+        .map_err(|e| e.to_string())?;
+
+    let addr = handle.address().to_string();
+    *state.serve_handle.lock().unwrap() = Some(handle);
+    Ok(addr)
+}
+
+#[tauri::command]
+fn stop_server(state: tauri::State<'_, AppState>) {
+    if let Some(mut h) = state.serve_handle.lock().unwrap().take() {
+        h.shutdown(); // 干净停止，runtime 不泄漏
+    }
+}
+```
+
+**关键点：**
+- `serve_with_context` 使用 `std::net::TcpListener` 绑定端口（纯同步），不调用 `block_on`
+- 传入 `runtime: Some(Handle::current())` 时，server task 运行在 Tauri 的 runtime 上
+- `ServeHandle` 内部不持有 owned runtime，shutdown 后所有资源正确释放
+- 不传入 Handle（`ctx: None`）时保持 CLI 行为 — 自建 runtime 存储在 ServeHandle 中，shutdown 时 drop
+
+### Media Sync（进度回调）
+
+```rust
+use s_blog_engine::media_sync::{SyncConfig, SyncContext, SyncProgress, sync_media_with_context};
+
+#[tauri::command]
+async fn sync_media(app: tauri::AppHandle) -> Result<String, String> {
+    let app_clone = app.clone();
+
+    // sync_media_with_context 是阻塞函数（内部自建 runtime），
+    // 必须通过 spawn_blocking 在独立线程执行
+    let result = tokio::task::spawn_blocking(move || {
+        let config = SyncConfig {
+            work_dir: "/path/to/project".into(),
+            dry_run: false,
+        };
+        let ctx = SyncContext {
+            on_progress: Some(Box::new(move |progress: SyncProgress| {
+                let _ = app_clone.emit("sync-progress", format!("{:?}", progress));
+            })),
+        };
+        sync_media_with_context(config, Some(ctx))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
+
+    serde_json::to_string(&result).map_err(|e| e.to_string())
+}
+```
+
+**设计说明：**
+- `sync_media_with_context` 是阻塞的一次性操作（扫描文件→上传→生成缩略图→上传缩略图），内部自建 tokio runtime
+- 在 Tauri async command 中必须通过 `spawn_blocking` 调用，否则会阻塞 tokio worker thread
+- `SyncContext` 的核心价值是 `on_progress` 回调，让 Tauri 能实时向前端推送进度
+
+**`SyncProgress` 枚举变体：**
+
+| 变体 | 含义 |
+|------|------|
+| `Scanning { total }` | 扫描完成，待上传文件数 |
+| `Uploading { current, total, file }` | 正在上传原图 |
+| `GeneratingThumbnail { current, total, file }` | 正在生成缩略图 |
+| `UploadingThumbnail { current, total }` | 正在上传缩略图 |
+| `Done` | 全部完成 |
