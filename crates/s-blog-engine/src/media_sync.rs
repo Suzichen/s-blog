@@ -15,6 +15,9 @@ use crate::image_proc::is_photo_file;
 /// Default fingerprint threshold: 5MB. Files ≤ this use SHA-256 hash.
 pub const FINGERPRINT_THRESHOLD: u64 = 5 * 1024 * 1024;
 
+/// Default concurrency for S3 pulls.
+pub const PULL_CONCURRENCY: usize = 16;
+
 // ── Lock file types ────────────────────────────────────────────────
 
 /// Fingerprint of a single file for change detection.
@@ -30,6 +33,46 @@ pub struct FileFingerprint {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SyncLockFile {
     pub files: HashMap<String, FileFingerprint>,
+}
+
+// ── Progress reporting ─────────────────────────────────────────────
+
+/// Progress events emitted during sync operations.
+#[derive(Debug, Clone)]
+pub enum SyncProgress {
+    Scanning { total: u32 },
+    Uploading { current: u32, total: u32, file: String },
+    GeneratingThumbnail { current: u32, total: u32, file: String },
+    UploadingThumbnail { current: u32, total: u32 },
+    Done,
+}
+
+// ── Config (serializable) ──────────────────────────────────────────
+
+/// Options for the sync_media command (serializable, JSON-safe).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct SyncConfig {
+    pub work_dir: std::path::PathBuf,
+    pub dry_run: bool,
+}
+
+impl Default for SyncConfig {
+    fn default() -> Self {
+        Self { work_dir: std::path::PathBuf::from("."), dry_run: false }
+    }
+}
+
+/// Backward-compatible alias.
+pub type SyncOptions = SyncConfig;
+
+// ── Context (runtime, non-serializable) ────────────────────────────
+
+/// Runtime context for sync operations.
+/// Pass this to receive progress callbacks during sync.
+pub struct SyncContext {
+    /// Progress callback. Called for each significant event.
+    pub on_progress: Option<Box<dyn Fn(SyncProgress) + Send>>,
 }
 
 // ── Directory size calculation ─────────────────────────────────────
@@ -58,8 +101,6 @@ pub fn calculate_dir_size(dir: &Path) -> u64 {
 // ── Fingerprint computation ────────────────────────────────────────
 
 /// Compute a fingerprint for a file using the hybrid strategy.
-/// Files ≤ threshold: SHA-256 hash + size + mtime.
-/// Files > threshold: size + mtime only.
 pub fn compute_fingerprint(path: &Path, threshold: u64) -> Result<FileFingerprint, EngineError> {
     let meta = fs::metadata(path)?;
     let size = meta.len();
@@ -127,25 +168,12 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
+use futures::stream::{self, StreamExt};
 use s3::bucket::Bucket;
 use s3::creds::Credentials;
 use s3::Region;
 
 use crate::ProviderConfig;
-
-/// Options for the sync_media command.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", default)]
-pub struct SyncOptions {
-    pub work_dir: std::path::PathBuf,
-    pub dry_run: bool,
-}
-
-impl Default for SyncOptions {
-    fn default() -> Self {
-        Self { work_dir: std::path::PathBuf::from("."), dry_run: false }
-    }
-}
 
 /// Result of a sync_media operation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -159,7 +187,6 @@ pub struct SyncResult {
 
 /// Create an S3 bucket client from provider config + environment variables.
 pub fn create_s3_bucket(config: &ProviderConfig) -> Result<Box<Bucket>, EngineError> {
-    // Load .env (ignore if missing)
     let _ = dotenvy::dotenv();
 
     let access_key = std::env::var("S3_ACCESS_KEY").map_err(|_| {
@@ -188,7 +215,7 @@ pub fn create_s3_bucket(config: &ProviderConfig) -> Result<Box<Bucket>, EngineEr
     Ok(bucket)
 }
 
-/// Infer Content-Type from file path using the existing mime module.
+/// Infer Content-Type from file path.
 fn content_type_for(path: &Path) -> &'static str {
     path.extension()
         .and_then(|e| e.to_str())
@@ -197,7 +224,6 @@ fn content_type_for(path: &Path) -> &'static str {
 }
 
 /// Upload a single file to S3 with retry logic (async).
-/// NOTE: Reads entire file into memory. Acceptable for typical photo files (≤30MB).
 async fn upload_with_retry(
     bucket: &Bucket,
     local_path: &Path,
@@ -233,9 +259,10 @@ async fn upload_with_retry(
     ))
 }
 
-// ── Sync orchestration ─────────────────────────────────────────────
+// ── Pull build assets (concurrent) ────────────────────────────────
 
 /// Pull thumbs + JSON from S3 for CI build (no local albums/).
+/// Uses buffer_unordered(16) for concurrent thumbnail downloads.
 pub fn pull_build_assets(
     provider: &ProviderConfig,
     album_config: &crate::AlbumConfig,
@@ -254,7 +281,7 @@ pub fn pull_build_assets(
     rt.block_on(async {
         let mut album_count = 0u32;
 
-        // Pull generated JSON files
+        // Pull generated JSON files (few files, keep serial)
         let gen_dir = output_dir.join("generated");
         fs::create_dir_all(&gen_dir)?;
         for name in std::iter::once("albums-index.json".to_string()).chain(
@@ -269,7 +296,7 @@ pub fn pull_build_assets(
             }
         }
 
-        // Pull thumbnails for each album
+        // Pull thumbnails for each album — concurrent within each album
         for entry in &albums {
             let prefix = format!("albums/{}/thumbs/", entry.dir);
             let objects = match bucket.list(prefix.clone(), None).await {
@@ -283,33 +310,65 @@ pub fn pull_build_assets(
 
             let thumbs_dir = output_dir.join("albums").join(&entry.dir).join("thumbs");
             fs::create_dir_all(&thumbs_dir)?;
-            for obj in &objects {
-                let filename = obj.key.strip_prefix(&prefix).unwrap_or(&obj.key);
-                match bucket.get_object(&obj.key).await {
-                    Ok(resp) if resp.status_code() == 200 => {
-                        fs::write(thumbs_dir.join(filename), resp.bytes())?;
+
+            // Concurrent download with buffer_unordered
+            let results: Vec<_> = stream::iter(objects.iter().map(|obj| {
+                let bucket = &bucket;
+                let prefix = &prefix;
+                let thumbs_dir = &thumbs_dir;
+                async move {
+                    let filename = obj.key.strip_prefix(prefix).unwrap_or(&obj.key);
+                    match bucket.get_object(&obj.key).await {
+                        Ok(resp) if resp.status_code() == 200 => {
+                            let _ = fs::write(thumbs_dir.join(filename), resp.bytes());
+                            true
+                        }
+                        _ => {
+                            log::warn!("[pull] Download failed: {}", obj.key);
+                            false
+                        }
                     }
-                    _ => { log::warn!("[pull] Download failed: {}", obj.key); }
                 }
-            }
-            println!("  [albums] {} ✓ {} thumbs (from S3)", entry.dir, objects.len());
+            }))
+            .buffer_unordered(PULL_CONCURRENCY)
+            .collect()
+            .await;
+
+            let success_count = results.iter().filter(|&&ok| ok).count();
+            println!("  [albums] {} ✓ {} thumbs (from S3)", entry.dir, success_count);
         }
 
         Ok(album_count)
     })
 }
 
-/// Execute the full media sync pipeline.
+// ── Sync orchestration ─────────────────────────────────────────────
+
+/// Execute the full media sync pipeline (backward-compatible wrapper).
 pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
+    sync_media_with_context(opts, None)
+}
+
+/// Execute the full media sync pipeline with optional runtime context.
+pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> Result<SyncResult, EngineError> {
     let start = Instant::now();
-    let work_dir = &opts.work_dir;
+    let work_dir = &config.work_dir;
+
+    let on_progress = match ctx {
+        Some(c) => c.on_progress,
+        None => None,
+    };
+
+    let report = |evt: SyncProgress| {
+        if let Some(ref cb) = on_progress {
+            cb(evt);
+        }
+    };
 
     // 1. Load album config
     let config_path = work_dir.join("album.config.json");
     if !config_path.exists() {
-        return Err(EngineError::Config(
-            "album.config.json not found".into(),
-        ));
+        return Err(EngineError::Config("album.config.json not found".into()));
     }
     let raw = fs::read_to_string(&config_path)?;
     let album_config: crate::AlbumConfig =
@@ -329,9 +388,7 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
     let mut files_to_check: Vec<(String, std::path::PathBuf)> = Vec::new();
     for entry in &album_config.albums {
         let album_path = albums_dir.join(&entry.dir);
-        if !album_path.is_dir() {
-            continue;
-        }
+        if !album_path.is_dir() { continue; }
         if let Ok(entries) = fs::read_dir(&album_path) {
             for file_entry in entries.flatten() {
                 let path = file_entry.path();
@@ -363,12 +420,15 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
         }
     }
 
+    report(SyncProgress::Scanning { total: upload_queue.len() as u32 });
+
     // 4. Dry-run mode
-    if opts.dry_run {
+    if config.dry_run {
         println!("[sync] Dry-run: {} file(s) to upload, {} skipped", upload_queue.len(), skipped);
         for (rel, _, _) in &upload_queue {
             println!("  + albums/{}", rel);
         }
+        report(SyncProgress::Done);
         return Ok(SyncResult {
             uploaded: 0,
             skipped,
@@ -379,7 +439,10 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
 
     // 5. Create S3 client + runtime
     let bucket = create_s3_bucket(provider)?;
-    let rt = tokio::runtime::Builder::new_current_thread()
+
+    // sync_media is inherently a blocking one-shot operation.
+    // Always build our own runtime for the async S3 work.
+    let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
         .map_err(|e| EngineError::Config(format!("Failed to create tokio runtime: {e}")))?;
@@ -391,11 +454,11 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
         interrupted_clone.store(true, Ordering::SeqCst);
     });
 
-    // 7. Upload loop + generate & upload thumbs/JSON
+    // 7. Upload loop + generate & upload thumbs/JSON (pipeline)
     let (uploaded, failed) = rt.block_on(async {
         let mut uploaded = 0u32;
         let mut failed: Vec<String> = Vec::new();
-        let total = upload_queue.len();
+        let total = upload_queue.len() as u32;
 
         for (i, (rel_path, full_path, fp)) in upload_queue.iter().enumerate() {
             if interrupted.load(Ordering::SeqCst) {
@@ -403,6 +466,7 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
                 break;
             }
             let remote_key = format!("albums/{}", rel_path);
+            report(SyncProgress::Uploading { current: i as u32 + 1, total, file: rel_path.clone() });
             print!("[sync] ({}/{}) Uploading {} ... ", i + 1, total, rel_path);
             match upload_with_retry(&bucket, full_path, &remote_key, 3).await {
                 Ok(()) => {
@@ -418,9 +482,9 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
             }
         }
 
-        // 8. Generate thumbnails + album JSON, then upload them
+        // 8. Pipeline: generate thumbnails + upload concurrently
         {
-            println!("[sync] Generating thumbnails and index JSON...");
+            println!("[sync] Generating thumbnails and uploading (pipeline)...");
             let sync_out = work_dir.join(".sync-build");
             let _ = fs::remove_dir_all(&sync_out);
             fs::create_dir_all(&sync_out).ok();
@@ -442,30 +506,72 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
                 None
             };
 
-            let _ = crate::albums::generate_albums_data_with_base(
-                &albums_dir, &sync_out, &album_config, base_path.as_deref(),
-            );
-
-            // Upload thumbs
-            let mut thumb_count = 0u32;
+            // Collect all photo tasks for pipeline processing
+            let mut thumb_tasks: Vec<(String, std::path::PathBuf, std::path::PathBuf)> = Vec::new();
             for entry in &album_config.albums {
+                let album_src = albums_dir.join(&entry.dir);
+                if !album_src.is_dir() { continue; }
                 let thumbs_dir = sync_out.join("albums").join(&entry.dir).join("thumbs");
-                if !thumbs_dir.is_dir() { continue; }
-                if let Ok(files) = fs::read_dir(&thumbs_dir) {
+                fs::create_dir_all(&thumbs_dir).ok();
+
+                if let Ok(files) = fs::read_dir(&album_src) {
                     for f in files.flatten() {
-                        if !f.path().is_file() { continue; }
-                        if interrupted.load(Ordering::SeqCst) { break; }
-                        let name = f.file_name().to_string_lossy().to_string();
-                        let remote_key = format!("albums/{}/thumbs/{}", entry.dir, name);
-                        if upload_with_retry(&bucket, &f.path(), &remote_key, 3).await.is_ok() {
-                            thumb_count += 1;
+                        let path = f.path();
+                        if !path.is_file() { continue; }
+                        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                            if !is_photo_file(name) { continue; }
+                            let stem = Path::new(name).file_stem().unwrap_or_default().to_string_lossy().to_string();
+                            let thumb_filename = format!("{stem}.webp");
+                            let dest_path = thumbs_dir.join(&thumb_filename);
+                            let remote_key = format!("albums/{}/thumbs/{}", entry.dir, thumb_filename);
+                            thumb_tasks.push((remote_key, path, dest_path));
                         }
                     }
                 }
             }
+
+            let thumb_total = thumb_tasks.len() as u32;
+
+            // Pipeline: use mpsc channel — producer generates thumbs, consumer uploads
+            let (tx, mut rx) = tokio::sync::mpsc::channel::<(String, std::path::PathBuf)>(16);
+            let interrupted2 = interrupted.clone();
+
+            // Producer: spawn_blocking for CPU-bound thumbnail generation
+            let producer = tokio::task::spawn_blocking(move || {
+                for (i, (remote_key, src_path, dest_path)) in thumb_tasks.into_iter().enumerate() {
+                    if interrupted2.load(Ordering::SeqCst) { break; }
+                    match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
+                        Ok(()) => {
+                            if tx.blocking_send((remote_key, dest_path)).is_err() {
+                                break; // receiver dropped
+                            }
+                        }
+                        Err(e) => {
+                            log::warn!("[sync] Thumbnail failed {}: {e}", src_path.display());
+                        }
+                    }
+                    let _ = i; // used for progress below
+                }
+            });
+
+            // Consumer: upload as thumbnails arrive
+            let mut thumb_count = 0u32;
+            while let Some((remote_key, local_path)) = rx.recv().await {
+                if interrupted.load(Ordering::SeqCst) { break; }
+                thumb_count += 1;
+                report(SyncProgress::UploadingThumbnail { current: thumb_count, total: thumb_total });
+                let _ = upload_with_retry(&bucket, &local_path, &remote_key, 3).await;
+            }
+
+            // Wait for producer to finish
+            let _ = producer.await;
+
             println!("[sync] Thumbnails uploaded: {thumb_count}");
 
-            // Upload generated JSON files
+            // Also generate and upload index JSON (uses the full generate function for correctness)
+            let _ = crate::albums::generate_albums_data_with_base(
+                &albums_dir, &sync_out, &album_config, base_path.as_deref(),
+            );
             let gen_dir = sync_out.join("generated");
             if gen_dir.is_dir() {
                 if let Ok(files) = fs::read_dir(&gen_dir) {
@@ -483,10 +589,11 @@ pub fn sync_media(opts: SyncOptions) -> Result<SyncResult, EngineError> {
             let _ = fs::remove_dir_all(&sync_out);
         }
 
+        report(SyncProgress::Done);
         (uploaded, failed)
     });
 
-    // 9. Save lock (one-time write)
+    // 9. Save lock
     save_lock(&lock, &lock_path)?;
 
     Ok(SyncResult {
@@ -547,7 +654,6 @@ mod tests {
         let tmp = tempdir().unwrap();
         let f = tmp.path().join("big.jpg");
         fs::write(&f, vec![0u8; 100]).unwrap();
-        // Use threshold of 50 to simulate "large" file
         let fp = compute_fingerprint(&f, 50).unwrap();
         assert!(fp.hash.is_none());
         assert_eq!(fp.size, 100);
@@ -614,7 +720,6 @@ mod tests {
 
     #[test]
     fn create_s3_bucket_missing_env_returns_error() {
-        // Skip if .env provides credentials (local dev environment)
         let _ = dotenvy::dotenv();
         if std::env::var("S3_ACCESS_KEY").is_ok() {
             return;
@@ -633,13 +738,12 @@ mod tests {
     #[test]
     fn sync_media_no_provider_returns_error() {
         let tmp = tempdir().unwrap();
-        // Write album config without provider
         fs::write(
             tmp.path().join("album.config.json"),
             r#"{"enabled":true,"albums":[]}"#,
         ).unwrap();
         fs::create_dir(tmp.path().join("albums")).unwrap();
-        let opts = SyncOptions { work_dir: tmp.path().to_path_buf(), dry_run: false };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: false };
         let err = sync_media(opts).unwrap_err();
         assert!(err.to_string().contains("provider"));
     }
@@ -654,7 +758,7 @@ mod tests {
             tmp.path().join("album.config.json"),
             r#"{"enabled":true,"albums":[{"dir":"test"}],"provider":{"type":"s3","endpoint":"http://x","region":"auto","bucket":"b","publicUrl":"http://x"}}"#,
         ).unwrap();
-        let opts = SyncOptions { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
         let result = sync_media(opts).unwrap();
         assert_eq!(result.uploaded, 0);
         assert_eq!(result.skipped, 0);
@@ -673,15 +777,42 @@ mod tests {
             r#"{"enabled":true,"albums":[{"dir":"test"}],"provider":{"type":"s3","endpoint":"http://x","region":"auto","bucket":"b","publicUrl":"http://x"}}"#,
         ).unwrap();
 
-        // Pre-populate lock with matching fingerprint
         let fp = compute_fingerprint(&photo, FINGERPRINT_THRESHOLD).unwrap();
         let mut lock = SyncLockFile::default();
         lock.files.insert("test/photo.jpg".into(), fp);
         save_lock(&lock, &tmp.path().join(".sblog-sync.lock")).unwrap();
 
-        let opts = SyncOptions { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let opts = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
         let result = sync_media(opts).unwrap();
         assert_eq!(result.uploaded, 0);
         assert_eq!(result.skipped, 1);
+    }
+
+    #[test]
+    fn sync_media_with_progress_callback() {
+        use std::sync::Mutex;
+        let tmp = tempdir().unwrap();
+        let albums_dir = tmp.path().join("albums").join("test");
+        fs::create_dir_all(&albums_dir).unwrap();
+        fs::write(albums_dir.join("photo.jpg"), vec![0u8; 50]).unwrap();
+        fs::write(
+            tmp.path().join("album.config.json"),
+            r#"{"enabled":true,"albums":[{"dir":"test"}],"provider":{"type":"s3","endpoint":"http://x","region":"auto","bucket":"b","publicUrl":"http://x"}}"#,
+        ).unwrap();
+
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let events_clone = events.clone();
+
+        let config = SyncConfig { work_dir: tmp.path().to_path_buf(), dry_run: true };
+        let ctx = SyncContext {
+            on_progress: Some(Box::new(move |evt| {
+                events_clone.lock().unwrap().push(format!("{:?}", evt));
+            })),
+        };
+        let _result = sync_media_with_context(config, Some(ctx)).unwrap();
+
+        let collected = events.lock().unwrap();
+        assert!(collected.iter().any(|e| e.contains("Scanning")));
+        assert!(collected.iter().any(|e| e.contains("Done")));
     }
 }

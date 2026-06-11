@@ -29,6 +29,9 @@ kamadak-exif = "0.5"
 # Async runtime (sync feature for oneshot channels)
 tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros", "time"] }
 
+# Async stream utilities (buffer_unordered for concurrent S3 pulls)
+futures = "0.3"
+
 # HTTP server
 hyper = { version = "1", features = ["server", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio"] }

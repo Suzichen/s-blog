@@ -9,8 +9,8 @@ use std::path::Path;
 
 use napi_derive::napi;
 use s_blog_engine::build::{BuildOptions, BuildResult};
-use s_blog_engine::media_sync::SyncOptions;
-use s_blog_engine::serve::ServeOptions;
+use s_blog_engine::media_sync::SyncConfig;
+use s_blog_engine::serve::ServeConfig;
 use s_blog_engine::{AlbumConfig, PostMetadata, SiteConfig};
 
 // ── Posts ───────────────────────────────────────────────────────────
@@ -218,7 +218,7 @@ pub fn build_command(options_json: String) -> napi::Result<String> {
 /// then blocks until the process receives a termination signal.
 #[napi]
 pub fn serve_command(options_json: String) -> napi::Result<()> {
-    let opts: ServeOptions = serde_json::from_str(&options_json)
+    let opts: ServeConfig = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid serve options: {e}")))?;
 
     let mut handle = s_blog_engine::serve::serve(opts)
@@ -246,7 +246,7 @@ pub fn serve_command(options_json: String) -> napi::Result<()> {
 /// Accepts a JSON string of `SyncOptions`, returns a JSON string of `SyncResult`.
 #[napi]
 pub fn sync_media_command(options_json: String) -> napi::Result<String> {
-    let opts: SyncOptions = serde_json::from_str(&options_json)
+    let opts: SyncConfig = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid sync options: {e}")))?;
 
     let result = s_blog_engine::media_sync::sync_media(opts)

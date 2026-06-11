@@ -18,10 +18,13 @@ use crate::error::EngineError;
 use crate::mime::{has_file_extension, resolve_mime_type};
 use crate::{AlbumConfig, SiteConfig};
 
-/// Development server options — all fields have sensible defaults.
+// ── Config (serializable) ──────────────────────────────────────────
+
+/// Development server configuration — all fields have sensible defaults.
+/// This struct is serializable and suitable for passing via JSON (e.g. from NAPI).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
-pub struct ServeOptions {
+pub struct ServeConfig {
     /// Working directory (project root). Defaults to `"."`.
     pub work_dir: PathBuf,
     /// Cache directory for generated data. Defaults to `".cache"`.
@@ -32,7 +35,7 @@ pub struct ServeOptions {
     pub port: u16,
 }
 
-impl Default for ServeOptions {
+impl Default for ServeConfig {
     fn default() -> Self {
         Self {
             work_dir: PathBuf::from("."),
@@ -43,6 +46,21 @@ impl Default for ServeOptions {
     }
 }
 
+/// Backward-compatible alias.
+pub type ServeOptions = ServeConfig;
+
+// ── Context (runtime, non-serializable) ────────────────────────────
+
+/// Runtime context for the serve command.
+/// Pass this when you want to reuse an existing tokio runtime (e.g. in Tauri).
+pub struct ServeContext {
+    /// External tokio runtime handle. When provided, the server task is spawned
+    /// on this runtime instead of creating (and leaking) a new one.
+    pub runtime: Option<tokio::runtime::Handle>,
+}
+
+// ── Handle ─────────────────────────────────────────────────────────
+
 /// Handle to a running development server.
 ///
 /// Returned by `serve()` immediately after the server starts.
@@ -52,17 +70,14 @@ pub struct ServeHandle {
     addr: SocketAddr,
     /// Oneshot sender to signal server shutdown; consumed on first `shutdown()` call.
     shutdown_tx: Option<oneshot::Sender<()>>,
+    /// Owned runtime — kept alive when we created it ourselves. Dropped on shutdown.
+    _owned_rt: Option<tokio::runtime::Runtime>,
 }
 
-impl ServeHandle {
-    /// Create a new `ServeHandle`.
-    pub fn new(addr: SocketAddr, shutdown_tx: oneshot::Sender<()>) -> Self {
-        Self {
-            addr,
-            shutdown_tx: Some(shutdown_tx),
-        }
-    }
+// Compile-time assertion: ServeHandle must be Send for cross-thread sharing (e.g. Mutex<Option<ServeHandle>>)
+const _: () = { fn _assert_send<T: Send>() {} fn _check() { _assert_send::<ServeHandle>(); } };
 
+impl ServeHandle {
     /// Returns the socket address the server is bound to.
     pub fn address(&self) -> SocketAddr {
         self.addr
@@ -73,8 +88,12 @@ impl ServeHandle {
         if let Some(tx) = self.shutdown_tx.take() {
             let _ = tx.send(());
         }
+        // Drop owned runtime if we have one — this cleanly stops all tasks
+        self._owned_rt.take();
     }
 }
+
+// ── Internal state ─────────────────────────────────────────────────
 
 /// Shared state for the HTTP request handler.
 struct ServerState {
@@ -82,13 +101,12 @@ struct ServerState {
     public_dir: PathBuf,
     shell_dir: PathBuf,
     work_dir: PathBuf,
-    /// Parsed site config (for dynamic manifest/album regeneration).
     config: SiteConfig,
-    /// Parsed album config (for dynamic album index regeneration).
     album_config: Option<AlbumConfig>,
-    /// Normalized basePath prefix to strip from requests (e.g. "/blog"). Empty for root.
     base_path: String,
 }
+
+// ── Public API ─────────────────────────────────────────────────────
 
 /// Parse a port string, returning a valid port in [1, 65535] or an error message.
 pub fn parse_port(s: &str) -> Result<u16, String> {
@@ -101,26 +119,29 @@ pub fn parse_port(s: &str) -> Result<u16, String> {
     Ok(n as u16)
 }
 
-/// Start the development preview server.
+/// Start the development preview server (backward-compatible wrapper).
 ///
-/// Generates posts manifest and albums data to `.cache/`, then spawns an
-/// async HTTP server. Returns a [`ServeHandle`] immediately.
-///
-/// # Errors
-///
-/// - [`EngineError::PortInUse`] if the port cannot be bound.
-/// - [`EngineError::ServeDirNotFound`] if `shell_dir` does not exist.
+/// Creates its own tokio runtime. For Tauri integration, use [`serve_with_context`] instead.
 pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
-    let work_dir = &opts.work_dir;
-    let cache_dir = if opts.cache_dir.is_relative() {
-        work_dir.join(&opts.cache_dir)
+    serve_with_context(opts, None)
+}
+
+/// Start the development preview server with optional runtime context.
+///
+/// When `ctx` provides a runtime handle, the server task is spawned on that runtime
+/// and no runtime is leaked. When `ctx` is None, a new runtime is created and kept
+/// alive inside the returned [`ServeHandle`] (dropped on shutdown).
+pub fn serve_with_context(config: ServeConfig, ctx: Option<ServeContext>) -> Result<ServeHandle, EngineError> {
+    let work_dir = &config.work_dir;
+    let cache_dir = if config.cache_dir.is_relative() {
+        work_dir.join(&config.cache_dir)
     } else {
-        opts.cache_dir.clone()
+        config.cache_dir.clone()
     };
-    let shell_dir = if opts.shell_dir.is_relative() {
-        work_dir.join(&opts.shell_dir)
+    let shell_dir = if config.shell_dir.is_relative() {
+        work_dir.join(&config.shell_dir)
     } else {
-        opts.shell_dir.clone()
+        config.shell_dir.clone()
     };
 
     if !shell_dir.exists() {
@@ -138,7 +159,7 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
     // Parse site config
     let posts_dir = work_dir.join("posts");
     let config_path = work_dir.join("config.json");
-    let config: SiteConfig = if config_path.exists() {
+    let site_config: SiteConfig = if config_path.exists() {
         let config_raw = fs::read_to_string(&config_path).unwrap_or_default();
         serde_json::from_reader(json_comments::StripComments::new(config_raw.as_bytes()))
             .map_err(|e| EngineError::BuildStepFailed {
@@ -161,37 +182,52 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
 
     // Initial generation (warm-up)
     if posts_dir.exists() {
-        let _ = crate::posts::generate_posts_manifest_only(&posts_dir, &cache_dir, &config);
+        let _ = crate::posts::generate_posts_manifest_only(&posts_dir, &cache_dir, &site_config);
     }
     if let Some(ref ac) = album_config {
         let albums_dir = work_dir.join("albums");
         if albums_dir.exists() {
             let _ = crate::albums::generate_albums_index_only(
-                &albums_dir, &cache_dir, ac, config.base_path.as_deref(),
+                &albums_dir, &cache_dir, ac, site_config.base_path.as_deref(),
             );
         }
     }
 
-    // Build the tokio runtime and start the server
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
+    // Determine if we have an external runtime
+    let external_handle = ctx.and_then(|c| c.runtime);
+
+    // Bind using std::net::TcpListener (sync, works in any context including async).
+    // Then convert to tokio TcpListener when spawning the server task.
+    let addr: SocketAddr = ([127, 0, 0, 1], config.port).into();
+    let std_listener = std::net::TcpListener::bind(addr)
+        .map_err(|_| EngineError::PortInUse { port: config.port })?;
+    std_listener.set_nonblocking(true)
         .map_err(|e| EngineError::BuildStepFailed {
-            step: "start runtime".into(),
+            step: "set listener nonblocking".into(),
             reason: e.to_string(),
         })?;
+    let bound_addr = std_listener.local_addr()
+        .map_err(|_| EngineError::PortInUse { port: config.port })?;
 
-    let addr: SocketAddr = ([127, 0, 0, 1], opts.port).into();
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
 
-    let listener = rt.block_on(async {
-        TcpListener::bind(addr).await
-    }).map_err(|_| EngineError::PortInUse { port: opts.port })?;
+    // Either use the external runtime or create our own.
+    let (owned_rt, handle) = match external_handle {
+        Some(h) => (None, h),
+        None => {
+            let rt = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()
+                .map_err(|e| EngineError::BuildStepFailed {
+                    step: "start runtime".into(),
+                    reason: e.to_string(),
+                })?;
+            let h = rt.handle().clone();
+            (Some(rt), h)
+        }
+    };
 
-    let bound_addr = listener.local_addr().map_err(|_| EngineError::PortInUse { port: opts.port })?;
-
-    // Read basePath from config for request path stripping
-    let base_path = config.base_path.as_deref()
+    let base_path = site_config.base_path.as_deref()
         .map(|bp| crate::shell::normalize_base_path(bp))
         .unwrap_or_default();
 
@@ -200,12 +236,15 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
         public_dir: work_dir.join("public"),
         shell_dir,
         work_dir: work_dir.clone(),
-        config,
+        config: site_config,
         album_config,
         base_path,
     });
 
-    rt.spawn(async move {
+    // Spawn the server loop
+    handle.spawn(async move {
+        // Convert std listener to tokio listener inside the async context
+        let listener = TcpListener::from_std(std_listener).expect("failed to convert TcpListener");
         let mut shutdown_rx = shutdown_rx;
         loop {
             tokio::select! {
@@ -231,12 +270,14 @@ pub fn serve(opts: ServeOptions) -> Result<ServeHandle, EngineError> {
         }
     });
 
-    // Keep the runtime alive by leaking it (it will be cleaned up on process exit)
-    // This is intentional — the runtime must outlive the ServeHandle.
-    std::mem::forget(rt);
-
-    Ok(ServeHandle::new(bound_addr, shutdown_tx))
+    Ok(ServeHandle {
+        addr: bound_addr,
+        shutdown_tx: Some(shutdown_tx),
+        _owned_rt: owned_rt,
+    })
 }
+
+// ── Request handling ───────────────────────────────────────────────
 
 /// Handle a single HTTP request by resolving the file path.
 fn handle_request(
@@ -245,7 +286,7 @@ fn handle_request(
 ) -> Result<Response<Full<Bytes>>, std::convert::Infallible> {
     let raw_path = req.uri().path();
 
-    // Strip basePath prefix if configured (e.g. "/blog/assets/index.js" → "/assets/index.js")
+    // Strip basePath prefix if configured
     let path = if !state.base_path.is_empty() && raw_path.starts_with(&state.base_path) {
         let stripped = &raw_path[state.base_path.len()..];
         if stripped.is_empty() || stripped.starts_with('/') {
@@ -257,10 +298,10 @@ fn handle_request(
         raw_path
     };
 
-    // Strip leading slash for file resolution
     let rel_raw = path.trim_start_matches('/');
     let rel_decoded = percent_decode(rel_raw);
     let rel = rel_decoded.as_str();
+
     // Dynamic regeneration for manifest and album index on every request
     if rel == "generated/manifest.json" {
         let posts_dir = state.work_dir.join("posts");
@@ -280,16 +321,15 @@ fn handle_request(
         }
     }
 
-    // Priority 1: .cache/ generated data (manifest.json, album data)
+    // Priority 1: .cache/ generated data
     let candidate = state.cache_dir.join(rel);
     if candidate.is_file() {
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 2: work_dir files (posts/, albums/, config.json, public/ root files, etc.)
+    // Priority 2: work_dir files
     let candidate = state.work_dir.join(rel);
     if candidate.is_file() {
-        // Strip JSONC comments before serving config files to browser
         if rel == "config.json" || rel == "album.config.json" || rel == "memo.config.json" {
             if let Ok(raw) = fs::read_to_string(&candidate) {
                 use std::io::Read;
@@ -308,7 +348,7 @@ fn handle_request(
         return Ok(serve_file(&candidate));
     }
 
-    // Priority 3: public/ static assets (for files requested without "public/" prefix)
+    // Priority 3: public/ static assets
     let candidate = state.public_dir.join(rel);
     if candidate.is_file() {
         return Ok(serve_file(&candidate));
@@ -325,13 +365,11 @@ fn handle_request(
 
     // Priority 5: SPA fallback or 404
     if has_file_extension(path) {
-        // Has extension but file not found → 404
         Ok(Response::builder()
             .status(StatusCode::NOT_FOUND)
             .body(Full::new(Bytes::from("404 Not Found")))
             .unwrap())
     } else {
-        // No extension → serve index.html (SPA fallback) with basePath rewrite
         let index = state.shell_dir.join("index.html");
         if index.is_file() {
             Ok(serve_index_html(&index, &state.base_path))
@@ -344,10 +382,6 @@ fn handle_request(
     }
 }
 
-/// Serve index.html with `./` references rewritten to use the configured basePath.
-///
-/// This ensures that regardless of the browser's current URL depth, asset
-/// references resolve to absolute paths that the server can correctly map.
 fn serve_index_html(path: &Path, base_path: &str) -> Response<Full<Bytes>> {
     match fs::read_to_string(path) {
         Ok(html) => {
@@ -365,14 +399,10 @@ fn serve_index_html(path: &Path, base_path: &str) -> Response<Full<Bytes>> {
     }
 }
 
-/// Read a file and return an HTTP response with the appropriate MIME type.
 fn serve_file(path: &Path) -> Response<Full<Bytes>> {
     match fs::read(path) {
         Ok(content) => {
-            let ext = path
-                .extension()
-                .and_then(|e| e.to_str())
-                .unwrap_or("");
+            let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
             let mime = resolve_mime_type(ext);
             Response::builder()
                 .status(StatusCode::OK)
@@ -387,8 +417,6 @@ fn serve_file(path: &Path) -> Response<Full<Bytes>> {
     }
 }
 
-
-/// Decode percent-encoded URL path segments (e.g. `%E6%98%A5` → `春`).
 fn percent_decode(input: &str) -> String {
     let mut bytes = Vec::with_capacity(input.len());
     let mut chars = input.bytes();
