@@ -482,97 +482,105 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
             }
         }
 
-        // 8. Pipeline: generate thumbnails + upload concurrently
+        // 8. Generate thumbnails only for changed files + upload, then upload index JSON
         {
-            println!("[sync] Generating thumbnails and uploading (pipeline)...");
-            let sync_out = work_dir.join(".sync-build");
-            let _ = fs::remove_dir_all(&sync_out);
-            fs::create_dir_all(&sync_out).ok();
+            // Only generate thumbnails for files that were in the upload queue (changed/new)
+            let changed_files: std::collections::HashSet<String> = upload_queue.iter()
+                .map(|(rel, _, _)| rel.clone())
+                .collect();
+
+            if changed_files.is_empty() {
+                println!("[sync] No changed files, skipping thumbnail generation");
+            } else {
+                println!("[sync] Generating thumbnails for {} changed file(s)...", changed_files.len());
+                let sync_out = work_dir.join(".sync-build");
+                fs::create_dir_all(&sync_out).ok();
+
+                // Collect thumb tasks only for changed files
+                let mut thumb_tasks: Vec<(String, std::path::PathBuf, std::path::PathBuf)> = Vec::new();
+                for entry in &album_config.albums {
+                    let album_src = albums_dir.join(&entry.dir);
+                    if !album_src.is_dir() { continue; }
+                    let thumbs_dir = sync_out.join("albums").join(&entry.dir).join("thumbs");
+                    fs::create_dir_all(&thumbs_dir).ok();
+
+                    if let Ok(files) = fs::read_dir(&album_src) {
+                        for f in files.flatten() {
+                            let path = f.path();
+                            if !path.is_file() { continue; }
+                            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                                if !is_photo_file(name) { continue; }
+                                let rel = format!("{}/{}", entry.dir, name);
+                                if !changed_files.contains(&rel) { continue; }
+                                let stem = Path::new(name).file_stem().unwrap_or_default().to_string_lossy().to_string();
+                                let thumb_filename = format!("{stem}.webp");
+                                let dest_path = thumbs_dir.join(&thumb_filename);
+                                let remote_key = format!("albums/{}/thumbs/{}", entry.dir, thumb_filename);
+                                thumb_tasks.push((remote_key, path, dest_path));
+                            }
+                        }
+                    }
+                }
+
+                let thumb_total = thumb_tasks.len() as u32;
+
+                // Pipeline: producer generates thumbs, consumer uploads
+                let (tx, mut rx) = tokio::sync::mpsc::channel::<(String, std::path::PathBuf)>(16);
+                let interrupted2 = interrupted.clone();
+
+                let producer = tokio::task::spawn_blocking(move || {
+                    for (remote_key, src_path, dest_path) in thumb_tasks.into_iter() {
+                        if interrupted2.load(Ordering::SeqCst) { break; }
+                        match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
+                            Ok(()) => {
+                                if tx.blocking_send((remote_key, dest_path)).is_err() {
+                                    break;
+                                }
+                            }
+                            Err(e) => {
+                                log::warn!("[sync] Thumbnail failed {}: {e}", src_path.display());
+                            }
+                        }
+                    }
+                });
+
+                let mut thumb_count = 0u32;
+                while let Some((remote_key, local_path)) = rx.recv().await {
+                    if interrupted.load(Ordering::SeqCst) { break; }
+                    thumb_count += 1;
+                    report(SyncProgress::UploadingThumbnail { current: thumb_count, total: thumb_total });
+                    let _ = upload_with_retry(&bucket, &local_path, &remote_key, 3).await;
+                }
+
+                let _ = producer.await;
+                println!("[sync] Thumbnails uploaded: {thumb_count}");
+
+                // Cleanup temp dir
+                let _ = fs::remove_dir_all(&sync_out);
+            }
+
+            // Always regenerate and upload index JSON (includes EXIF for all photos)
+            // Use generate_albums_metadata_only which produces correct thumbs URLs
+            // without writing any thumbnail files to disk
+            let json_out = work_dir.join(".sync-json");
+            let _ = fs::remove_dir_all(&json_out);
+            fs::create_dir_all(&json_out).ok();
 
             // Read site config for basePath
             let site_config_path = work_dir.join("config.json");
             let base_path = if site_config_path.exists() {
                 let raw = fs::read_to_string(&site_config_path).unwrap_or_default();
-                let sc: crate::SiteConfig =
-                    serde_json::from_reader(json_comments::StripComments::new(raw.as_bytes()))
-                        .unwrap_or_else(|_| crate::SiteConfig {
-                            title: String::new(), description: String::new(),
-                            logo: String::new(), favicon: String::new(),
-                            site_url: None, author: None, language: None,
-                            timezone: None, base_path: None,
-                        });
-                sc.base_path
+                serde_json::from_reader::<_, crate::SiteConfig>(
+                    json_comments::StripComments::new(raw.as_bytes())
+                ).ok().and_then(|sc| sc.base_path)
             } else {
                 None
             };
 
-            // Collect all photo tasks for pipeline processing
-            let mut thumb_tasks: Vec<(String, std::path::PathBuf, std::path::PathBuf)> = Vec::new();
-            for entry in &album_config.albums {
-                let album_src = albums_dir.join(&entry.dir);
-                if !album_src.is_dir() { continue; }
-                let thumbs_dir = sync_out.join("albums").join(&entry.dir).join("thumbs");
-                fs::create_dir_all(&thumbs_dir).ok();
-
-                if let Ok(files) = fs::read_dir(&album_src) {
-                    for f in files.flatten() {
-                        let path = f.path();
-                        if !path.is_file() { continue; }
-                        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                            if !is_photo_file(name) { continue; }
-                            let stem = Path::new(name).file_stem().unwrap_or_default().to_string_lossy().to_string();
-                            let thumb_filename = format!("{stem}.webp");
-                            let dest_path = thumbs_dir.join(&thumb_filename);
-                            let remote_key = format!("albums/{}/thumbs/{}", entry.dir, thumb_filename);
-                            thumb_tasks.push((remote_key, path, dest_path));
-                        }
-                    }
-                }
-            }
-
-            let thumb_total = thumb_tasks.len() as u32;
-
-            // Pipeline: use mpsc channel — producer generates thumbs, consumer uploads
-            let (tx, mut rx) = tokio::sync::mpsc::channel::<(String, std::path::PathBuf)>(16);
-            let interrupted2 = interrupted.clone();
-
-            // Producer: spawn_blocking for CPU-bound thumbnail generation
-            let producer = tokio::task::spawn_blocking(move || {
-                for (i, (remote_key, src_path, dest_path)) in thumb_tasks.into_iter().enumerate() {
-                    if interrupted2.load(Ordering::SeqCst) { break; }
-                    match crate::image_proc::generate_thumbnail(&src_path, &dest_path) {
-                        Ok(()) => {
-                            if tx.blocking_send((remote_key, dest_path)).is_err() {
-                                break; // receiver dropped
-                            }
-                        }
-                        Err(e) => {
-                            log::warn!("[sync] Thumbnail failed {}: {e}", src_path.display());
-                        }
-                    }
-                    let _ = i; // used for progress below
-                }
-            });
-
-            // Consumer: upload as thumbnails arrive
-            let mut thumb_count = 0u32;
-            while let Some((remote_key, local_path)) = rx.recv().await {
-                if interrupted.load(Ordering::SeqCst) { break; }
-                thumb_count += 1;
-                report(SyncProgress::UploadingThumbnail { current: thumb_count, total: thumb_total });
-                let _ = upload_with_retry(&bucket, &local_path, &remote_key, 3).await;
-            }
-
-            // Wait for producer to finish
-            let _ = producer.await;
-
-            println!("[sync] Thumbnails uploaded: {thumb_count}");
-
-            // Also generate and upload index JSON (uses the full generate function for correctness)
-            let _ = crate::albums::generate_albums_data_with_base(
-                &albums_dir, &sync_out, &album_config, base_path.as_deref(),
+            let _ = crate::albums::generate_albums_metadata_only(
+                &albums_dir, &json_out, &album_config, base_path.as_deref(),
             );
-            let gen_dir = sync_out.join("generated");
+            let gen_dir = json_out.join("generated");
             if gen_dir.is_dir() {
                 if let Ok(files) = fs::read_dir(&gen_dir) {
                     for f in files.flatten() {
@@ -584,9 +592,7 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
                 }
                 println!("[sync] Index JSON uploaded");
             }
-
-            // Cleanup temp dir
-            let _ = fs::remove_dir_all(&sync_out);
+            let _ = fs::remove_dir_all(&json_out);
         }
 
         report(SyncProgress::Done);
