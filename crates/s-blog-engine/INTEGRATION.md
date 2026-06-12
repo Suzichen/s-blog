@@ -243,6 +243,7 @@ fn build_blog(
 | `BuildStepFailed` | 构建步骤执行失败 |
 | `PortInUse` | 开发服务器端口被占用 |
 | `ServeDirNotFound` | serve 目录不存在（需先 build） |
+| `Cancelled` | 操作被用户取消 |
 | `Io` | 文件系统 I/O 错误 |
 | `Json` | JSON 序列化/反序列化错误 |
 | `Yaml` | YAML 解析错误 |
@@ -363,23 +364,29 @@ fn stop_server(state: tauri::State<'_, AppState>) {
 ### Media Sync（进度回调）
 
 ```rust
-use s_blog_engine::media_sync::{SyncConfig, SyncContext, SyncProgress, sync_media_with_context};
+use s_blog_engine::media_sync::{SyncConfig, SyncContext, SyncProgress, S3Credentials, sync_media_with_context};
 
 #[tauri::command]
 async fn sync_media(app: tauri::AppHandle) -> Result<String, String> {
     let app_clone = app.clone();
 
-    // sync_media_with_context 是阻塞函数（内部自建 runtime），
-    // 必须通过 spawn_blocking 在独立线程执行
     let result = tokio::task::spawn_blocking(move || {
         let config = SyncConfig {
             work_dir: "/path/to/project".into(),
             dry_run: false,
+            ..Default::default()
         };
         let ctx = SyncContext {
             on_progress: Some(Box::new(move |progress: SyncProgress| {
                 let _ = app_clone.emit("sync-progress", format!("{:?}", progress));
             })),
+            // 显式传入凭证，避免多线程下的 env var UB
+            credentials: Some(S3Credentials {
+                access_key: "your-key".into(),
+                secret_key: "your-secret".into(),
+            }),
+            // 外部取消令牌
+            cancelled: None,
         };
         sync_media_with_context(config, Some(ctx))
     })
@@ -394,7 +401,10 @@ async fn sync_media(app: tauri::AppHandle) -> Result<String, String> {
 **设计说明：**
 - `sync_media_with_context` 是阻塞的一次性操作（扫描文件→上传→生成缩略图→上传缩略图），内部自建 tokio runtime
 - 在 Tauri async command 中必须通过 `spawn_blocking` 调用，否则会阻塞 tokio worker thread
-- `SyncContext` 的核心价值是 `on_progress` 回调，让 Tauri 能实时向前端推送进度
+- `SyncContext` 的核心价值：
+  - `on_progress` — 让 Tauri 能实时向前端推送进度
+  - `credentials` — 显式 S3 凭证，避免 `std::env::var` 在多线程下的 UB
+  - `cancelled` — 外部取消令牌，GUI 可通过 `cancel_sync` 按钮触发
 
 **`SyncProgress` 枚举变体：**
 
@@ -405,3 +415,68 @@ async fn sync_media(app: tauri::AppHandle) -> Result<String, String> {
 | `GeneratingThumbnail { current, total, file }` | 正在生成缩略图 |
 | `UploadingThumbnail { current, total }` | 正在上传缩略图 |
 | `Done` | 全部完成 |
+
+### Build（进度回调 + 取消）
+
+```rust
+use std::sync::atomic::{Arc, AtomicBool};
+use s_blog_engine::build::{BuildOptions, build_with_context};
+use s_blog_engine::progress::{BuildContext, BuildProgressEvent};
+
+#[tauri::command]
+async fn build_blog(app: tauri::AppHandle, cancel_token: Arc<AtomicBool>) -> Result<String, String> {
+    let app_clone = app.clone();
+
+    let result = tokio::task::spawn_blocking(move || {
+        let ctx = BuildContext {
+            on_progress: Some(Box::new(move |evt: BuildProgressEvent| {
+                let msg = format!("{:?}", evt);
+                let _ = app_clone.emit("build-progress", msg);
+            })),
+            cancelled: Some(cancel_token),
+        };
+        let opts = BuildOptions {
+            work_dir: "/path/to/project".into(),
+            ..Default::default()
+        };
+        build_with_context(opts, Some(ctx))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
+
+    serde_json::to_string(&result).map_err(|e| e.to_string())
+}
+```
+
+**`BuildProgressEvent` 枚举变体：**
+
+| 变体 | 含义 |
+|------|------|
+| `StepStart { step }` | 构建步骤开始 |
+| `StepDone { step, detail }` | 构建步骤完成（附带详情如文件数） |
+| `AlbumsStart { count }` | 相册处理开始 |
+| `PhotoProgress { album, current, total }` | 单张照片缩略图完成 |
+| `PhotoAlbumDone { album, count, duration_ms }` | 单个相册处理完成 |
+
+### 取消机制
+
+Build 和 Sync 均支持通过 `Arc<AtomicBool>` 取消令牌实现协作式取消：
+
+```rust
+use std::sync::atomic::{Arc, AtomicBool, Ordering};
+
+// 创建令牌
+let cancel = Arc::new(AtomicBool::new(false));
+
+// 传入 context
+let ctx = BuildContext {
+    on_progress: None,
+    cancelled: Some(cancel.clone()),
+};
+
+// 在另一个线程（如 GUI 按钮回调）触发取消
+cancel.store(true, Ordering::SeqCst);
+```
+
+当操作被取消时，函数返回 `Err(EngineError::Cancelled)`。调用方可据此区分「取消」和「真正的错误」来决定 UI 展示逻辑。

@@ -13,6 +13,7 @@ s-blog-engine = { path = "../s-blog-engine", features = ["napi"] }
 napi = { version = "2", default-features = false, features = ["napi4"] }
 napi-derive = "2"
 serde_json = "1.0"
+dotenvy = "0.15"
 tokio = { version = "1", features = ["rt", "signal"] }
 
 [build-dependencies]

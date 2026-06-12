@@ -269,7 +269,11 @@ fn generate_albums_impl(
                     }
                 }
 
+                // Check cancellation after each (potentially slow) thumbnail generation
                 if let Some(p) = progress {
+                    if p.is_cancelled() {
+                        return Err(EngineError::Cancelled);
+                    }
                     p.photo_progress(dirname, i + 1, total);
                 }
 

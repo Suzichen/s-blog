@@ -11,7 +11,7 @@ use std::time::Instant;
 use serde::{Deserialize, Serialize};
 
 use crate::error::EngineError;
-use crate::progress::BuildProgress;
+use crate::progress::{BuildContext, BuildProgress};
 use crate::{AlbumConfig, SiteConfig};
 
 /// Build options — all fields have sensible defaults for zero-config usage.
@@ -63,8 +63,36 @@ const EXCLUDE: &[&str] = &[".DS_Store", "Thumbs.db", ".gitkeep", ".git"];
 /// Returns [`EngineError::ConfigNotFound`] if `config.json` is missing.
 /// Returns [`EngineError::BuildStepFailed`] if any step fails.
 pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
+    build_with_context(opts, None)
+}
+
+/// Execute the full production build pipeline with optional progress/cancellation context.
+pub fn build_with_context(opts: BuildOptions, ctx: Option<BuildContext>) -> Result<BuildResult, EngineError> {
     let start = Instant::now();
-    let progress = BuildProgress::new();
+
+    let (progress, cancelled, credentials) = match ctx {
+        Some(c) => {
+            let p = match c.on_progress {
+                Some(cb) => BuildProgress::with_callback(cb),
+                None => BuildProgress::new(),
+            };
+            let cancelled = c.cancelled;
+            let p = if let Some(ref token) = cancelled {
+                p.with_cancelled(token.clone())
+            } else {
+                p
+            };
+            (p, cancelled, c.credentials)
+        }
+        None => (BuildProgress::new(), None, None),
+    };
+
+    let check_cancelled = || -> Result<(), EngineError> {
+        if cancelled.as_ref().map_or(false, |c| c.load(std::sync::atomic::Ordering::SeqCst)) {
+            return Err(EngineError::Cancelled);
+        }
+        Ok(())
+    };
 
     let work_dir = &opts.work_dir;
     let output_dir = if opts.output_dir.is_relative() {
@@ -113,6 +141,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
     };
 
     // Step 1: Clean dist
+    check_cancelled()?;
     progress.step_start("Clean dist");
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir).map_err(|e| EngineError::BuildStepFailed {
@@ -127,6 +156,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
 
     // Step 2: Copy app shell (with basePath rewrite)
     progress.step_done("Clean dist", "");
+    check_cancelled()?;
     progress.step_start("Copy shell");
     if !shell_dir.exists() {
         return Err(EngineError::BuildStepFailed {
@@ -155,6 +185,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
 
     // Step 3: Generate posts data
     progress.step_done("Copy shell", &format!("{shell_files_count} files"));
+    check_cancelled()?;
     progress.step_start("Generate posts");
     let posts_dir = work_dir.join("posts");
     let manifest = if posts_dir.exists() {
@@ -171,6 +202,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
 
     // Step 4: Generate albums data
     progress.step_done("Generate posts", &format!("{posts_count} posts"));
+    check_cancelled()?;
     progress.step_start("Generate albums");
     let albums_dir = work_dir.join("albums");
 
@@ -192,6 +224,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
             album_config.provider.as_ref().unwrap(),
             &album_config,
             &output_dir,
+            credentials.as_ref(),
         )
         .map_err(|e| EngineError::BuildStepFailed {
             step: "pull albums from S3".into(),
@@ -214,6 +247,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
 
     // Step 5: Generate SEO + sitemap + rss + robots
     progress.step_done("Generate albums", &format!("{albums_count} albums"));
+    check_cancelled()?;
     progress.step_start("Generate SEO");
     let template_path = shell_dir.join("index.html");
     let seo_pages_count = if template_path.exists() {
@@ -259,6 +293,7 @@ pub fn build(opts: BuildOptions) -> Result<BuildResult, EngineError> {
 
     // Step 6: Copy static assets
     progress.step_done("Generate SEO", &format!("{seo_pages_count} pages"));
+    check_cancelled()?;
     progress.step_start("Copy static");
     let mut static_files_count: u32 = 0;
 

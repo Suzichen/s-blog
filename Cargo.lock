@@ -2171,6 +2171,7 @@ dependencies = [
 name = "s-blog-engine-napi"
 version = "0.1.0"
 dependencies = [
+ "dotenvy",
  "napi",
  "napi-build",
  "napi-derive",

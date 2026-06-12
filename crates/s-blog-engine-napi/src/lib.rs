@@ -202,6 +202,7 @@ pub fn generate_robots(
 /// Accepts a JSON string of `BuildOptions`, returns a JSON string of `BuildResult`.
 #[napi]
 pub fn build_command(options_json: String) -> napi::Result<String> {
+    let _ = dotenvy::dotenv();
     let opts: BuildOptions = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid build options: {e}")))?;
 
@@ -249,6 +250,7 @@ pub fn serve_command(options_json: String) -> napi::Result<()> {
 pub fn sync_media_command(options_json: String) -> napi::Result<String> {
     use s_blog_engine::media_sync::{SyncContext, SyncProgress};
 
+    let _ = dotenvy::dotenv();
     let opts: SyncConfig = serde_json::from_str(&options_json)
         .map_err(|e| napi::Error::from_reason(format!("Invalid sync options: {e}")))?;
 
@@ -261,6 +263,8 @@ pub fn sync_media_command(options_json: String) -> napi::Result<String> {
                 _ => {}
             }
         })),
+        credentials: None,
+        cancelled: None,
     };
 
     let result = s_blog_engine::media_sync::sync_media_with_context(opts, Some(ctx))
@@ -326,6 +330,8 @@ impl napi::Task for SyncMediaTask {
                 };
                 callback.call(json, napi::threadsafe_function::ThreadsafeFunctionCallMode::NonBlocking);
             })),
+            credentials: None,
+            cancelled: None,
         };
 
         let result = s_blog_engine::media_sync::sync_media_with_context(
