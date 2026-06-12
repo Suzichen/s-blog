@@ -49,6 +49,15 @@ pub enum SyncProgress {
     Done,
 }
 
+// ── S3 Credentials ─────────────────────────────────────────────────
+
+/// Explicit S3 credentials, avoids unsafe env var access in multi-threaded contexts.
+#[derive(Debug, Clone)]
+pub struct S3Credentials {
+    pub access_key: String,
+    pub secret_key: String,
+}
+
 // ── Config (serializable) ──────────────────────────────────────────
 
 /// Options for the sync_media command (serializable, JSON-safe).
@@ -78,6 +87,10 @@ pub type SyncOptions = SyncConfig;
 pub struct SyncContext {
     /// Progress callback. Called for each significant event.
     pub on_progress: Option<Box<dyn Fn(SyncProgress) + Send>>,
+    /// Explicit S3 credentials. When None, falls back to env vars.
+    pub credentials: Option<S3Credentials>,
+    /// External cancellation token. When set to true, operation stops early.
+    pub cancelled: Option<Arc<AtomicBool>>,
 }
 
 // ── Directory size calculation ─────────────────────────────────────
@@ -189,16 +202,20 @@ pub struct SyncResult {
     pub duration_ms: u64,
 }
 
-/// Create an S3 bucket client from provider config + environment variables.
-pub fn create_s3_bucket(config: &ProviderConfig) -> Result<Box<Bucket>, EngineError> {
-    let _ = dotenvy::dotenv();
-
-    let access_key = std::env::var("S3_ACCESS_KEY").map_err(|_| {
-        EngineError::Config("S3_ACCESS_KEY not set. Please configure it in .env file".into())
-    })?;
-    let secret_key = std::env::var("S3_SECRET_KEY").map_err(|_| {
-        EngineError::Config("S3_SECRET_KEY not set. Please configure it in .env file".into())
-    })?;
+/// Create an S3 bucket client from provider config + optional explicit credentials.
+/// Falls back to environment variables when credentials is None.
+pub fn create_s3_bucket(config: &ProviderConfig, creds: Option<&S3Credentials>) -> Result<Box<Bucket>, EngineError> {
+    let (access_key, secret_key) = if let Some(c) = creds {
+        (c.access_key.clone(), c.secret_key.clone())
+    } else {
+        let ak = std::env::var("S3_ACCESS_KEY").map_err(|_| {
+            EngineError::Config("S3_ACCESS_KEY not set. Please configure it in .env file".into())
+        })?;
+        let sk = std::env::var("S3_SECRET_KEY").map_err(|_| {
+            EngineError::Config("S3_SECRET_KEY not set. Please configure it in .env file".into())
+        })?;
+        (ak, sk)
+    };
 
     let credentials = Credentials::new(
         Some(&access_key),
@@ -271,9 +288,9 @@ pub fn pull_build_assets(
     provider: &ProviderConfig,
     album_config: &crate::AlbumConfig,
     output_dir: &Path,
+    creds: Option<&S3Credentials>,
 ) -> Result<u32, EngineError> {
-    let _ = dotenvy::dotenv();
-    let bucket = create_s3_bucket(provider)?;
+    let bucket = create_s3_bucket(provider, creds)?;
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -358,9 +375,9 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
     let start = Instant::now();
     let work_dir = &config.work_dir;
 
-    let on_progress = match ctx {
-        Some(c) => c.on_progress,
-        None => None,
+    let (on_progress, credentials, ext_cancelled) = match ctx {
+        Some(c) => (c.on_progress, c.credentials, c.cancelled),
+        None => (None, None, None),
     };
 
     let report = |evt: SyncProgress| {
@@ -442,7 +459,7 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
     }
 
     // 5. Create S3 client + runtime
-    let bucket = create_s3_bucket(provider)?;
+    let bucket = create_s3_bucket(provider, credentials.as_ref())?;
 
     // sync_media is inherently a blocking one-shot operation.
     // Always build our own runtime for the async S3 work.
@@ -451,12 +468,17 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
         .build()
         .map_err(|e| EngineError::Config(format!("Failed to create tokio runtime: {e}")))?;
 
-    // 6. Register Ctrl+C handler
-    let interrupted = Arc::new(AtomicBool::new(false));
-    let interrupted_clone = interrupted.clone();
-    let _ = ctrlc::set_handler(move || {
-        interrupted_clone.store(true, Ordering::SeqCst);
-    });
+    // 6. Cancellation token — use external if provided, otherwise register Ctrl+C handler
+    let interrupted = if let Some(token) = ext_cancelled {
+        token
+    } else {
+        let flag = Arc::new(AtomicBool::new(false));
+        let flag_clone = flag.clone();
+        let _ = ctrlc::set_handler(move || {
+            flag_clone.store(true, Ordering::SeqCst);
+        });
+        flag
+    };
 
     // 7. Upload loop + generate & upload thumbs/JSON (pipeline)
     let (uploaded, failed) = rt.block_on(async {
@@ -466,8 +488,9 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
 
         for (i, (rel_path, full_path, fp)) in upload_queue.iter().enumerate() {
             if interrupted.load(Ordering::SeqCst) {
-                println!("[sync] Interrupted, saving progress...");
-                break;
+                println!("[sync] Cancelled, saving progress...");
+                save_lock(&lock, &lock_path)?;
+                return Err(EngineError::Cancelled);
             }
             let remote_key = format!("albums/{}", rel_path);
             report(SyncProgress::Uploading { current: i as u32 + 1, total, file: rel_path.clone() });
@@ -596,6 +619,12 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
                 let _ = fs::remove_dir_all(&sync_out);
             }
 
+            // Check cancellation before index JSON upload
+            if interrupted.load(Ordering::SeqCst) {
+                save_lock(&lock, &lock_path)?;
+                return Err(EngineError::Cancelled);
+            }
+
             // Always regenerate and upload index JSON (includes EXIF for all photos)
             // Use generate_albums_metadata_only which produces correct thumbs URLs
             // without writing any thumbnail files to disk
@@ -621,6 +650,11 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
             if gen_dir.is_dir() {
                 if let Ok(files) = fs::read_dir(&gen_dir) {
                     for f in files.flatten() {
+                        if interrupted.load(Ordering::SeqCst) {
+                            let _ = fs::remove_dir_all(&json_out);
+                            save_lock(&lock, &lock_path)?;
+                            return Err(EngineError::Cancelled);
+                        }
                         if !f.path().is_file() { continue; }
                         let name = f.file_name().to_string_lossy().to_string();
                         let remote_key = format!("generated/{}", name);
@@ -633,8 +667,8 @@ pub fn sync_media_with_context(config: SyncConfig, ctx: Option<SyncContext>) -> 
         }
 
         report(SyncProgress::Done);
-        (uploaded, failed)
-    });
+        Ok((uploaded, failed))
+    })?;
 
     // 9. Save lock
     save_lock(&lock, &lock_path)?;
@@ -774,7 +808,7 @@ mod tests {
             bucket: "test".into(),
             public_url: "https://cdn.example.com".into(),
         };
-        let err = create_s3_bucket(&config).unwrap_err();
+        let err = create_s3_bucket(&config, None).unwrap_err();
         assert!(err.to_string().contains("S3_ACCESS_KEY"));
     }
 
@@ -851,6 +885,8 @@ mod tests {
             on_progress: Some(Box::new(move |evt| {
                 events_clone.lock().unwrap().push(format!("{:?}", evt));
             })),
+            credentials: None,
+            cancelled: None,
         };
         let _result = sync_media_with_context(config, Some(ctx)).unwrap();
 

@@ -49,6 +49,9 @@ pub enum EngineError {
 
     #[error("Serve directory not found: {0}\nHint: run `s-blog build` first")]
     ServeDirNotFound(PathBuf),
+
+    #[error("Operation cancelled")]
+    Cancelled,
 }
 
 // ── NAPI conversion ────────────────────────────────────────────────
