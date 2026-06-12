@@ -246,12 +246,13 @@ pub fn serve_with_context(config: ServeConfig, ctx: Option<ServeContext>) -> Res
         // Convert std listener to tokio listener inside the async context
         let listener = TcpListener::from_std(std_listener).expect("failed to convert TcpListener");
         let mut shutdown_rx = shutdown_rx;
+        let mut connections = tokio::task::JoinSet::new();
         loop {
             tokio::select! {
                 result = listener.accept() => {
                     if let Ok((stream, _)) = result {
                         let state = state.clone();
-                        tokio::spawn(async move {
+                        connections.spawn(async move {
                             let io = TokioIo::new(stream);
                             let svc = service_fn(move |req| {
                                 let state = state.clone();
@@ -264,6 +265,8 @@ pub fn serve_with_context(config: ServeConfig, ctx: Option<ServeContext>) -> Res
                     }
                 }
                 _ = &mut shutdown_rx => {
+                    // Abort all in-flight connections
+                    connections.abort_all();
                     break;
                 }
             }
