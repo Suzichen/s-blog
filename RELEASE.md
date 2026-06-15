@@ -23,10 +23,11 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 
 ## 版本号修改 Checklist
 
-### 1. Engine 相关（6处）
+### 1. Engine 相关（7处）
 
 | 文件 | 字段 |
 |------|------|
+| `crates/s-blog-engine/Cargo.toml` | `version`（Rust crate 版本，需与 `@s-blog/engine` 保持一致） |
 | `crates/s-blog-engine-napi/package.json` | `version` |
 | `crates/s-blog-engine-napi/package.json` | `optionalDependencies` 下三个平台包版本 |
 | `crates/s-blog-engine-napi/npm/darwin-arm64/package.json` | `version` |
@@ -35,6 +36,8 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 | `crates/s-blog-engine-napi/package-lock.json` | `version` + `optionalDependencies` |
 
 > ⚠️ **重点**：`npm/` 下三个平台包的 `version` 必须与主包 `optionalDependencies` 中声明的版本一致，否则 CI 发布后用户安装时版本不匹配，运行时会报 `Cannot find module '@s-blog/engine-<platform>'`。
+>
+> ℹ️ `crates/s-blog-engine/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 engine 的仓库能正确获知版本号，应与 `@s-blog/engine` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-engine` 同步 `Cargo.lock`。
 
 ### 2. Core（1处）
 
@@ -42,10 +45,11 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 |------|------|
 | `packages/core/package.json` | `version` |
 
-### 3. Create-s-blog（5处）
+### 3. Create-s-blog（6处）
 
 | 文件 | 字段 |
 |------|------|
+| `crates/s-blog-scaffold/Cargo.toml` | `version`（Rust crate 版本，需与 `create-s-blog` 保持一致） |
 | `packages/create-s-blog/package.json` | `version` |
 | `packages/create-s-blog/package.json` | `optionalDependencies` 下三个平台包版本 |
 | `packages/create-s-blog/npm/darwin-arm64/package.json` | `version` |
@@ -54,6 +58,8 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 | `crates/s-blog-scaffold/src/lib.rs` | `@s-blog/core` 和 `@s-blog/engine` 的版本字符串 |
 
 > ⚠️ **重点**：`npm/` 下三个平台包的 `version` 必须与主包 `optionalDependencies` 中声明的版本一致。
+>
+> ℹ️ `crates/s-blog-scaffold/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 scaffold 的仓库能正确获知版本号，应与 `create-s-blog` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-scaffold` 同步 `Cargo.lock`。
 
 ### 4. 根项目依赖（2处）
 
