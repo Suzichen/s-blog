@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMemoConfig } from '../context';
 import { useMemos } from '../hooks/useMemos';
-import type { Ech0Item } from '../services/ech0';
-import { fetchGitHubRepo, type GitHubRepoData } from '../services/ech0';
+import type { Ech0Comment, Ech0Item } from '../services/ech0';
+import { fetchEch0Comments, fetchGitHubRepo, type GitHubRepoData } from '../services/ech0';
 import PhotoViewer from '../components/PhotoViewer';
 import type { PhotoItem } from '../types/album';
 
@@ -65,7 +65,7 @@ const GitHubCard: React.FC<{ repoUrl: string }> = ({ repoUrl }) => {
   );
 };
 
-const MemoCard: React.FC<{ item: Ech0Item; onImageClick: (photos: PhotoItem[], index: number) => void }> = ({ item, onImageClick }) => {
+const MemoCard: React.FC<{ item: Ech0Item; comments: Ech0Comment[]; onImageClick: (photos: PhotoItem[], index: number) => void }> = ({ item, comments, onImageClick }) => {
   const { serverUrl } = useMemoConfig();
   const resolveUrl = (url: string) => url.startsWith('http') ? url : `${serverUrl.replace(/\/$/, '')}${url}`;
   const photos: PhotoItem[] = (item.echo_files || []).map(f => ({
@@ -118,6 +118,20 @@ const MemoCard: React.FC<{ item: Ech0Item; onImageClick: (photos: PhotoItem[], i
             </span>
           )}
         </div>
+
+        {comments.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-border/70 space-y-2.5">
+            {comments.map(comment => (
+              <div key={comment.id} className="rounded bg-bg px-3 py-2">
+                <div className="flex items-center justify-between gap-2 text-xs text-secondary">
+                  <span className="font-medium">{comment.nickname}</span>
+                  <time>{formatRelativeTime(comment.created_at)}</time>
+                </div>
+                <p className="mt-1 text-sm text-primary whitespace-pre-wrap break-words m-0">{comment.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -128,6 +142,43 @@ const Memo: React.FC = () => {
   const memoConfig = useMemoConfig();
   const { memos, loading, hasMore, error, loadMore } = useMemos();
   const [viewer, setViewer] = useState<{ photos: PhotoItem[]; index: number } | null>(null);
+  const [commentsByMemoId, setCommentsByMemoId] = useState<Record<string, Ech0Comment[]>>({});
+
+  useEffect(() => {
+    const missingIds = memos
+      .map(memo => memo.id)
+      .filter(id => !Object.prototype.hasOwnProperty.call(commentsByMemoId, id));
+
+    if (missingIds.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    Promise.all(
+      missingIds.map(async (id) => {
+        try {
+          const comments = await fetchEch0Comments(memoConfig.serverUrl, id);
+          return { id, comments };
+        } catch {
+          return { id, comments: [] as Ech0Comment[] };
+        }
+      })
+    ).then((results) => {
+      if (cancelled) return;
+      setCommentsByMemoId((prev) => {
+        const next = { ...prev };
+        for (const { id, comments } of results) {
+          next[id] = comments;
+        }
+        return next;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memos, commentsByMemoId, memoConfig.serverUrl]);
 
   const title = memoConfig.title || t('nav.memo');
   const isInitialLoad = loading && memos.length === 0;
@@ -156,7 +207,12 @@ const Memo: React.FC = () => {
       {memos.length > 0 && (
         <div className="ml-1">
           {memos.map(item => (
-            <MemoCard key={item.id} item={item} onImageClick={(photos, index) => setViewer({ photos, index })} />
+            <MemoCard
+              key={item.id}
+              item={item}
+              comments={commentsByMemoId[item.id] || []}
+              onImageClick={(photos, index) => setViewer({ photos, index })}
+            />
           ))}
         </div>
       )}

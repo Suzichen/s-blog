@@ -30,6 +30,14 @@ export interface Ech0QueryResult {
   items: Ech0Item[];
 }
 
+export interface Ech0Comment {
+  id: string;
+  echo_id: string;
+  nickname: string;
+  content: string;
+  created_at: number;
+}
+
 export async function fetchEchos(
   serverUrl: string,
   params: { page: number; pageSize: number }
@@ -57,6 +65,18 @@ export async function fetchEchos(
   };
 }
 
+export async function fetchEch0Comments(serverUrl: string, echoId: string): Promise<Ech0Comment[]> {
+  const baseUrl = serverUrl.replace(/\/$/, '');
+  const url = `${baseUrl}/api/comments?echo_id=${encodeURIComponent(echoId)}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Ech0 comments API error: ${res.status}`);
+  }
+
+  const json = await res.json();
+  return Array.isArray(json?.data) ? (json.data as Ech0Comment[]) : [];
+}
 
 export interface GitHubRepoData {
   name: string;
