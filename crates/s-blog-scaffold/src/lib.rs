@@ -128,8 +128,8 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     lines.push("    \"sync\": \"s-blog sync --media\"".to_string());
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
-    lines.push("    \"@s-blog/core\": \"^0.3.12\",".to_string());
-    lines.push("    \"@s-blog/engine\": \"^0.3.22\"".to_string());
+    lines.push("    \"@s-blog/core\": \"^0.5.0\",".to_string());
+    lines.push("    \"@s-blog/engine\": \"^0.5.0\"".to_string());
     lines.push("  }".to_string());
     lines.push("}".to_string());
     lines.join("\n")

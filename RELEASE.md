@@ -61,14 +61,13 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 >
 > ℹ️ `crates/s-blog-scaffold/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 scaffold 的仓库能正确获知版本号，应与 `create-s-blog` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-scaffold` 同步 `Cargo.lock`。
 
-### 4. 根项目依赖（2处）
+### 4. 根项目依赖（1处）
 
 | 文件 | 字段 |
 |------|------|
 | `package.json` | `dependencies["@s-blog/engine"]` |
-| `package-lock.json` | 所有 `@s-blog/engine*` 和 `create-s-blog*` 相关的 `version` 和 `resolved` |
 
-> ⚠️ 改完版本号后必须 `npm install` 更新 `package-lock.json`，否则 deploy 的 `npm ci` 会失败。
+> ⚠️ 改完版本号后运行 `bun install` 更新 `bun.lock`（需 engine 已发布到 npm）。
 
 ### 5. Schema（按需）
 
@@ -97,10 +96,10 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
    └─ 发布 create-s-blog (主包)
 
 4. push master  →  触发 deploy.yml
-   └─ npm ci → build → deploy to Cloudflare Pages
+   └─ bun install → build → deploy to Cloudflare Pages
 ```
 
-> **关键**：deploy.yml 用 `npm ci`，要求 `package-lock.json` 与 `package.json` 完全同步。engine 必须已发布到 npm，否则 `npm ci` 会失败。
+> **关键**：deploy.yml 用 `bun install`，engine 必须已发布到 npm，否则安装会失败。
 
 ## 快速操作命令
 
@@ -128,7 +127,7 @@ git push origin master
 ## 常见踩坑
 
 1. **平台包版本未同步** — `npm/*/package.json` 的 `version` 必须改，CI 发布时读的就是这个值（engine 和 create-s-blog 各有一组）
-2. **lock 文件未更新** — `npm ci` 严格校验 lock 与 package.json 的一致性
+2. **lock 文件未更新** — engine 发布后需 `bun install` 更新 `bun.lock`
 3. **engine 子目录有独立 lock** — `crates/s-blog-engine-napi/package-lock.json` 也需要更新
 4. **scaffold 硬编码版本** — `crates/s-blog-scaffold/src/lib.rs` 中 `generate_package_json` 里的 `@s-blog/core` 和 `@s-blog/engine` 版本字符串需要跟着改
 5. **发布顺序错误** — 平台包必须先于主包可用，deploy 必须在 engine 发布成功之后
