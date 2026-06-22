@@ -1,6 +1,6 @@
 [package]
 name = "s-blog-scaffold"
-version = "0.4.3"
+version = "0.5.0"
 edition = "2021"
 description = "Core scaffold logic for s-blog — template copying and config injection"
 license = "MIT"

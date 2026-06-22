@@ -32,7 +32,7 @@ The fastest way to create a new blog:
 npm create s-blog@latest
 ```
 
-> **Tip:** You can also use `bunx create-s-blog my-blog` or `pnpm create s-blog my-blog`.
+> **Tip:** You can also use `bun create s-blog@latest my-blog` or `pnpm create s-blog my-blog`.
 
 The CLI will guide you through project setup. After initialization:
 

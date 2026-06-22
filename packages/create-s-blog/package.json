@@ -1,6 +1,6 @@
 {
   "name": "create-s-blog",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "type": "module",
   "bin": {
     "create-s-blog": "./dist/index.js"
@@ -21,7 +21,7 @@
     "build": "tsc",
     "build:rs": "npx @napi-rs/cli build --platform --release",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "prompts": "^2.4.2",
@@ -36,9 +36,9 @@
     "typescript": "~5.9.3"
   },
   "optionalDependencies": {
-    "create-s-blog-win32-x64-msvc": "0.4.3",
-    "create-s-blog-linux-x64-gnu": "0.4.3",
-    "create-s-blog-darwin-arm64": "0.4.3"
+    "create-s-blog-win32-x64-msvc": "0.5.0",
+    "create-s-blog-linux-x64-gnu": "0.5.0",
+    "create-s-blog-darwin-arm64": "0.5.0"
   },
   "keywords": ["blog", "scaffold", "create", "s-blog"],
   "license": "MIT",
