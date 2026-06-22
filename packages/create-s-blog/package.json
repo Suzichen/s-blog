@@ -21,7 +21,7 @@
     "build": "tsc",
     "build:rs": "npx @napi-rs/cli build --platform --release",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "prompts": "^2.4.2",

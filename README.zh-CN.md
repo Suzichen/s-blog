@@ -32,7 +32,7 @@
 npm create s-blog@latest
 ```
 
-> **提示:** 也可以使用 `bunx create-s-blog my-blog` 或 `pnpm create s-blog my-blog`。
+> **提示:** 也可以使用 `bun create s-blog@latest my-blog` 或 `pnpm create s-blog my-blog`。
 
 CLI 会引导你完成项目设置。初始化后：
 

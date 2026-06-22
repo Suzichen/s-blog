@@ -9,7 +9,7 @@ The official scaffolding CLI for creating an [S-Blog](https://s-blog.me) project
 npm create s-blog@latest my-blog
 
 # bun
-bunx create-s-blog my-blog
+bun create s-blog@latest my-blog
 
 # pnpm
 pnpm create s-blog my-blog

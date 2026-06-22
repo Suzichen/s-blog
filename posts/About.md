@@ -24,7 +24,7 @@ Create a new blog in one command:
 npm create s-blog@latest my-blog
 ```
 
-> You can also use `bunx create-s-blog my-blog` or `pnpm create s-blog my-blog`.
+> You can also use `bun create s-blog@latest my-blog` or `pnpm create s-blog my-blog`.
 
 The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
 

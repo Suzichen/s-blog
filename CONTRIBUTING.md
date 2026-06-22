@@ -25,7 +25,7 @@ While the official language of this repository is English, you are warmly welcom
 
 1. Fork the repository
 2. Clone your fork locally
-3. Install dependencies: `npm install`
+3. Install dependencies: `bun install`
 4. Create a branch from `master`
 
 ## Issues

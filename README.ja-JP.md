@@ -32,7 +32,7 @@ React、Vite、TypeScript で構築されたモダンな静的ブログシステ
 npm create s-blog@latest
 ```
 
-> **ヒント:** `bunx create-s-blog my-blog` や `pnpm create s-blog my-blog` も使用可能です。
+> **ヒント:** `bun create s-blog@latest my-blog` や `pnpm create s-blog my-blog` も使用可能です。
 
 CLI がプロジェクトのセットアップをガイドします。初期化後：
 
