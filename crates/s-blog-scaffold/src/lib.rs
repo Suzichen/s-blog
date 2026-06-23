@@ -143,7 +143,7 @@ fn generate_config_json(input: &ScaffoldInput) -> String {
     lines.push(format!("  \"title\": {},", serde_json::to_string(&input.name).unwrap()));
     lines.push("  // Site description for SEO meta tags".to_string());
     lines.push(format!("  \"description\": {},", serde_json::to_string(&input.description).unwrap()));
-    lines.push(r#"  "logo": "/logo.png","#.to_string());
+    lines.push(r#"  "logo": "/logo.svg","#.to_string());
     lines.push(r#"  "favicon": "/favicon.ico","#.to_string());
 
     match &input.site_url {
