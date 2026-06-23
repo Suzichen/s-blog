@@ -59,6 +59,8 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 
 > ⚠️ **重点**：`npm/` 下三个平台包的 `version` 必须与主包 `optionalDependencies` 中声明的版本一致。
 >
+> ℹ️ `lib.rs` 中 `generate_package_json` 里的 `@s-blog/core` 和 `@s-blog/engine` 版本字符串（如 `^0.5.0`）需要更新为本次发布时的最新版本号（如 `^0.5.1`），确保新创建的项目能获得最新修复。即使 semver 范围兼容，也应更新到最新值，作为新项目的最低版本保证。
+>
 > ℹ️ `crates/s-blog-scaffold/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 scaffold 的仓库能正确获知版本号，应与 `create-s-blog` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-scaffold` 同步 `Cargo.lock`。
 
 ### 4. 根项目依赖（1处）

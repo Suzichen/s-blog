@@ -1,6 +1,6 @@
 {
   "name": "create-s-blog-win32-x64-msvc",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "create-s-blog native binding for Windows x64",
   "license": "MIT",
   "os": ["win32"],
