@@ -1,6 +1,6 @@
 {
   "name": "create-s-blog-darwin-arm64",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "create-s-blog native binding for macOS ARM64 (Apple Silicon)",
   "license": "MIT",
   "os": ["darwin"],
