@@ -1,11 +1,11 @@
 {
   "name": "create-s-blog",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "bin": {
     "create-s-blog": "./dist/index.js"
   },
-  "files": ["dist/", "template/", "index.cjs", "index.d.ts"],
+  "files": ["dist/", "index.cjs", "index.d.ts"],
   "napi": {
     "name": "create-s-blog",
     "triples": {
@@ -36,9 +36,9 @@
     "typescript": "~5.9.3"
   },
   "optionalDependencies": {
-    "create-s-blog-win32-x64-msvc": "0.5.1",
-    "create-s-blog-linux-x64-gnu": "0.5.1",
-    "create-s-blog-darwin-arm64": "0.5.1"
+    "create-s-blog-win32-x64-msvc": "0.5.2",
+    "create-s-blog-linux-x64-gnu": "0.5.2",
+    "create-s-blog-darwin-arm64": "0.5.2"
   },
   "keywords": ["blog", "scaffold", "create", "s-blog"],
   "license": "MIT",

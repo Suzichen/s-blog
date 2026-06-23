@@ -7,15 +7,16 @@
 use std::fs;
 use std::path::Path;
 
+use include_dir::{include_dir, Dir};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+static TEMPLATE: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../packages/create-s-blog/template");
 
 #[derive(Debug, Error)]
 pub enum ScaffoldError {
     #[error("Target directory already exists: {0}")]
     DirectoryExists(String),
-    #[error("Template directory not found: {0}")]
-    TemplateNotFound(String),
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
     #[error("JSON error: {0}")]
@@ -26,7 +27,6 @@ pub enum ScaffoldError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScaffoldInput {
     pub target_dir: String,
-    pub template_dir: String,
     pub name: String,
     pub description: String,
     pub author: String,
@@ -36,8 +36,8 @@ pub struct ScaffoldInput {
 
 /// Scaffold a new s-blog project.
 ///
-/// 1. Validates target doesn't exist, template exists
-/// 2. Recursively copies template to target
+/// 1. Validates target doesn't exist
+/// 2. Extracts embedded template to target
 /// 3. Renames `_gitignore` → `.gitignore`
 /// 4. Generates customized `package.json`
 /// 5. Generates `config.json` (JSONC with comments)
@@ -45,17 +45,13 @@ pub struct ScaffoldInput {
 /// 7. Generates `memo.config.json` (JSONC with comments, disabled by default)
 pub fn scaffold(input: &ScaffoldInput) -> Result<(), ScaffoldError> {
     let target = Path::new(&input.target_dir);
-    let template = Path::new(&input.template_dir);
 
     if target.exists() {
         return Err(ScaffoldError::DirectoryExists(input.target_dir.clone()));
     }
-    if !template.is_dir() {
-        return Err(ScaffoldError::TemplateNotFound(input.template_dir.clone()));
-    }
 
-    // Copy template
-    copy_dir_recursive(template, target)?;
+    // Extract embedded template
+    extract_dir(&TEMPLATE, target)?;
 
     // Rename _gitignore → .gitignore
     let gitignore_src = target.join("_gitignore");
@@ -96,17 +92,17 @@ pub fn cleanup(target_dir: &str) {
     }
 }
 
-fn copy_dir_recursive(src: &Path, dest: &Path) -> Result<(), ScaffoldError> {
+fn extract_dir(dir: &Dir<'_>, dest: &Path) -> Result<(), ScaffoldError> {
     fs::create_dir_all(dest)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let src_path = entry.path();
-        let dest_path = dest.join(entry.file_name());
-        if src_path.is_dir() {
-            copy_dir_recursive(&src_path, &dest_path)?;
-        } else {
-            fs::copy(&src_path, &dest_path)?;
+    for file in dir.files() {
+        let path = dest.join(file.path());
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
         }
+        fs::write(&path, file.contents())?;
+    }
+    for sub in dir.dirs() {
+        extract_dir(sub, &dest.join(sub.path()))?;
     }
     Ok(())
 }
@@ -128,7 +124,7 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
     lines.push("    \"sync\": \"s-blog sync --media\"".to_string());
     lines.push("  },".to_string());
     lines.push("  \"dependencies\": {".to_string());
-    lines.push("    \"@s-blog/core\": \"^0.5.1\",".to_string());
+    lines.push("    \"@s-blog/core\": \"^0.5.2\",".to_string());
     lines.push("    \"@s-blog/engine\": \"^0.5.0\"".to_string());
     lines.push("  }".to_string());
     lines.push("}".to_string());
@@ -143,8 +139,8 @@ fn generate_config_json(input: &ScaffoldInput) -> String {
     lines.push(format!("  \"title\": {},", serde_json::to_string(&input.name).unwrap()));
     lines.push("  // Site description for SEO meta tags".to_string());
     lines.push(format!("  \"description\": {},", serde_json::to_string(&input.description).unwrap()));
-    lines.push(r#"  "logo": "/logo.png","#.to_string());
-    lines.push(r#"  "favicon": "/favicon.ico","#.to_string());
+    lines.push(r#"  "logo": "/logo.svg","#.to_string());
+    lines.push(r#"  "favicon": "/favicon.svg","#.to_string());
 
     match &input.site_url {
         Some(url) if !url.is_empty() => {
