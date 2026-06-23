@@ -4,7 +4,6 @@ use s_blog_scaffold::{ScaffoldInput, scaffold, cleanup};
 #[napi(object)]
 pub struct JsScaffoldInput {
     pub target_dir: String,
-    pub template_dir: String,
     pub name: String,
     pub description: String,
     pub author: String,
@@ -16,7 +15,6 @@ pub struct JsScaffoldInput {
 pub fn scaffold_blog(input: JsScaffoldInput) -> napi::Result<()> {
     let input = ScaffoldInput {
         target_dir: input.target_dir,
-        template_dir: input.template_dir,
         name: input.name,
         description: input.description,
         author: input.author,

@@ -5,7 +5,7 @@
   "bin": {
     "create-s-blog": "./dist/index.js"
   },
-  "files": ["dist/", "template/", "index.cjs", "index.d.ts"],
+  "files": ["dist/", "index.cjs", "index.d.ts"],
   "napi": {
     "name": "create-s-blog",
     "triples": {
