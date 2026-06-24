@@ -95,14 +95,13 @@ pub fn cleanup(target_dir: &str) {
 fn extract_dir(dir: &Dir<'_>, dest: &Path) -> Result<(), ScaffoldError> {
     fs::create_dir_all(dest)?;
     for file in dir.files() {
-        let path = dest.join(file.path());
-        if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)?;
-        }
+        let file_name = file.path().file_name().unwrap();
+        let path = dest.join(file_name);
         fs::write(&path, file.contents())?;
     }
     for sub in dir.dirs() {
-        extract_dir(sub, &dest.join(sub.path()))?;
+        let dir_name = sub.path().file_name().unwrap();
+        extract_dir(sub, &dest.join(dir_name))?;
     }
     Ok(())
 }

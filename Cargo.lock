@@ -2201,7 +2201,7 @@ dependencies = [
 
 [[package]]
 name = "s-blog-scaffold"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "include_dir",
  "json_comments",
