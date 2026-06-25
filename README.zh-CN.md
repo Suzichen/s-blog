@@ -1,3 +1,5 @@
+<div align="center">
+
 # S-blog
 
 **预览地址:**
@@ -7,6 +9,8 @@
 <a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <img src="https://img.shields.io/badge/-简体中文-F54A00?style=for-the-badge" alt="简体中文">  <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
 
 一个由 React 和 Rust 构建的现代化高性能静态博客系统。
+
+</div>
 
 ## 功能特性
 

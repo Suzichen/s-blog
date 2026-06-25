@@ -1,3 +1,5 @@
+<div align="center">
+
 # S-blog
 
 **Preview:**
@@ -7,6 +9,8 @@
 <img src="https://img.shields.io/badge/-English-F54A00?style=for-the-badge" alt="English"> <a title="zh-CN" href="./README.zh-CN.md"><img src="https://img.shields.io/badge/-简体中文-545759?style=for-the-badge" alt="简体中文"></a>  <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
 
 A modern, high-performance static blog system built with React and Rust.
+
+</div>
 
 ## Features
 
