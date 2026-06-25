@@ -1,12 +1,10 @@
-[English](./README.md) | [日本語](./README.ja-JP.md)
-
 # S-blog
 
 **预览地址:**
 - [s-blog 官方站点](https://s-blog.me)
 - [Suzic's Blog](https://s-blog.suzichen.me/)
 
-<a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
+<a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <img src="https://img.shields.io/badge/-简体中文-F54A00?style=for-the-badge" alt="简体中文">  <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
 
 一个基于 React、Vite 和 TypeScript 构建的现代化静态博客系统。由 Rust 构建引擎驱动，具备原生级性能。
 
