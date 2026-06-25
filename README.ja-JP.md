@@ -1,5 +1,7 @@
 <div align="center">
 
+<img alt="Ech0" src="./public/logo.svg" width="150">
+
 # S-blog
 
 <a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <a title="zh-CN" href="./README.zh-CN.md"><img src="https://img.shields.io/badge/-简体中文-545759?style=for-the-badge" alt="简体中文"></a>  <img src="https://img.shields.io/badge/-日本語-F54A00?style=for-the-badge" alt="日本語">
