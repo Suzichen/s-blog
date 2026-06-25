@@ -36,7 +36,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </h1>
                 <p className="m-0 text-sm opacity-80">{siteConfig.description}</p>
               </div>
-              <LanguageSwitcher />
             </div>
             <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 items-center">
               <div className="flex gap-4 items-center">
@@ -60,6 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
                 </button>
+                <LanguageSwitcher />
               </div>
             </nav>
           </div>
