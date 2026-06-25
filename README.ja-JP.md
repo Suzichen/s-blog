@@ -1,14 +1,12 @@
-[English](./README.md) | [中文](./README.zh-CN.md)
+# S-blog
 
-# S-Blog
+**プレビュー:**
+- [S-Blog 公式ブログ](https://s-blog.me)
+- [Suzic's Blog](https://s-blog.suzichen.me/)
 
-> **免責事項**: 本システムのすべてのコードは AI によって生成されています。
+<a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <a title="zh-CN" href="./README.zh-CN.md"><img src="https://img.shields.io/badge/-简体中文-545759?style=for-the-badge" alt="简体中文"></a>  <img src="https://img.shields.io/badge/-日本語-F54A00?style=for-the-badge" alt="日本語">
 
-**デモ:**
-- [公式サイト](https://s-blog.me)
-- [作者の個人サイト](https://s-blog.suzichen.me/)
-
-React、Vite、TypeScript で構築されたモダンな静的ブログシステム。Rust ベースのビルドエンジンによりネイティブレベルのパフォーマンスを実現。
+React と Rust で構築されたモダンな高性能静的ブログシステム。
 
 ## 機能
 
@@ -26,6 +24,16 @@ React、Vite、TypeScript で構築されたモダンな静的ブログシステ
 
 ## クイックスタート
 
+### デスクトップクライアント
+
+[s-writor](https://github.com/Suzichen/s-writor/releases) クライアントを直接インストールしてください。作成/管理/プレビュー/ビルドの完全な機能を備えており、将来的にはワンクリック公開も統合予定です（サイトプレフィックスを申請するだけで `s-blog.me` にデプロイ可能）。
+
+![s-writor](https://img.s-blog.me/s-writor/20260625/Snipaste_2026-06-25_15-48-39.png "s-writor")
+
+### CLI を使用
+
+#### 作成
+
 新しいブログを作成する最速の方法：
 
 ```bash
@@ -42,7 +50,7 @@ npm install
 npm run dev
 ```
 
-### 本番ビルド
+#### 本番ビルド
 
 ```bash
 npm run build
@@ -56,7 +64,7 @@ npm run build
 
 出力は `dist/` 内の完全な静的サイトです。任意の静的ホスティングにデプロイできます。
 
-### フレームワークの更新
+#### フレームワークの更新
 
 ```bash
 npm update @s-blog/core @s-blog/engine
@@ -65,6 +73,8 @@ npm update @s-blog/core @s-blog/engine
 メンテナンスが必要なのはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`albums/`、`public/`）のみです。フレームワークの更新はパッケージマネージャーを通じて配信されます。
 
 ## アーキテクチャ
+
+> **免責事項**: 本システムのすべてのコードは AI によって生成されています。
 
 S-Blog は 3 つの npm パッケージとして公開されています：
 
