@@ -1,12 +1,12 @@
 [English](./README.md) | [日本語](./README.ja-JP.md)
 
-# S-Blog
+# S-blog
 
-> **声明**: 本系统中的所有代码均由 AI 生成。
+**预览地址:**
+- [s-blog 官方站点](https://s-blog.me)
+- [Suzic's Blog](https://s-blog.suzichen.me/)
 
-**演示:**
-- [官方站点](https://s-blog.me)
-- [作者个人站](https://s-blog.suzichen.me/)
+<a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
 
 一个基于 React、Vite 和 TypeScript 构建的现代化静态博客系统。由 Rust 构建引擎驱动，具备原生级性能。
 
@@ -26,6 +26,16 @@
 
 ## 快速开始
 
+### 桌面客户端
+
+请直接安装 [s-writor](https://github.com/Suzichen/s-writor/releases) 客户端。它包含了完整的创建/管理/预览/构建等功能，未来还将集成一键发布(您只需要申请一个网站前缀即可部署到 `s-blog.me`)
+
+![s-writor](https://img.s-blog.me/s-writor/20260625/Snipaste_2026-06-25_15-48-39.png "s-writor")
+
+### 使用CLI
+
+#### 创建
+
 创建新博客最快捷的方式：
 
 ```bash
@@ -42,7 +52,7 @@ npm install
 npm run dev
 ```
 
-### 构建生产版本
+#### 构建生产版本
 
 ```bash
 npm run build
@@ -56,7 +66,7 @@ npm run build
 
 输出是位于 `dist/` 下的纯静态站点，可部署到任何静态托管服务。
 
-### 更新框架
+#### 更新框架
 
 ```bash
 npm update @s-blog/core @s-blog/engine
@@ -65,6 +75,8 @@ npm update @s-blog/core @s-blog/engine
 你只需要维护内容文件（`posts/`、`config.json`、`album.config.json`、`albums/`、`public/`）。框架更新通过包管理器分发。
 
 ## 架构
+
+> **声明**: 本系统中的所有代码均由 AI 生成。
 
 S-Blog 以三个 npm 包发布：
 
