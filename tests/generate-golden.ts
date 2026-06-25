@@ -1,13 +1,5 @@
 /**
- * Generate golden files by running the existing TS scripts against test fixtures.
- *
- * This script:
- * 1. Creates a temporary working directory (tests/.tmp/)
- * 2. Copies fixtures into the structure expected by the scripts
- * 3. Runs each TS script in sequence with cwd set to the temp dir
- * 4. Copies generated outputs to tests/golden/
- * 5. Repeats with basePath fixtures → tests/golden-basepath/
- * 6. Cleans up the temp directory
+ * Generate golden files by running the Rust engine against test fixtures.
  *
  * Run: npx tsx tests/generate-golden.ts
  */
@@ -21,18 +13,8 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const BASEPATH_FIXTURES_DIR = path.join(__dirname, 'fixtures-basepath');
 const TMP_DIR = path.join(__dirname, '.tmp');
+const ENGINE_CLI = path.join(PROJECT_ROOT, 'crates', 's-blog-engine-napi', 'bin', 's-blog.cjs');
 
-const SCRIPTS_DIR = path.join(PROJECT_ROOT, 'packages', 'core', 'scripts');
-const SCRIPTS = {
-  posts: path.join(SCRIPTS_DIR, 'generate-posts-data.ts'),
-  albums: path.join(SCRIPTS_DIR, 'generate-albums-data.ts'),
-  seo: path.join(SCRIPTS_DIR, 'generate-seo.ts'),
-  sitemap: path.join(SCRIPTS_DIR, 'generate-sitemap.ts'),
-  rss: path.join(SCRIPTS_DIR, 'generate-rss.ts'),
-  robots: path.join(SCRIPTS_DIR, 'generate-robots.ts'),
-};
-
-/** Recursively copy a directory */
 function copyDirSync(src: string, dest: string): void {
   fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
@@ -47,53 +29,7 @@ function copyDirSync(src: string, dest: string): void {
 }
 
 function rmDirSync(dir: string): void {
-  if (fs.existsSync(dir)) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-}
-
-function runScript(name: string, scriptPath: string): boolean {
-  console.log(`  Running ${name}...`);
-  try {
-    const output = execSync(`npx tsx "${scriptPath}"`, {
-      cwd: TMP_DIR,
-      stdio: 'pipe',
-      env: { ...process.env, NODE_ENV: 'production' },
-      timeout: 120_000,
-    });
-    const text = output.toString().trim();
-    if (text) console.log(`    ${text.replace(/\n/g, '\n    ')}`);
-    return true;
-  } catch (err: any) {
-    const stderr = err.stderr?.toString() || '';
-    const stdout = err.stdout?.toString() || '';
-    console.warn(`  [WARN] ${name} failed:`);
-    if (stdout) console.warn('    stdout:', stdout);
-    if (stderr) console.warn('    stderr:', stderr);
-    return false;
-  }
-}
-
-function copyToGolden(goldenDir: string, tmpRelPath: string, goldenRelPath?: string): boolean {
-  const src = path.join(TMP_DIR, tmpRelPath);
-  const dest = path.join(goldenDir, goldenRelPath ?? tmpRelPath);
-  if (!fs.existsSync(src)) {
-    console.warn(`  [WARN] Expected output not found: ${tmpRelPath}`);
-    return false;
-  }
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
-  fs.copyFileSync(src, dest);
-  return true;
-}
-
-function copyDirToGolden(goldenDir: string, tmpRelPath: string, goldenRelPath: string): boolean {
-  const src = path.join(TMP_DIR, tmpRelPath);
-  if (!fs.existsSync(src)) {
-    console.warn(`  [WARN] Expected output dir not found: ${tmpRelPath}`);
-    return false;
-  }
-  copyDirSync(src, path.join(goldenDir, goldenRelPath));
-  return true;
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
 }
 
 const SHELL_TEMPLATE = `<!DOCTYPE html>
@@ -111,10 +47,6 @@ const SHELL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-/**
- * Set up the temp directory with fixtures.
- * @param configDir - directory containing config.json (default or basepath)
- */
 function setupTmp(configDir: string): void {
   rmDirSync(TMP_DIR);
   fs.mkdirSync(TMP_DIR, { recursive: true });
@@ -124,77 +56,43 @@ function setupTmp(configDir: string): void {
   copyDirSync(path.join(FIXTURES_DIR, 'posts'), path.join(TMP_DIR, 'posts'));
   copyDirSync(path.join(FIXTURES_DIR, 'albums'), path.join(TMP_DIR, 'albums'));
 
-  fs.mkdirSync(path.join(TMP_DIR, 'public', 'generated'), { recursive: true });
-  fs.mkdirSync(path.join(TMP_DIR, 'dist', 'shell'), { recursive: true });
-  fs.mkdirSync(path.join(TMP_DIR, 'dist', 'post'), { recursive: true });
-
-  fs.writeFileSync(path.join(TMP_DIR, 'dist', 'shell', 'index.html'), SHELL_TEMPLATE, 'utf-8');
+  const shellDir = path.join(TMP_DIR, 'node_modules', '@s-blog', 'core', 'dist', 'shell');
+  fs.mkdirSync(shellDir, { recursive: true });
+  fs.writeFileSync(path.join(shellDir, 'index.html'), SHELL_TEMPLATE, 'utf-8');
 }
 
-function generateForVariant(label: string, configDir: string, goldenDir: string): void {
-  console.log(`\n=== Generating golden files: ${label} ===\n`);
-
-  rmDirSync(goldenDir);
-  fs.mkdirSync(goldenDir, { recursive: true });
-  setupTmp(configDir);
-
-  // a) generate-posts-data
-  const postsOk = runScript('generate-posts-data', SCRIPTS.posts);
-  if (postsOk) {
-    copyToGolden(goldenDir, 'public/generated/manifest.json', 'manifest.json');
+function runBuild(): boolean {
+  console.log('  Running s-blog build...');
+  try {
+    const output = execSync(`node "${ENGINE_CLI}" build`, {
+      cwd: TMP_DIR,
+      stdio: 'pipe',
+      env: { ...process.env, NODE_ENV: 'production' },
+      timeout: 120_000,
+    });
+    console.log(`    ${output.toString().trim().replace(/\n/g, '\n    ')}`);
+    return true;
+  } catch (err: any) {
+    console.error('  Build failed:', err.stderr?.toString() || err.message);
+    return false;
   }
+}
 
-  // b) generate-albums-data
-  const albumsOk = runScript('generate-albums-data', SCRIPTS.albums);
-  if (albumsOk) {
-    copyToGolden(goldenDir, 'public/generated/albums-index.json', 'albums-index.json');
-    const generatedDir = path.join(TMP_DIR, 'public', 'generated');
-    if (fs.existsSync(generatedDir)) {
-      for (const file of fs.readdirSync(generatedDir)) {
-        if (file.startsWith('album-') && file.endsWith('.json')) {
-          copyToGolden(goldenDir, `public/generated/${file}`, file);
-        }
-      }
-    }
+function copyToGolden(goldenDir: string, tmpRelPath: string, goldenRelPath: string): boolean {
+  const src = path.join(TMP_DIR, tmpRelPath);
+  if (!fs.existsSync(src)) {
+    console.warn(`  [WARN] Expected output not found: ${tmpRelPath}`);
+    return false;
   }
-
-  // c) generate-seo (requires manifest.json)
-  if (postsOk) {
-    const seoOk = runScript('generate-seo', SCRIPTS.seo);
-    if (seoOk) {
-      copyDirToGolden(goldenDir, 'dist/post', 'seo');
-    }
-  }
-
-  // d) generate-sitemap
-  if (postsOk) {
-    const sitemapOk = runScript('generate-sitemap', SCRIPTS.sitemap);
-    if (sitemapOk) {
-      copyToGolden(goldenDir, 'dist/sitemap.xml', 'sitemap.xml');
-    }
-  }
-
-  // e) generate-rss
-  if (postsOk) {
-    const rssOk = runScript('generate-rss', SCRIPTS.rss);
-    if (rssOk) {
-      copyToGolden(goldenDir, 'dist/rss.xml', 'rss.xml');
-    }
-  }
-
-  // f) generate-robots
-  const robotsOk = runScript('generate-robots', SCRIPTS.robots);
-  if (robotsOk) {
-    copyToGolden(goldenDir, 'dist/robots.txt', 'robots.txt');
-  }
-
-  // Summary
-  const files = listFilesRecursive(goldenDir);
-  console.log(`\n  Generated ${files.length} golden files for ${label}`);
+  const dest = path.join(goldenDir, goldenRelPath);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+  return true;
 }
 
 function listFilesRecursive(dir: string): string[] {
   const results: string[] = [];
+  if (!fs.existsSync(dir)) return results;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -206,18 +104,51 @@ function listFilesRecursive(dir: string): string[] {
   return results;
 }
 
+function generateForVariant(label: string, configDir: string, goldenDir: string): void {
+  console.log(`\n=== Generating golden files: ${label} ===\n`);
+
+  rmDirSync(goldenDir);
+  fs.mkdirSync(goldenDir, { recursive: true });
+  setupTmp(configDir);
+
+  if (!runBuild()) {
+    console.error(`  FAILED to generate golden files for ${label}`);
+    return;
+  }
+
+  // Copy outputs to golden dir
+  copyToGolden(goldenDir, 'dist/generated/manifest.json', 'manifest.json');
+  copyToGolden(goldenDir, 'dist/generated/albums-index.json', 'albums-index.json');
+
+  const generatedDir = path.join(TMP_DIR, 'dist', 'generated');
+  if (fs.existsSync(generatedDir)) {
+    for (const file of fs.readdirSync(generatedDir)) {
+      if (file.startsWith('album-') && file.endsWith('.json')) {
+        copyToGolden(goldenDir, `dist/generated/${file}`, file);
+      }
+    }
+  }
+
+  // SEO pages
+  const seoDir = path.join(TMP_DIR, 'dist', 'post');
+  if (fs.existsSync(seoDir)) {
+    copyDirSync(seoDir, path.join(goldenDir, 'seo'));
+  }
+
+  copyToGolden(goldenDir, 'dist/sitemap.xml', 'sitemap.xml');
+  copyToGolden(goldenDir, 'dist/rss.xml', 'rss.xml');
+  copyToGolden(goldenDir, 'dist/robots.txt', 'robots.txt');
+
+  const files = listFilesRecursive(goldenDir);
+  console.log(`\n  Generated ${files.length} golden files for ${label}`);
+}
+
 function main() {
-  console.log('=== Golden File Generator ===');
+  console.log('=== Golden File Generator (Rust Engine) ===');
 
-  // Default fixtures (basePath: "/")
-  const goldenDir = path.join(__dirname, 'golden');
-  generateForVariant('default (basePath: "/")', FIXTURES_DIR, goldenDir);
+  generateForVariant('default (basePath: "/")', FIXTURES_DIR, path.join(__dirname, 'golden'));
+  generateForVariant('basepath (basePath: "/blog")', BASEPATH_FIXTURES_DIR, path.join(__dirname, 'golden-basepath'));
 
-  // BasePath fixtures (basePath: "/blog")
-  const basepathGoldenDir = path.join(__dirname, 'golden-basepath');
-  generateForVariant('basepath (basePath: "/blog")', BASEPATH_FIXTURES_DIR, basepathGoldenDir);
-
-  // Cleanup
   rmDirSync(TMP_DIR);
   console.log('\n=== Done ===');
 }

@@ -1,119 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xml:base="https://test-blog.example.com/blog/">
   <channel>
     <title>Test Blog</title>
     <description>A test blog for fixture-based testing</description>
     <link>https://test-blog.example.com/blog/</link>
     <language>en</language>
-    <lastBuildDate>Tue, 28 Apr 2026 05:11:43 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 25 Jun 2026 06:27:11 GMT</lastBuildDate>
     <atom:link href="https://test-blog.example.com/blog/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Post With Description Field</title>
+      <description>This summary comes from the description field, not preview or body content.</description>
+      <link>https://test-blog.example.com/blog/post/with-description/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-description/</guid>
+      <pubDate>Sat, 10 Aug 2024 11:00:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Content</category>
+      <category>description</category>
+      <category>metadata</category>
+      <content:encoded><![CDATA[<p>This post uses the description field instead of preview. The summary priority chain is preview &gt; description &gt; excerpt &gt; auto-generated.</p>
+<p>Since no preview is set, the description field should be used as the summary in the manifest. This body text should NOT appear in the summary.</p>
+<p>Extra paragraph to ensure the auto-generated summary would differ from the description.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Post With Explicit Preview</title>
+      <description>This is a custom preview text that should be used instead of auto-generated summary.</description>
+      <link>https://test-blog.example.com/blog/post/with-preview/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-preview/</guid>
+      <pubDate>Mon, 01 Jul 2024 08:00:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Content</category>
+      <category>preview</category>
+      <category>summary</category>
+      <content:encoded><![CDATA[<p>This post has an explicit preview field in the frontmatter. When a preview (or description/excerpt) is provided, it should take priority over the auto-generated summary from the body content.</p>
+<p>The body content here is different from the preview. If the system correctly uses the preview field, the summary in the manifest should match the preview text, not this paragraph.</p>
+<p>Additional content to make the body longer than the preview for testing purposes.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Post With Timezone</title>
+      <description>This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...</description>
+      <link>https://test-blog.example.com/blog/post/with-timezone/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-timezone/</guid>
+      <pubDate>Sat, 15 Jun 2024 10:30:00 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Technical</category>
+      <category>timezone</category>
+      <category>date-handling</category>
+      <content:encoded><![CDATA[<p>This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be converted to that timezone.</p>
+<p>The timezone conversion logic should detect the offset in the date string and apply the configured timezone. If the configured timezone matches the offset, the local time should remain the same.</p>
+<p>This is important for blogs with international audiences where consistent date display matters.</p>
+]]></content:encoded>
+    </item>
     <item>
       <title>Comma Separated Tags</title>
       <description>This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.  C...</description>
-      <link>https://test-blog.example.com/blog/post/comma-separated-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/comma-separated-tags</guid>
-      <pubDate>Wed, 22 May 2024 07:45:00 GMT</pubDate>
+      <link>https://test-blog.example.com/blog/post/comma-separated-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/comma-separated-tags/</guid>
+      <pubDate>Wed, 22 May 2024 16:45:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Backend</category>
       <category>Systems</category>
       <category>python</category>
       <category>rust</category>
       <category>go</category>
-    </item>
-    <item>
-      <title>Post With Invalid Date</title>
-      <description>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...</description>
-      <link>https://test-blog.example.com/blog/post/invalid-date</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/invalid-date</guid>
-      <pubDate>Tue, 28 Apr 2026 05:11:43 GMT</pubDate>
-      <author>Test Author</author>
-      <category>Testing</category>
-      <category>edge-case</category>
-    </item>
-    <item>
-      <title>no-frontmatter</title>
-      <description>This is a post with no frontmatter at all. It starts directly with content.  The parser should handle this edge case gracefully. The slug ...</description>
-      <link>https://test-blog.example.com/blog/post/no-frontmatter</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/no-frontmatter</guid>
-      <pubDate>Tue, 28 Apr 2026 05:11:43 GMT</pubDate>
-      <author>Test Author</author>
-    </item>
-    <item>
-      <title>Post With Description Field</title>
-      <description>This summary comes from the description field, not preview or body content.</description>
-      <link>https://test-blog.example.com/blog/post/with-description</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-description</guid>
-      <pubDate>Sat, 10 Aug 2024 02:00:00 GMT</pubDate>
-      <author>Test Author</author>
-      <category>Content</category>
-      <category>description</category>
-      <category>metadata</category>
-    </item>
-    <item>
-      <title>Post With Explicit Preview</title>
-      <description>This is a custom preview text that should be used instead of auto-generated summary.</description>
-      <link>https://test-blog.example.com/blog/post/with-preview</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-preview</guid>
-      <pubDate>Sun, 30 Jun 2024 23:00:00 GMT</pubDate>
-      <author>Test Author</author>
-      <category>Content</category>
-      <category>preview</category>
-      <category>summary</category>
-    </item>
-    <item>
-      <title>Post With Timezone</title>
-      <description>This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...</description>
-      <link>https://test-blog.example.com/blog/post/with-timezone</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-timezone</guid>
-      <pubDate>Sat, 15 Jun 2024 01:30:00 GMT</pubDate>
-      <author>Test Author</author>
-      <category>Technical</category>
-      <category>timezone</category>
-      <category>date-handling</category>
+      <content:encoded><![CDATA[<p>This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.</p>
+<p>Comma-separated values are another common input format. The parser should handle both comma and space delimiters, producing clean arrays without empty strings.</p>
+<p>This tests the normalizeArray utility function with comma-delimited input.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Space Separated Tags</title>
       <description>This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into prope...</description>
-      <link>https://test-blog.example.com/blog/post/space-separated-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/space-separated-tags</guid>
-      <pubDate>Wed, 10 Apr 2024 00:00:00 GMT</pubDate>
+      <link>https://test-blog.example.com/blog/post/space-separated-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/space-separated-tags/</guid>
+      <pubDate>Wed, 10 Apr 2024 09:00:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Frontend</category>
       <category>react</category>
       <category>vue</category>
       <category>angular</category>
+      <content:encoded><![CDATA[<p>This post uses space-separated strings for tags and a plain string for categories. The normalizeArray function should split these into proper arrays.</p>
+<p>Space-separated tags are a common shorthand that some users prefer. The parser needs to handle this format and produce the same array output as bracket notation.</p>
+<p>This tests the normalizeArray utility function with space-delimited input.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Post With Tags and Categories</title>
       <description>This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.  Tags ar...</description>
-      <link>https://test-blog.example.com/blog/post/with-tags</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-tags</guid>
-      <pubDate>Wed, 20 Mar 2024 05:30:00 GMT</pubDate>
+      <link>https://test-blog.example.com/blog/post/with-tags/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-tags/</guid>
+      <pubDate>Wed, 20 Mar 2024 14:30:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Development</category>
       <category>Tutorial</category>
       <category>javascript</category>
       <category>typescript</category>
       <category>testing</category>
+      <content:encoded><![CDATA[<p>This post has tags and categories defined as YAML arrays. The frontmatter parser should correctly extract these as string arrays.</p>
+<p>Tags are useful for cross-cutting concerns while categories provide a hierarchical organization. Both should be normalized into arrays regardless of input format.</p>
+<p>Testing multiple tags and categories ensures the parser handles array fields properly across different input styles.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Post With Excerpt Field</title>
       <description>This summary comes from the excerpt field, the lowest priority custom field.</description>
-      <link>https://test-blog.example.com/blog/post/with-excerpt</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-excerpt</guid>
-      <pubDate>Wed, 28 Feb 2024 06:30:00 GMT</pubDate>
+      <link>https://test-blog.example.com/blog/post/with-excerpt/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/with-excerpt/</guid>
+      <pubDate>Wed, 28 Feb 2024 15:30:00 GMT</pubDate>
       <author>Test Author</author>
       <category>Content</category>
       <category>excerpt</category>
       <category>metadata</category>
+      <content:encoded><![CDATA[<p>This post uses the excerpt field. Since neither preview nor description is set, the excerpt field should be used as the summary.</p>
+<p>The auto-generated summary from this body content should NOT be used when excerpt is present.</p>
+<p>More content here to make the body sufficiently long for testing.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Simple Post</title>
       <description>This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.  The po...</description>
-      <link>https://test-blog.example.com/blog/post/simple</link>
-      <guid isPermaLink="true">https://test-blog.example.com/blog/post/simple</guid>
-      <pubDate>Mon, 15 Jan 2024 01:00:00 GMT</pubDate>
+      <link>https://test-blog.example.com/blog/post/simple/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/simple/</guid>
+      <pubDate>Mon, 15 Jan 2024 10:00:00 GMT</pubDate>
       <author>Test Author</author>
+      <content:encoded><![CDATA[<p>This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.</p>
+<p>The post body contains multiple paragraphs to test summary generation logic. When no explicit preview is provided, the system should auto-generate a summary from the body content.</p>
+<p>Here is a third paragraph with some additional content to ensure the summary truncation works correctly when the text exceeds the default length limit.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Post With Invalid Date</title>
+      <description>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...</description>
+      <link>https://test-blog.example.com/blog/post/invalid-date/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/invalid-date/</guid>
+      <pubDate>Thu, 25 Jun 2026 06:27:11 GMT</pubDate>
+      <author>Test Author</author>
+      <category>Testing</category>
+      <category>edge-case</category>
+      <content:encoded><![CDATA[<p>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty string for the date field.</p>
+<p>Invalid dates should not cause the entire build process to fail. Instead, the post should still be included in the manifest with an empty date string.</p>
+<p>This tests the error handling path of the date parsing logic.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>no-frontmatter</title>
+      <description>This is a post with no frontmatter at all. It starts directly with content.  The parser should handle this edge case gracefully. The slug ...</description>
+      <link>https://test-blog.example.com/blog/post/no-frontmatter/</link>
+      <guid isPermaLink="true">https://test-blog.example.com/blog/post/no-frontmatter/</guid>
+      <pubDate>Thu, 25 Jun 2026 06:27:11 GMT</pubDate>
+      <author>Test Author</author>
+      <content:encoded><![CDATA[<p>This is a post with no frontmatter at all. It starts directly with content.</p>
+<p>The parser should handle this edge case gracefully. The slug should be derived from the filename, the title should fall back to the slug, and the date should be empty.</p>
+<p>Tags and categories should be empty arrays, and the summary should be auto-generated from this body content.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

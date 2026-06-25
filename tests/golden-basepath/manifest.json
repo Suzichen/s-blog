@@ -1,43 +1,5 @@
 [
   {
-    "slug": "comma-separated-tags",
-    "title": "Comma Separated Tags",
-    "date": "2024-05-22T16:45:00",
-    "tags": [
-      "python",
-      "rust",
-      "go"
-    ],
-    "categories": [
-      "Backend",
-      "Systems"
-    ],
-    "summary": "This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.\r \r C...",
-    "availableLanguages": []
-  },
-  {
-    "slug": "invalid-date",
-    "title": "Post With Invalid Date",
-    "date": "",
-    "tags": [
-      "edge-case"
-    ],
-    "categories": [
-      "Testing"
-    ],
-    "summary": "This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...",
-    "availableLanguages": []
-  },
-  {
-    "slug": "no-frontmatter",
-    "title": "no-frontmatter",
-    "date": "",
-    "tags": [],
-    "categories": [],
-    "summary": "This is a post with no frontmatter at all. It starts directly with content.\r \r The parser should handle this edge case gracefully. The slug ...",
-    "availableLanguages": []
-  },
-  {
     "slug": "with-description",
     "title": "Post With Description Field",
     "date": "2024-08-10T11:00:00",
@@ -77,6 +39,22 @@
       "Technical"
     ],
     "summary": "This post has a date with an explicit timezone offset (+09:00 for JST). When the site config has a timezone setting, the date should be conv...",
+    "availableLanguages": []
+  },
+  {
+    "slug": "comma-separated-tags",
+    "title": "Comma Separated Tags",
+    "date": "2024-05-22T16:45:00",
+    "tags": [
+      "python",
+      "rust",
+      "go"
+    ],
+    "categories": [
+      "Backend",
+      "Systems"
+    ],
+    "summary": "This post uses comma-separated strings for tags and categories. The normalizeArray function should split on commas and trim whitespace.\r \r C...",
     "availableLanguages": []
   },
   {
@@ -131,6 +109,28 @@
     "tags": [],
     "categories": [],
     "summary": "This is a simple test post with minimal frontmatter. It only has a title and date field, which are the most basic metadata fields.\r \r The po...",
+    "availableLanguages": []
+  },
+  {
+    "slug": "invalid-date",
+    "title": "Post With Invalid Date",
+    "date": "",
+    "tags": [
+      "edge-case"
+    ],
+    "categories": [
+      "Testing"
+    ],
+    "summary": "This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...",
+    "availableLanguages": []
+  },
+  {
+    "slug": "no-frontmatter",
+    "title": "no-frontmatter",
+    "date": "",
+    "tags": [],
+    "categories": [],
+    "summary": "This is a post with no frontmatter at all. It starts directly with content.\r \r The parser should handle this edge case gracefully. The slug ...",
     "availableLanguages": []
   }
 ]

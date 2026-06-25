@@ -1,5 +1,5 @@
 /**
- * Shared utilities for cross-implementation verification tests.
+ * Shared utilities for Rust engine regression tests.
  */
 import fs from 'fs';
 import path from 'path';
@@ -12,7 +12,7 @@ const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const BASEPATH_FIXTURES_DIR = path.join(__dirname, 'fixtures-basepath');
 const GOLDEN_DIR = path.join(__dirname, 'golden');
 const BASEPATH_GOLDEN_DIR = path.join(__dirname, 'golden-basepath');
-const SCRIPTS_DIR = path.join(PROJECT_ROOT, 'packages', 'core', 'scripts');
+const ENGINE_CLI = path.join(PROJECT_ROOT, 'crates', 's-blog-engine-napi', 'bin', 's-blog.cjs');
 
 export { GOLDEN_DIR, BASEPATH_GOLDEN_DIR };
 
@@ -30,7 +30,7 @@ function copyDirSync(src: string, dest: string): void {
   }
 }
 
-/** Shell HTML template used by SEO script */
+/** Shell HTML template used by SEO generation */
 const SHELL_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,9 +47,7 @@ const SHELL_TEMPLATE = `<!DOCTYPE html>
 </html>`;
 
 /**
- * Set up a temporary directory with fixtures in the structure expected by scripts.
- * @param tmpDir - the temp directory path to use (each test file should use its own)
- * @param variant - 'default' uses tests/fixtures, 'basepath' uses tests/fixtures-basepath config
+ * Set up a temporary directory with fixtures in the structure expected by the Rust engine.
  */
 export function setupTmpDir(tmpDir: string, variant: 'default' | 'basepath' = 'default'): string {
   cleanupTmpDir(tmpDir);
@@ -57,26 +55,15 @@ export function setupTmpDir(tmpDir: string, variant: 'default' | 'basepath' = 'd
 
   const configDir = variant === 'basepath' ? BASEPATH_FIXTURES_DIR : FIXTURES_DIR;
 
-  fs.copyFileSync(
-    path.join(configDir, 'config.json'),
-    path.join(tmpDir, 'config.json'),
-  );
-  fs.copyFileSync(
-    path.join(FIXTURES_DIR, 'album.config.json'),
-    path.join(tmpDir, 'album.config.json'),
-  );
+  fs.copyFileSync(path.join(configDir, 'config.json'), path.join(tmpDir, 'config.json'));
+  fs.copyFileSync(path.join(FIXTURES_DIR, 'album.config.json'), path.join(tmpDir, 'album.config.json'));
   copyDirSync(path.join(FIXTURES_DIR, 'posts'), path.join(tmpDir, 'posts'));
   copyDirSync(path.join(FIXTURES_DIR, 'albums'), path.join(tmpDir, 'albums'));
 
-  fs.mkdirSync(path.join(tmpDir, 'public', 'generated'), { recursive: true });
-  fs.mkdirSync(path.join(tmpDir, 'dist', 'shell'), { recursive: true });
-  fs.mkdirSync(path.join(tmpDir, 'dist', 'post'), { recursive: true });
-
-  fs.writeFileSync(
-    path.join(tmpDir, 'dist', 'shell', 'index.html'),
-    SHELL_TEMPLATE,
-    'utf-8',
-  );
+  // Engine expects shell template at node_modules/@s-blog/core/dist/shell/
+  const shellDir = path.join(tmpDir, 'node_modules', '@s-blog', 'core', 'dist', 'shell');
+  fs.mkdirSync(shellDir, { recursive: true });
+  fs.writeFileSync(path.join(shellDir, 'index.html'), SHELL_TEMPLATE, 'utf-8');
 
   return tmpDir;
 }
@@ -89,13 +76,12 @@ export function cleanupTmpDir(tmpDir: string): void {
 }
 
 /**
- * Run a TS script with cwd set to the given temp directory.
- * Returns true if the script succeeded.
+ * Run the Rust engine build command with cwd set to the given temp directory.
+ * Returns true if the build succeeded.
  */
-export function runTsScript(scriptName: string, tmpDir: string): boolean {
-  const scriptPath = path.join(SCRIPTS_DIR, `${scriptName}.ts`);
+export function runRustEngine(tmpDir: string): boolean {
   try {
-    execSync(`npx tsx "${scriptPath}"`, {
+    execSync(`node "${ENGINE_CLI}" build`, {
       cwd: tmpDir,
       stdio: 'pipe',
       env: { ...process.env, NODE_ENV: 'production' },
@@ -105,16 +91,14 @@ export function runTsScript(scriptName: string, tmpDir: string): boolean {
   } catch (err: any) {
     const stderr = err.stderr?.toString() || '';
     const stdout = err.stdout?.toString() || '';
-    console.warn(`[WARN] ${scriptName} failed:`);
+    console.warn('[WARN] Rust engine build failed:');
     if (stdout) console.warn('  stdout:', stdout);
     if (stderr) console.warn('  stderr:', stderr);
     return false;
   }
 }
 
-/**
- * Read a golden file and return its contents as a string.
- */
+/** Read a golden file and return its contents as a string. */
 export function readGoldenFile(relativePath: string, variant: 'default' | 'basepath' = 'default'): string {
   const dir = variant === 'basepath' ? BASEPATH_GOLDEN_DIR : GOLDEN_DIR;
   return fs.readFileSync(path.join(dir, relativePath), 'utf-8');
@@ -130,15 +114,12 @@ export function tmpOutputExists(relativePath: string, tmpDir: string): boolean {
   return fs.existsSync(path.join(tmpDir, relativePath));
 }
 
-/**
- * Normalize dynamic timestamps in sitemap.xml.
- */
+/** Normalize dynamic timestamps in sitemap.xml. */
 export function normalizeSitemapTimestamps(xml: string): string {
   const knownPostDates = [
     '2024-08-10', '2024-07-01', '2024-06-15', '2024-05-22',
     '2024-04-10', '2024-03-20', '2024-02-28', '2024-01-15',
   ];
-
   return xml.replace(
     /<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g,
     (match, date) => {
@@ -148,9 +129,7 @@ export function normalizeSitemapTimestamps(xml: string): string {
   );
 }
 
-/**
- * Normalize dynamic timestamps in rss.xml.
- */
+/** Normalize dynamic timestamps in rss.xml. */
 export function normalizeRssTimestamps(xml: string): string {
   let normalized = xml.replace(
     /<lastBuildDate>.*?<\/lastBuildDate>/g,
@@ -181,9 +160,7 @@ export function normalizeRssTimestamps(xml: string): string {
   return normalized;
 }
 
-/**
- * Normalize dynamic timestamps in SEO HTML files.
- */
+/** Normalize dynamic timestamps in SEO HTML files. */
 export function normalizeSeoTimestamps(html: string): string {
   let normalized = html.replace(
     /content="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z"/g,
@@ -196,9 +173,7 @@ export function normalizeSeoTimestamps(html: string): string {
   return normalized;
 }
 
-/**
- * List all files recursively in a directory, returning paths relative to the directory.
- */
+/** List all files recursively in a directory, returning paths relative to the directory. */
 export function listFilesRecursive(dir: string): string[] {
   const results: string[] = [];
   if (!fs.existsSync(dir)) return results;

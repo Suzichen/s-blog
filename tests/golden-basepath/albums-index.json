@@ -2,7 +2,7 @@
   {
     "dirname": "test-album",
     "name": "test-album",
-    "cover": "/albums/test-album/thumbs/photo1.webp",
+    "cover": "/blog/albums/test-album/thumbs/photo1.webp",
     "photoCount": 2
   },
   {
@@ -14,7 +14,7 @@
   {
     "dirname": "sakura-exif",
     "name": "Sakura EXIF",
-    "cover": "/albums/sakura-exif/thumbs/DSC_1666.webp",
+    "cover": "/blog/albums/sakura-exif/thumbs/DSC_1666.webp",
     "photoCount": 3
   }
 ]
