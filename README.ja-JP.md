@@ -2,15 +2,15 @@
 
 # S-blog
 
-**プレビュー:**
-- [S-Blog 公式ブログ](https://s-blog.me)
-- [Suzic's Blog](https://s-blog.suzichen.me/)
-
 <a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <a title="zh-CN" href="./README.zh-CN.md"><img src="https://img.shields.io/badge/-简体中文-545759?style=for-the-badge" alt="简体中文"></a>  <img src="https://img.shields.io/badge/-日本語-F54A00?style=for-the-badge" alt="日本語">
 
 React と Rust で構築されたモダンな高性能静的ブログシステム。
 
 </div>
+
+**プレビュー:**
+- [S-Blog 公式ブログ](https://s-blog.me)
+- [Suzic's Blog](https://s-blog.suzichen.me/)
 
 ## 機能
 
