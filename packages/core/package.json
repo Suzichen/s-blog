@@ -13,7 +13,6 @@
   },
   "files": [
     "dist/",
-    "scripts/",
     "schemas/"
   ],
   "scripts": {

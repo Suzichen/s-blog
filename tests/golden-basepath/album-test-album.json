@@ -4,8 +4,8 @@
   "photos": [
     {
       "filename": "photo1.jpg",
-      "thumbnailUrl": "/albums/test-album/thumbs/photo1.webp",
-      "originalUrl": "/albums/test-album/photo1.jpg",
+      "thumbnailUrl": "/blog/albums/test-album/thumbs/photo1.webp",
+      "originalUrl": "/blog/albums/test-album/photo1.jpg",
       "exif": {
         "cameraMake": null,
         "cameraModel": null,
@@ -17,8 +17,8 @@
     },
     {
       "filename": "photo2.jpg",
-      "thumbnailUrl": "/albums/test-album/thumbs/photo2.webp",
-      "originalUrl": "/albums/test-album/photo2.jpg",
+      "thumbnailUrl": "/blog/albums/test-album/thumbs/photo2.webp",
+      "originalUrl": "/blog/albums/test-album/photo2.jpg",
       "exif": {
         "cameraMake": null,
         "cameraModel": null,

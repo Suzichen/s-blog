@@ -1,5 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /archives
+Disallow: /tags/
+Disallow: /categories/
+Disallow: /page/
 
 Sitemap: https://test-blog.example.com/sitemap.xml

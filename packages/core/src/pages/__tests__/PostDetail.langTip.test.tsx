@@ -5,6 +5,9 @@ import React from 'react';
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useParams: () => ({ slug: 'test-post' }),
+  useLocation: () => ({ hash: '', key: 'default' }),
+  useNavigationType: () => 'PUSH',
+  useNavigate: () => vi.fn(),
   Link: ({ children, to }: { children: React.ReactNode; to: string }) =>
     React.createElement('a', { href: to }, children),
 }));
