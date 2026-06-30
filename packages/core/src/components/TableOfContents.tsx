@@ -109,7 +109,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, collapsible 
                 e.preventDefault();
                 navigate(`${location.pathname}#${heading.id}`);
               }}
-              className="block py-[2px] text-sm text-accent hover:text-blue-600 hover:underline transition-colors no-underline"
+              className="block py-[2px] text-sm text-secondary hover:text-primary hover:underline transition-colors no-underline"
           >
             {heading.text}
           </a>

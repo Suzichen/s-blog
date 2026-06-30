@@ -36,8 +36,8 @@ const BackToTop: React.FC = () => {
         position: 'fixed',
         bottom: '2rem',
         right: '2rem',
-        backgroundColor: 'var(--color-primary, #333)',
-        color: '#fff',
+        backgroundColor: 'var(--color-primary, #685E48)',
+        color: 'var(--color-bg, #F5F3E9)',
         border: 'none',
         borderRadius: '50%',
         width: '3rem', // 48px

@@ -79,7 +79,7 @@ const MemoCard: React.FC<{ item: Ech0Item; comments: Ech0Comment[]; onImageClick
     <div className="relative pl-6 md:pl-8 pb-8 border-l-2 border-border last:border-l-0 last:pb-0">
       <div className="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-primary" />
       <div className="bg-bg-alt rounded-lg p-4 shadow-sm">
-        <p className="text-primary whitespace-pre-wrap break-words m-0">{item.content}</p>
+        <p className="text-secondary whitespace-pre-wrap break-words m-0">{item.content}</p>
 
         {photos.length > 0 && (
           <div className="mt-3 grid grid-cols-3 gap-2">
@@ -127,7 +127,7 @@ const MemoCard: React.FC<{ item: Ech0Item; comments: Ech0Comment[]; onImageClick
                   <span className="font-medium">{comment.nickname}</span>
                   <time>{formatRelativeTime(comment.created_at)}</time>
                 </div>
-                <p className="mt-1 text-sm text-primary whitespace-pre-wrap break-words m-0">{comment.content}</p>
+                <p className="mt-1 text-sm text-secondary whitespace-pre-wrap break-words m-0">{comment.content}</p>
               </div>
             ))}
           </div>
