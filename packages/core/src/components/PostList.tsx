@@ -48,7 +48,7 @@ const PostList: React.FC<PostListProps> = ({ posts, variant = 'default' }) => {
                             <span> | {post.categories.join(', ')}</span>
                         )}
                     </div>
-                    <p className="text-primary leading-relaxed">{post.summary}</p>
+                    <p className="text-secondary leading-relaxed">{post.summary}</p>
                     <Link to={`/post/${post.slug}`} className="inline-block mt-2 text-sm font-medium text-accent hover:underline">
                         {t('common.readMore')} &rarr;
                     </Link>

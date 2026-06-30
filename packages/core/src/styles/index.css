@@ -16,9 +16,20 @@
   --max-width: 800px;
 }
 
+.dark {
+  --color-primary: #F9F4DC; /* 乳白 */
+  --color-secondary: #F7E8AA; /* 杏仁黄 */
+  --color-accent: #3A5F4B; /* 马尔斯绿 */
+  --color-bg: #0E100F; /* 玄黑 */
+  --color-bg-alt: #1A1A1A; /* 玄色 */
+  --color-bg-secondary: #1F2623; /* 苷蓝绿 */
+  --color-bg-secondary-hover: #2E3439; /* 青骊 */
+  --color-border: #2E4B3A; /* 墨玉 */
+}
+
 @layer base {
   body {
-    @apply m-0 text-primary bg-bg leading-relaxed font-main;
+    @apply m-0 text-secondary bg-bg leading-relaxed font-main;
   }
   
   a {
@@ -27,6 +38,6 @@
 
   /* Reset some default styles to match previous CSS if needed */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
+    @apply font-bold text-primary;
   }
 }

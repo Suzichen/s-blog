@@ -6,6 +6,7 @@ import BackToTop from './BackToTop';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchOverlay from './SearchOverlay';
 import { LinksSection, SocialLinksSection } from './RightSidebar';
+import ThemeSwitcher from './ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 
@@ -37,8 +38,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <p className="m-0 text-sm opacity-80">{siteConfig.description}</p>
               </div>
             </div>
-            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 items-center">
-              <div className="flex gap-4 items-center">
+            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-4 items-center">
+              <div className="flex flex-wrap justify-center gap-4 items-center">
                 <Link to="/" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{t('nav.home')}</Link>
                 <Link to="/archives" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{t('common.archives', 'Archives')}</Link>
                 {albumConfig.enabled && (
@@ -48,10 +49,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Link to="/memo" className="text-secondary font-medium hover:text-primary transition-colors whitespace-nowrap">{memoConfig.title || t('nav.memo')}</Link>
                 )}
               </div>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-4 items-center w-full sm:w-auto justify-center">
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className="text-secondary hover:text-primary transition-colors focus:outline-none"
+                  className="text-secondary hover:text-primary transition-colors focus:outline-none flex items-center justify-center w-5 h-5"
                   aria-label="Search"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -60,6 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </svg>
                 </button>
                 <LanguageSwitcher />
+                <ThemeSwitcher />
               </div>
             </nav>
           </div>
