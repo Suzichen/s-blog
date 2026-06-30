@@ -160,7 +160,7 @@
 }
 
 .markdown-body tr:nth-child(2n) {
-  background-color: #fafafa;
+  background-color: var(--color-bg-secondary);
 }
 
 .markdown-body blockquote {

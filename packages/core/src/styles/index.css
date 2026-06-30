@@ -4,12 +4,14 @@
 @import './markdown.css';
 
 :root {
-  --color-primary: #333;
-  --color-secondary: #666;
-  --color-accent: #007acc;
-  --color-bg: #fff;
-  --color-bg-alt: #f5f5f5;
-  --color-border: #eee;
+  --color-primary: #685E48; /* 燕羽灰 */
+  --color-secondary: #695E45; /* 蟹壳灰 */
+  --color-accent: #FC8C23; /* 北瓜黄 */
+  --color-bg: #F5F3E9; /* 纯衣 */
+  --color-bg-alt: #F2F0E6; /* 素衣 */
+  --color-bg-secondary: #F7F4ED; /* 鱼肚白 */
+  --color-bg-secondary-hover: #F5F0E6; /* 米白 */
+  --color-border: #C3B787; /* 秋香 */
   --font-main: "LXGW WenKai Screen", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --max-width: 800px;
 }

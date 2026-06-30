@@ -11,6 +11,8 @@ export default {
         accent: 'var(--color-accent)',
         bg: 'var(--color-bg)',
         'bg-alt': 'var(--color-bg-alt)',
+        'bg-secondary': 'var(--color-bg-secondary)',
+        'bg-secondary-hover': 'var(--color-bg-secondary-hover)',
         border: 'var(--color-border)',
       },
       fontFamily: {
