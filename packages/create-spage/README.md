@@ -1,4 +1,12 @@
-> *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
+> **IMPORTANT MIGRATION NOTICE**
+> 
+> This is the final release under the `create-s-blog` name. The package has been officially migrated and renamed to **create-spage**. 
+> 
+> Please update your tooling and use the new package: [`create-spage`](https://www.npmjs.com/package/create-spage)
+> 
+> ```bash
+> npm create spage@latest
+> ```
 
 # create-spage
 

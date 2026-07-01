@@ -1,4 +1,9 @@
-> *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
+> **IMPORTANT MIGRATION NOTICE**
+> 
+> This is the final release under the `@s-blog/engine` name. The package has been officially migrated and renamed to **@s-page/engine**. 
+> Future updates will be published under the new `@s-page` npm organization. 
+> 
+> Please update your dependencies: [`@s-page/engine`](https://www.npmjs.com/package/@s-page/engine)
 
 # `@spage/engine-win32-x64-msvc`
 

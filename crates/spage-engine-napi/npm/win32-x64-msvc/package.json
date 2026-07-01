@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine-win32-x64-msvc",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "spage-engine native binding for Windows x64",
   "license": "MIT",
   "os": [
@@ -15,5 +15,13 @@
   ],
   "engines": {
     "node": ">= 16"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suzichen/spage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Suzichen/spage/issues"
+  },
+  "homepage": "https://spage.me"
 }
