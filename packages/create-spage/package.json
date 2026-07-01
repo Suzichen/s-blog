@@ -11,7 +11,7 @@
     "index.d.ts"
   ],
   "napi": {
-    "binaryName": "create-spage",
+    "name": "create-spage",
     "triples": {
       "defaults": false,
       "additional": [
