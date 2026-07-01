@@ -60,7 +60,7 @@ my-blog/
     "build": "spage build"
   },
   "dependencies": {
-    "@s-page/core": "^0.6.2",
+    "@s-page/core": "^0.6.3",
     "@s-page/engine": "^0.6.3"
   }
 }
