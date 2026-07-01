@@ -4,7 +4,7 @@ members = [
     "crates/spage-engine",
     "crates/spage-engine-napi",
     "crates/spage-scaffold",
-    "packages/create-s-blog",
+    "packages/create-spage",
 ]
 
 # Optimise image-heavy deps even in dev/test builds so that thumbnail

@@ -403,7 +403,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "create-spage"
+name = "create-s-blog"
 version = "0.1.0"
 dependencies = [
  "napi",
@@ -2280,7 +2280,7 @@ dependencies = [
 
 [[package]]
 name = "spage-engine"
-version = "0.5.0"
+version = "0.5.5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2325,7 +2325,7 @@ dependencies = [
 
 [[package]]
 name = "spage-scaffold"
-version = "0.5.3"
+version = "0.5.5"
 dependencies = [
  "include_dir",
  "json_comments",

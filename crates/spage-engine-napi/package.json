@@ -1,6 +1,6 @@
 {
   "name": "@s-blog/engine",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "description": "Rust-powered data engine for spage — Markdown parsing, image processing, SEO/feed generation",
   "license": "MIT",
   "main": "index.js",
@@ -28,9 +28,9 @@
     "build:debug": "napi build --platform"
   },
   "optionalDependencies": {
-    "@s-blog/engine-win32-x64-msvc": "0.5.0",
-    "@s-blog/engine-darwin-arm64": "0.5.0",
-    "@s-blog/engine-linux-x64-gnu": "0.5.0"
+    "@s-blog/engine-win32-x64-msvc": "0.5.5",
+    "@s-blog/engine-darwin-arm64": "0.5.5",
+    "@s-blog/engine-linux-x64-gnu": "0.5.5"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.4"
