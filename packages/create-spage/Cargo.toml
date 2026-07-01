@@ -1,6 +1,6 @@
 [package]
 name = "create-s-blog"
-version = "0.1.0"
+version = "0.6.0"
 edition = "2021"
 description = "NAPI-RS bindings for spage-scaffold — exposes scaffold to Node.js"
 license = "MIT"
@@ -12,7 +12,7 @@ path = "rust-src/lib.rs"
 
 [dependencies]
 spage-scaffold = { path = "../../crates/spage-scaffold" }
-napi = { version = "2", default-features = false, features = ["napi4"] }
+napi = { version = "0.6.0", default-features = false, features = ["napi4"] }
 napi-derive = "2"
 
 [build-dependencies]

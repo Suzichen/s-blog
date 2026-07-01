@@ -1,6 +1,6 @@
 > **IMPORTANT MIGRATION NOTICE**
 > 
-> This is the final release under the `@s-blog/core` name. The package has been officially migrated and renamed to **@s-page/core**. 
+> This is the final release under the `@s-page/core` name. The package has been officially migrated and renamed to **@s-page/core**. 
 > Future updates will be published under the new `@s-page` npm organization. 
 > 
 > Please update your dependencies: [`@s-page/core`](https://www.npmjs.com/package/@s-page/core)

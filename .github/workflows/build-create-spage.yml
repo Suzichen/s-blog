@@ -1,4 +1,4 @@
-name: Build & Publish create-s-blog
+name: Build & Publish create-spage
 
 on:
   push:
@@ -55,14 +55,14 @@ jobs:
       - name: Copy artifact to platform package
         shell: bash
         run: |
-          cp create-s-blog.*.node ${{ matrix.npm-dir }}/ 2>/dev/null || true
+          cp create-spage.*.node ${{ matrix.npm-dir }}/ 2>/dev/null || true
           ls -la ${{ matrix.npm-dir }}/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: packages/create-spage/${{ matrix.npm-dir }}/create-s-blog.*.node
+          path: packages/create-spage/${{ matrix.npm-dir }}/create-spage.*.node
           if-no-files-found: error
 
   publish:

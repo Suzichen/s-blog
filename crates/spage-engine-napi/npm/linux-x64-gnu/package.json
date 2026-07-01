@@ -1,6 +1,6 @@
 {
-  "name": "@s-blog/engine-linux-x64-gnu",
-  "version": "0.5.7",
+  "name": "@s-page/engine-linux-x64-gnu",
+  "version": "0.6.0",
   "description": "spage-engine native binding for Linux x64 (glibc)",
   "license": "MIT",
   "os": [

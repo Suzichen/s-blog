@@ -1,4 +1,4 @@
-import type { SiteConfig } from "@s-blog/core";
+import type { SiteConfig } from "@s-page/core";
 
 export const siteConfig: SiteConfig = {
   title: "spage",

@@ -1,6 +1,6 @@
 [package]
 name = "spage-engine"
-version = "0.5.7"
+version = "0.6.0"
 edition = "2021"
 description = "Core data engine for spage — Markdown parsing, image processing, SEO/feed generation"
 license = "MIT"
@@ -10,13 +10,13 @@ license = "MIT"
 regex = "1"
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "0.6.0", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0"
 json_comments = "0.2"
 
 # Date / timezone
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.6.0", features = ["serde"] }
 chrono-tz = "0.10"
 
 # Image processing
@@ -27,14 +27,14 @@ webp = "0.3"
 kamadak-exif = "0.5"
 
 # Async runtime (sync feature for oneshot channels)
-tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros", "time"] }
+tokio = { version = "0.6.0", features = ["sync", "rt-multi-thread", "net", "macros", "time"] }
 
 # Async stream utilities (buffer_unordered for concurrent S3 pulls)
 futures = "0.3"
 
 # HTTP server
-hyper = { version = "1", features = ["server", "http1"] }
-hyper-util = { version = "0.1", features = ["tokio"] }
+hyper = { version = "0.6.0", features = ["server", "http1"] }
+hyper-util = { version = "0.6.0", features = ["tokio"] }
 http-body-util = "0.1"
 
 # Error handling
@@ -51,7 +51,7 @@ log = "0.4"
 sha2 = "0.10"
 
 # S3-compatible storage client
-rust-s3 = { version = "0.35", default-features = false, features = ["tokio-rustls-tls"] }
+rust-s3 = { version = "0.6.0", default-features = false, features = ["tokio-rustls-tls"] }
 
 # Environment variable loading
 dotenvy = "0.15"
@@ -60,7 +60,7 @@ dotenvy = "0.15"
 ctrlc = "3.4"
 
 # NAPI (optional — only used for error conversion when building bindings)
-napi = { version = "2", default-features = false, features = ["napi4"], optional = true }
+napi = { version = "0.6.0", default-features = false, features = ["napi4"], optional = true }
 
 [dev-dependencies]
 proptest = "1"

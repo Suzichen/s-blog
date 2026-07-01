@@ -1,6 +1,6 @@
 > **IMPORTANT MIGRATION NOTICE**
 > 
-> This is the final release under the `create-s-blog` name. The package has been officially migrated and renamed to **create-spage**. 
+> This is the final release under the `create-spage` name. The package has been officially migrated and renamed to **create-spage**. 
 > 
 > Please update your tooling and use the new package: [`create-spage`](https://www.npmjs.com/package/create-spage)
 > 

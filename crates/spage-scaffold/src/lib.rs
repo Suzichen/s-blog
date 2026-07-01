@@ -1,7 +1,7 @@
 //! Core scaffold logic for spage — template copying and config injection.
 //!
 //! This crate is consumed by:
-//! - `packages/create-s-blog` (via NAPI bindings) for the CLI
+//! - `packages/create-spage` (via NAPI bindings) for the CLI
 //! - `spage-admin` (Tauri) directly as a Rust dependency
 
 use std::fs;
@@ -133,7 +133,7 @@ fn generate_package_json(input: &ScaffoldInput) -> String {
 fn generate_config_json(input: &ScaffoldInput) -> String {
     let mut lines = Vec::new();
     lines.push("{".to_string());
-    lines.push(r#"  "$schema": "./node_modules/@s-blog/core/schemas/config.schema.json","#.to_string());
+    lines.push(r#"  "$schema": "./node_modules/@s-page/core/schemas/config.schema.json","#.to_string());
     lines.push("  // Site title displayed in header and browser tab".to_string());
     lines.push(format!("  \"title\": {},", serde_json::to_string(&input.name).unwrap()));
     lines.push("  // Site description for SEO meta tags".to_string());
@@ -195,7 +195,7 @@ fn generate_config_json(input: &ScaffoldInput) -> String {
 fn generate_album_config_json() -> String {
     let mut lines = Vec::new();
     lines.push("{".to_string());
-    lines.push(r#"  "$schema": "./node_modules/@s-blog/core/schemas/album.config.schema.json","#.to_string());
+    lines.push(r#"  "$schema": "./node_modules/@s-page/core/schemas/album.config.schema.json","#.to_string());
     lines.push("  // Set to false to disable the album feature entirely".to_string());
     lines.push(r#"  "enabled": true,"#.to_string());
     lines.push(r#"  "albums": ["#.to_string());
@@ -209,7 +209,7 @@ fn generate_album_config_json() -> String {
 fn generate_memo_config_json() -> String {
     let mut lines = Vec::new();
     lines.push("{".to_string());
-    lines.push(r#"  "$schema": "./node_modules/@s-blog/core/schemas/memo.config.schema.json","#.to_string());
+    lines.push(r#"  "$schema": "./node_modules/@s-page/core/schemas/memo.config.schema.json","#.to_string());
     lines.push("  // Set to true and configure serverUrl to enable the Memo module".to_string());
     lines.push(r#"  "enabled": false,"#.to_string());
     lines.push("  // Data provider — currently only \"ech0\" is supported".to_string());
