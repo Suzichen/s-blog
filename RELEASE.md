@@ -1,4 +1,4 @@
-# S-Blog 发版指南
+# spage 发版指南
 
 ## 包依赖关系
 
@@ -27,17 +27,17 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 
 | 文件 | 字段 |
 |------|------|
-| `crates/s-blog-engine/Cargo.toml` | `version`（Rust crate 版本，需与 `@s-blog/engine` 保持一致） |
-| `crates/s-blog-engine-napi/package.json` | `version` |
-| `crates/s-blog-engine-napi/package.json` | `optionalDependencies` 下三个平台包版本 |
-| `crates/s-blog-engine-napi/npm/darwin-arm64/package.json` | `version` |
-| `crates/s-blog-engine-napi/npm/linux-x64-gnu/package.json` | `version` |
-| `crates/s-blog-engine-napi/npm/win32-x64-msvc/package.json` | `version` |
-| `crates/s-blog-engine-napi/package-lock.json` | `version` + `optionalDependencies` |
+| `crates/spage-engine/Cargo.toml` | `version`（Rust crate 版本，需与 `@s-blog/engine` 保持一致） |
+| `crates/spage-engine-napi/package.json` | `version` |
+| `crates/spage-engine-napi/package.json` | `optionalDependencies` 下三个平台包版本 |
+| `crates/spage-engine-napi/npm/darwin-arm64/package.json` | `version` |
+| `crates/spage-engine-napi/npm/linux-x64-gnu/package.json` | `version` |
+| `crates/spage-engine-napi/npm/win32-x64-msvc/package.json` | `version` |
+| `crates/spage-engine-napi/package-lock.json` | `version` + `optionalDependencies` |
 
 > ⚠️ **重点**：`npm/` 下三个平台包的 `version` 必须与主包 `optionalDependencies` 中声明的版本一致，否则 CI 发布后用户安装时版本不匹配，运行时会报 `Cannot find module '@s-blog/engine-<platform>'`。
 >
-> ℹ️ `crates/s-blog-engine/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 engine 的仓库能正确获知版本号，应与 `@s-blog/engine` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-engine` 同步 `Cargo.lock`。
+> ℹ️ `crates/spage-engine/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 engine 的仓库能正确获知版本号，应与 `@s-blog/engine` 的 npm 版本保持同步。改完后运行 `cargo update -p spage-engine` 同步 `Cargo.lock`。
 
 ### 2. Core（1处）
 
@@ -45,23 +45,23 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 |------|------|
 | `packages/core/package.json` | `version` |
 
-### 3. Create-s-blog（6处）
+### 3. Create-spage（6处）
 
 | 文件 | 字段 |
 |------|------|
-| `crates/s-blog-scaffold/Cargo.toml` | `version`（Rust crate 版本，需与 `create-s-blog` 保持一致） |
+| `crates/spage-scaffold/Cargo.toml` | `version`（Rust crate 版本，需与 `create-s-blog` 保持一致） |
 | `packages/create-s-blog/package.json` | `version` |
 | `packages/create-s-blog/package.json` | `optionalDependencies` 下三个平台包版本 |
 | `packages/create-s-blog/npm/darwin-arm64/package.json` | `version` |
 | `packages/create-s-blog/npm/linux-x64-gnu/package.json` | `version` |
 | `packages/create-s-blog/npm/win32-x64-msvc/package.json` | `version` |
-| `crates/s-blog-scaffold/src/lib.rs` | `@s-blog/core` 和 `@s-blog/engine` 的版本字符串 |
+| `crates/spage-scaffold/src/lib.rs` | `@s-blog/core` 和 `@s-blog/engine` 的版本字符串 |
 
 > ⚠️ **重点**：`npm/` 下三个平台包的 `version` 必须与主包 `optionalDependencies` 中声明的版本一致。
 >
 > ℹ️ `lib.rs` 中 `generate_package_json` 里的 `@s-blog/core` 和 `@s-blog/engine` 版本字符串（如 `^0.5.0`）需要更新为本次发布时的最新版本号（如 `^0.5.1`），确保新创建的项目能获得最新修复。即使 semver 范围兼容，也应更新到最新值，作为新项目的最低版本保证。
 >
-> ℹ️ `crates/s-blog-scaffold/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 scaffold 的仓库能正确获知版本号，应与 `create-s-blog` 的 npm 版本保持同步。改完后运行 `cargo update -p s-blog-scaffold` 同步 `Cargo.lock`。
+> ℹ️ `crates/spage-scaffold/Cargo.toml` 的 `version` 让直接以 Rust crate 形式引用 scaffold 的仓库能正确获知版本号，应与 `create-s-blog` 的 npm 版本保持同步。改完后运行 `cargo update -p spage-scaffold` 同步 `Cargo.lock`。
 
 ### 4. 根项目依赖（1处）
 
@@ -107,7 +107,7 @@ create-s-blog (CLI脚手架, 含 NAPI native binding)
 
 ```bash
 # 1. 确认所有版本改完后验证
-grep -r "0\.3\." --include="*.json" --include="*.ts" --include="*.rs" | grep s-blog
+grep -r "0\.3\." --include="*.json" --include="*.ts" --include="*.rs" | grep spage
 
 # 2. 发布 engine
 git tag engine-v0.3.15
@@ -130,7 +130,7 @@ git push origin master
 
 1. **平台包版本未同步** — `npm/*/package.json` 的 `version` 必须改，CI 发布时读的就是这个值（engine 和 create-s-blog 各有一组）
 2. **lock 文件未更新** — engine 发布后需 `bun install` 更新 `bun.lock`
-3. **engine 子目录有独立 lock** — `crates/s-blog-engine-napi/package-lock.json` 也需要更新
-4. **scaffold 硬编码版本** — `crates/s-blog-scaffold/src/lib.rs` 中 `generate_package_json` 里的 `@s-blog/core` 和 `@s-blog/engine` 版本字符串需要跟着改
+3. **engine 子目录有独立 lock** — `crates/spage-engine-napi/package-lock.json` 也需要更新
+4. **scaffold 硬编码版本** — `crates/spage-scaffold/src/lib.rs` 中 `generate_package_json` 里的 `@s-blog/core` 和 `@s-blog/engine` 版本字符串需要跟着改
 5. **发布顺序错误** — 平台包必须先于主包可用，deploy 必须在 engine 发布成功之后
 6. **create-s-blog 正式发布需要 optionalDependencies** — beta 测试时可以直接带 `*.node`，正式发布需要恢复 optionalDependencies 并去掉 `files` 中的 `*.node`

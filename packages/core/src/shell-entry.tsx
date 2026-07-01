@@ -3,7 +3,7 @@
  * 
  * This is the entry point for the pre-compiled App Shell.
  * It uses RuntimeConfigLoader to fetch configuration at runtime,
- * then initializes the SBlogApp with the loaded configurations.
+ * then initializes the SpageApp with the loaded configurations.
  * 
  * This file is built by vite.shell.config.ts and produces a complete
  * static website that can be deployed without any build tools.
@@ -11,21 +11,21 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { RuntimeConfigLoader, type RuntimeSiteConfig } from './RuntimeConfigLoader';
-import { SBlogApp } from './index';
+import { SpageApp } from './index';
 import type { AlbumConfig } from './types/album-config';
 import type { MemoConfig } from './types/memo-config';
 
 /**
  * ShellApp - The root component for the App Shell
  * 
- * Wraps SBlogApp with RuntimeConfigLoader to enable runtime configuration loading.
+ * Wraps SpageApp with RuntimeConfigLoader to enable runtime configuration loading.
  * The basePath from config is used to configure routing for subdirectory deployment.
  */
 const ShellApp: React.FC = () => {
   return (
     <RuntimeConfigLoader>
       {(siteConfig: RuntimeSiteConfig, albumConfig: AlbumConfig, memoConfig: MemoConfig) => (
-        <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig} />
+        <SpageApp siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig} />
       )}
     </RuntimeConfigLoader>
   );

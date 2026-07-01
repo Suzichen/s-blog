@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/s-blog-engine",
-    "crates/s-blog-engine-napi",
-    "crates/s-blog-scaffold",
+    "crates/spage-engine",
+    "crates/spage-engine-napi",
+    "crates/spage-scaffold",
     "packages/create-s-blog",
 ]
 

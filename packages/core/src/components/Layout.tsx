@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <div>&copy; {new Date().getFullYear()} {siteConfig.title}</div>
           <div className="mt-1 opacity-60">
-            Powered by <a href="https://github.com/Suzichen/s-blog" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-primary transition-colors underline">S-Blog</a>
+            Powered by <a href="https://github.com/Suzichen/spage" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-primary transition-colors underline">spage</a>
           </div>
         </footer>
         <BackToTop />

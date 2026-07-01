@@ -216,7 +216,7 @@ const ErrorDisplay: React.FC<{ error: ConfigError }> = ({ error }) => (
  * ```tsx
  * <RuntimeConfigLoader>
  *   {(siteConfig, albumConfig) => (
- *     <SBlogApp siteConfig={siteConfig} albumConfig={albumConfig} />
+ *     <SpageApp siteConfig={siteConfig} albumConfig={albumConfig} />
  *   )}
  * </RuntimeConfigLoader>
  * ```

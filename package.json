@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": ["packages/*", "crates/*"],
   "scripts": {
-    "dev": "bun crates/s-blog-engine-napi/bin/s-blog.cjs serve",
+    "dev": "bun crates/spage-engine-napi/bin/spage.cjs serve",
     "build:core": "bun run --filter @s-blog/core build:all",
-    "build": "bun run build:core && bun crates/s-blog-engine-napi/bin/s-blog.cjs build",
+    "build": "bun run build:core && bun crates/spage-engine-napi/bin/spage.cjs build",
     "test": "vitest run --config vitest.config.ts",
     "test:golden": "bun tests/generate-golden.ts"
   },

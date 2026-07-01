@@ -1,6 +1,8 @@
+> *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
+
 # @s-blog/core
 
-The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
+The pre-built App Shell and UI framework for [spage](https://spage.me).
 
 ## What This Package Provides
 
@@ -13,7 +15,7 @@ The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
 
 ## How It Works
 
-`@s-blog/core` is the **frontend** half of S-Blog. It pairs with `@s-blog/engine` (the **build engine**) to form the complete system:
+`@s-blog/core` is the **frontend** half of spage. It pairs with `@s-blog/engine` (the **build engine**) to form the complete system:
 
 1. `@s-blog/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
 2. `@s-blog/core` provides the App Shell that loads and renders that content at runtime
@@ -27,7 +29,7 @@ npm run build  # Full production build (engine copies shell from core, then proc
 
 ## Installation
 
-> **Recommended:** Use `npm create s-blog@latest` to scaffold a new project. It sets up both `@s-blog/core` and `@s-blog/engine` automatically.
+> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@s-blog/core` and `@s-blog/engine` automatically.
 
 For manual setup or upgrading:
 

@@ -1,8 +1,10 @@
+> *注：此项目原名为 s-blog，现已全面迁移并更名为 Spage。*
+
 <div align="center">
 
 <img alt="Ech0" src="./public/logo.svg" width="150">
 
-# S-blog
+# spage
 
 <a title="en-US" href="./README.md"><img src="https://img.shields.io/badge/-English-545759?style=for-the-badge" alt="English"></a> <img src="https://img.shields.io/badge/-简体中文-F54A00?style=for-the-badge" alt="简体中文">  <a title="ja" href="./README.ja-JP.md"><img src="https://img.shields.io/badge/-日本語-545759?style=for-the-badge" alt="日本語"></a>
 
@@ -11,7 +13,7 @@
 </div>
 
 **预览地址:**
-- [s-blog 官方站点](https://s-blog.me)
+- [spage 官方站点](https://spage.me)
 - [Suzic's Blog](https://s-blog.suzichen.me/)
 
 ## 功能特性
@@ -32,7 +34,7 @@
 
 ### 桌面客户端
 
-请直接安装 [s-writor](https://github.com/Suzichen/s-writor/releases) 客户端。它包含了完整的创建/管理/预览/构建等功能，未来还将集成一键发布(您只需要申请一个网站前缀即可部署到 `s-blog.me`)
+请直接安装 [s-writor](https://github.com/Suzichen/s-writor/releases) 客户端。它包含了完整的创建/管理/预览/构建等功能，未来还将集成一键发布(您只需要申请一个网站前缀即可部署到 `spage.me`)
 
 ![s-writor](https://img.s-blog.me/s-writor/20260625/Snipaste_2026-06-25_15-48-39.png "s-writor")
 
@@ -43,10 +45,10 @@
 创建新博客最快捷的方式：
 
 ```bash
-npm create s-blog@latest
+npm create spage@latest
 ```
 
-> **提示:** 也可以使用 `bun create s-blog@latest my-blog` 或 `pnpm create s-blog my-blog`。
+> **提示:** 也可以使用 `bun create spage@latest my-blog` 或 `pnpm create spage my-blog`。
 
 CLI 会引导你完成项目设置。初始化后：
 
@@ -82,13 +84,13 @@ npm update @s-blog/core @s-blog/engine
 
 > **声明**: 本系统中的所有代码均由 AI 生成。
 
-S-Blog 以三个 npm 包发布：
+spage 以三个 npm 包发布：
 
 | 包名 | 用途 |
 |------|------|
 | `@s-blog/core` | 预构建 App Shell、UI 组件、路由、样式、JSON Schema |
 | `@s-blog/engine` | Rust 驱动的构建引擎 — Markdown 解析、图片处理、SEO 生成、开发服务器 |
-| `create-s-blog` | CLI 脚手架工具 — `npm create s-blog` |
+| `create-s-blog` | CLI 脚手架工具 — `npm create spage` |
 
 你的项目只包含内容和配置：
 
@@ -262,10 +264,10 @@ S3_SECRET_KEY=your-secret-access-key
 
 ```bash
 # 上传原图 + 缩略图 + 索引 JSON 到 S3
-s-blog sync --media
+spage sync --media
 
 # 预览待上传文件（不实际上传）
-s-blog sync --media --dry-run
+spage sync --media --dry-run
 ```
 
 ### 工作模式
@@ -288,11 +290,11 @@ env:
 steps:
   - uses: actions/checkout@v4
   - run: npm install
-  - run: npx s-blog build   # 自动从 S3 拉取缩略图
+  - run: npx spage build   # 自动从 S3 拉取缩略图
   - run: # 部署 dist/
 ```
 
-同步锁文件（`.sblog-sync.lock`）需要提交到 git —— 它记录了已上传文件的状态。
+同步锁文件（`.spage-sync.lock`）需要提交到 git —— 它记录了已上传文件的状态。
 
 ### 增量上传
 

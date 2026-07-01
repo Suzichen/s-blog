@@ -1,5 +1,5 @@
 import React from 'react';
-import { SBlogProvider } from './context';
+import { SpageProvider } from './context';
 import App from './App';
 import './i18n';
 import './styles/index.css';
@@ -10,21 +10,21 @@ import type { MemoConfig } from './types/memo-config';
 
 const DEFAULT_MEMO_CONFIG: MemoConfig = { enabled: false, provider: 'ech0', serverUrl: '' };
 
-export interface SBlogAppProps {
+export interface SpageAppProps {
   siteConfig: SiteConfig;
   albumConfig: AlbumConfig;
   memoConfig?: MemoConfig;
 }
 
 /**
- * The top-level S-blog application component.
+ * The top-level spage application component.
  * Wraps all internal routing, i18n, and layout with the provided site/album config.
  */
-export const SBlogApp: React.FC<SBlogAppProps> = ({ siteConfig, albumConfig, memoConfig = DEFAULT_MEMO_CONFIG }) => {
+export const SpageApp: React.FC<SpageAppProps> = ({ siteConfig, albumConfig, memoConfig = DEFAULT_MEMO_CONFIG }) => {
   return (
-    <SBlogProvider siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig}>
+    <SpageProvider siteConfig={siteConfig} albumConfig={albumConfig} memoConfig={memoConfig}>
       <App />
-    </SBlogProvider>
+    </SpageProvider>
   );
 };
 
