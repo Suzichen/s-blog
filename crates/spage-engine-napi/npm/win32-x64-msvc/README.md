@@ -1,10 +1,3 @@
-> **IMPORTANT MIGRATION NOTICE**
-> 
-> This is the final release under the `@s-page/engine` name. The package has been officially migrated and renamed to **@s-page/engine**. 
-> Future updates will be published under the new `@s-page` npm organization. 
-> 
-> Please update your dependencies: [`@s-page/engine`](https://www.npmjs.com/package/@s-page/engine)
-
 # `@s-page/engine-win32-x64-msvc`
 
 Platform-specific native binary for [`@s-page/engine`](https://www.npmjs.com/package/@s-page/engine) on Windows x64.
