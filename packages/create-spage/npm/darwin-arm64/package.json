@@ -1,11 +1,11 @@
 {
   "name": "create-spage-darwin-arm64",
-  "version": "0.6.2",
-  "description": "create-s-blog native binding for macOS ARM64 (Apple Silicon)",
+  "version": "0.6.3",
+  "description": "create-spage native binding for macOS arm64",
   "license": "MIT",
   "os": ["darwin"],
   "cpu": ["arm64"],
-  "main": "create-s-blog.darwin-arm64.node",
-  "files": ["create-s-blog.darwin-arm64.node"],
+  "main": "create-spage.darwin-arm64.node",
+  "files": ["create-spage.darwin-arm64.node"],
   "engines": { "node": ">= 16" }
 }

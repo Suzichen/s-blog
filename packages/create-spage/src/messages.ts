@@ -52,6 +52,6 @@ export function printCancelled(): void {
 
 export function printBanner(): void {
   console.log();
-  console.log(`  ${bold(cyan('create-s-blog'))} ${dim('- Scaffold a new spage project')}`);
+  console.log(`  ${bold(cyan('create-spage'))} ${dim('- Scaffold a new spage project')}`);
   console.log();
 }
