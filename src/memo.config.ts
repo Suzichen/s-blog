@@ -1,4 +1,4 @@
-import type { MemoConfig } from '@s-blog/core';
+import type { MemoConfig } from '@s-page/core';
 
 export const memoConfig: MemoConfig = {
   enabled: false,

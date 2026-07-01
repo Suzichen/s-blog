@@ -1,12 +1,12 @@
 [package]
-name = "create-s-blog"
-version = "0.6.1"
+name = "create-spage"
+version = "0.6.3"
 edition = "2021"
 description = "NAPI-RS bindings for spage-scaffold — exposes scaffold to Node.js"
 license = "MIT"
 
 [lib]
-name = "create_s_blog"
+name = "create_spage"
 crate-type = ["cdylib"]
 path = "rust-src/lib.rs"
 

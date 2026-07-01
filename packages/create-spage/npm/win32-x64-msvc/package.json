@@ -1,11 +1,11 @@
 {
   "name": "create-spage-win32-x64-msvc",
-  "version": "0.6.1",
-  "description": "create-s-blog native binding for Windows x64",
+  "version": "0.6.3",
+  "description": "create-spage native binding for Windows x64",
   "license": "MIT",
   "os": ["win32"],
   "cpu": ["x64"],
-  "main": "create-s-blog.win32-x64-msvc.node",
-  "files": ["create-s-blog.win32-x64-msvc.node"],
+  "main": "create-spage.win32-x64-msvc.node",
+  "files": ["create-spage.win32-x64-msvc.node"],
   "engines": { "node": ">= 16" }
 }

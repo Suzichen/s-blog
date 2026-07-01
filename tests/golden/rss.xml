@@ -5,7 +5,7 @@
     <description>A test blog for fixture-based testing</description>
     <link>https://test-blog.example.com/</link>
     <language>en</language>
-    <lastBuildDate>Thu, 25 Jun 2026 06:27:09 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 01 Jul 2026 11:38:20 GMT</lastBuildDate>
     <atom:link href="https://test-blog.example.com/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Post With Description Field</title>
@@ -134,7 +134,7 @@
       <description>This post has an invalid date format in the frontmatter. The parser should handle this gracefully by logging a warning and using an empty st...</description>
       <link>https://test-blog.example.com/post/invalid-date/</link>
       <guid isPermaLink="true">https://test-blog.example.com/post/invalid-date/</guid>
-      <pubDate>Thu, 25 Jun 2026 06:27:09 GMT</pubDate>
+      <pubDate>Wed, 01 Jul 2026 11:38:20 GMT</pubDate>
       <author>Test Author</author>
       <category>Testing</category>
       <category>edge-case</category>
@@ -148,7 +148,7 @@
       <description>This is a post with no frontmatter at all. It starts directly with content.  The parser should handle this edge case gracefully. The slug ...</description>
       <link>https://test-blog.example.com/post/no-frontmatter/</link>
       <guid isPermaLink="true">https://test-blog.example.com/post/no-frontmatter/</guid>
-      <pubDate>Thu, 25 Jun 2026 06:27:09 GMT</pubDate>
+      <pubDate>Wed, 01 Jul 2026 11:38:20 GMT</pubDate>
       <author>Test Author</author>
       <content:encoded><![CDATA[<p>This is a post with no frontmatter at all. It starts directly with content.</p>
 <p>The parser should handle this edge case gracefully. The slug should be derived from the filename, the title should fall back to the slug, and the date should be empty.</p>

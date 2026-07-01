@@ -66,9 +66,9 @@ function loadEngine() {
     return require(path.resolve(__dirname, '..', 'index.js'));
   } catch (e1) {
     try {
-      return require('@s-blog/engine');
+      return require('@s-page/engine');
     } catch (e2) {
-      process.stderr.write(`Error: Failed to load @s-blog/engine: ${e2.message}\n`);
+      process.stderr.write(`Error: Failed to load @s-page/engine: ${e2.message}\n`);
       process.exit(1);
     }
   }

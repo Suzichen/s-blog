@@ -14,7 +14,7 @@ export function printSuccess(input: UserInput): void {
   console.log(`  ${cyan(`${input.packageManager} run build`)}`);
   console.log();
   console.log(`  ${dim('Update framework:')}`);
-  console.log(`  ${cyan(`${input.packageManager === 'yarn' ? 'yarn upgrade' : input.packageManager + ' update'} @s-blog/core @s-blog/engine`)}`);
+  console.log(`  ${cyan(`${input.packageManager === 'yarn' ? 'yarn upgrade' : input.packageManager + ' update'} @s-page/core @s-page/engine`)}`);
   console.log();
   console.log(`  ${dim('Happy blogging! 🎉')}`);
   console.log();
@@ -52,6 +52,6 @@ export function printCancelled(): void {
 
 export function printBanner(): void {
   console.log();
-  console.log(`  ${bold(cyan('create-s-blog'))} ${dim('- Scaffold a new spage project')}`);
+  console.log(`  ${bold(cyan('create-spage'))} ${dim('- Scaffold a new spage project')}`);
   console.log();
 }
