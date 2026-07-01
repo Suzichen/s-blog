@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
-  "workspaces": ["packages/*", "crates/*"],
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "bun crates/spage-engine-napi/bin/spage.cjs serve",
     "build:core": "bun run --filter @s-page/core build:all",
