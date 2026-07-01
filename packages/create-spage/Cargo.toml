@@ -6,7 +6,7 @@ description = "NAPI-RS bindings for spage-scaffold — exposes scaffold to Node.
 license = "MIT"
 
 [lib]
-name = "create_spage"
+name = "create_s_blog"
 crate-type = ["cdylib"]
 path = "rust-src/lib.rs"
 
