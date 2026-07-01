@@ -5,10 +5,10 @@
 > 
 > Please update your dependencies: [`@s-page/engine`](https://www.npmjs.com/package/@s-page/engine)
 
-# `@spage/engine-darwin-arm64`
+# `@s-page/engine-darwin-arm64`
 
-Platform-specific native binary for [`@spage/engine`](https://www.npmjs.com/package/@spage/engine) on macOS ARM64 (Apple Silicon).
+Platform-specific native binary for [`@s-page/engine`](https://www.npmjs.com/package/@s-page/engine) on macOS ARM64 (Apple Silicon).
 
 This package is installed automatically as an optional dependency — you should not need to install it directly.
 
-See the [main package](https://www.npmjs.com/package/@spage/engine) for API documentation.
+See the [main package](https://www.npmjs.com/package/@s-page/engine) for API documentation.

@@ -75,7 +75,7 @@ npm run build
 #### 更新框架
 
 ```bash
-npm update @spage/core @spage/engine
+npm update @s-page/core @s-page/engine
 ```
 
 你只需要维护内容文件（`posts/`、`config.json`、`album.config.json`、`albums/`、`public/`）。框架更新通过包管理器分发。
@@ -88,8 +88,8 @@ spage 以三个 npm 包发布：
 
 | 包名 | 用途 |
 |------|------|
-| `@spage/core` | 预构建 App Shell、UI 组件、路由、样式、JSON Schema |
-| `@spage/engine` | Rust 驱动的构建引擎 — Markdown 解析、图片处理、SEO 生成、开发服务器 |
+| `@s-page/core` | 预构建 App Shell、UI 组件、路由、样式、JSON Schema |
+| `@s-page/engine` | Rust 驱动的构建引擎 — Markdown 解析、图片处理、SEO 生成、开发服务器 |
 | `create-spage` | CLI 脚手架工具 — `npm create spage` |
 
 你的项目只包含内容和配置：

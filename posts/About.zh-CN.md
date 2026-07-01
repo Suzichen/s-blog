@@ -81,7 +81,7 @@ npm run build
 
 这一条命令（由 Rust 构建引擎驱动）处理完整的构建流程：
 
-1. **App Shell** — 从 `@spage/core` 复制预构建的 React 前端
+1. **App Shell** — 从 `@s-page/core` 复制预构建的 React 前端
 2. **文章处理** — 解析 frontmatter，生成清单，复制 Markdown 文件
 3. **相册处理** — 生成 WebP 缩略图 + EXIF 元数据 JSON
 4. **SEO 生成** — 生成每篇文章的 HTML 页面、sitemap.xml、rss.xml、robots.txt
@@ -137,8 +137,8 @@ spage 以三个 npm 包发布：
 
 | 包名 | 用途 |
 |------|------|
-| `@spage/core` | 预构建 App Shell — UI 组件、路由、样式、JSON Schema |
-| `@spage/engine` | Rust 驱动的构建引擎 — Markdown 解析、图片处理、SEO 生成、开发服务器 |
+| `@s-page/core` | 预构建 App Shell — UI 组件、路由、样式、JSON Schema |
+| `@s-page/engine` | Rust 驱动的构建引擎 — Markdown 解析、图片处理、SEO 生成、开发服务器 |
 | `create-spage` | CLI 脚手架工具 — `npm create spage` |
 
 你的项目只需要包含内容和配置：
@@ -156,7 +156,7 @@ my-blog/
 更新框架：
 
 ```bash
-npm update @spage/core @spage/engine
+npm update @s-page/core @s-page/engine
 ```
 
 ---

@@ -75,7 +75,7 @@ npm run build
 #### フレームワークの更新
 
 ```bash
-npm update @spage/core @spage/engine
+npm update @s-page/core @s-page/engine
 ```
 
 メンテナンスが必要なのはコンテンツファイル（`posts/`、`config.json`、`album.config.json`、`albums/`、`public/`）のみです。フレームワークの更新はパッケージマネージャーを通じて配信されます。
@@ -88,8 +88,8 @@ spage は 3 つの npm パッケージとして公開されています：
 
 | パッケージ | 用途 |
 |-----------|------|
-| `@spage/core` | プリビルト App Shell、UI コンポーネント、ルーティング、スタイル、JSON Schema |
-| `@spage/engine` | Rust 駆動のビルドエンジン — Markdown パース、画像処理、SEO 生成、開発サーバー |
+| `@s-page/core` | プリビルト App Shell、UI コンポーネント、ルーティング、スタイル、JSON Schema |
+| `@s-page/engine` | Rust 駆動のビルドエンジン — Markdown パース、画像処理、SEO 生成、開発サーバー |
 | `create-spage` | CLI スキャフォールディングツール — `npm create spage` |
 
 プロジェクトにはコンテンツと設定のみを含みます：

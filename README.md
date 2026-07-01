@@ -75,7 +75,7 @@ The output is a fully static site in `dist/`. Deploy it to any static hosting.
 #### Update Framework
 
 ```bash
-npm update @spage/core @spage/engine
+npm update @s-page/core @s-page/engine
 ```
 
 You only maintain your content files (`posts/`, `config.json`, `album.config.json`, `albums/`, `public/`). Framework updates are delivered through packages.
@@ -88,8 +88,8 @@ spage is published as three npm packages:
 
 | Package | Purpose |
 |---------|---------|
-| `@spage/core` | Pre-built App Shell, UI components, routing, styles, JSON schemas |
-| `@spage/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
+| `@s-page/core` | Pre-built App Shell, UI components, routing, styles, JSON schemas |
+| `@s-page/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
 | `create-spage` | CLI scaffolding tool — `npm create spage` |
 
 Your project only contains content and configuration:

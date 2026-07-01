@@ -5,7 +5,7 @@
 > 
 > Please update your dependencies: [`@s-page/core`](https://www.npmjs.com/package/@s-page/core)
 
-# @spage/core
+# @s-page/core
 
 The pre-built App Shell and UI framework for [spage](https://spage.me).
 
@@ -20,26 +20,26 @@ The pre-built App Shell and UI framework for [spage](https://spage.me).
 
 ## How It Works
 
-`@spage/core` is the **frontend** half of spage. It pairs with `@spage/engine` (the **build engine**) to form the complete system:
+`@s-page/core` is the **frontend** half of spage. It pairs with `@s-page/engine` (the **build engine**) to form the complete system:
 
-1. `@spage/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
-2. `@spage/core` provides the App Shell that loads and renders that content at runtime
+1. `@s-page/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
+2. `@s-page/core` provides the App Shell that loads and renders that content at runtime
 
 Users interact with both through simple npm scripts:
 
 ```bash
-npm run dev    # Start dev server (powered by @spage/engine)
+npm run dev    # Start dev server (powered by @s-page/engine)
 npm run build  # Full production build (engine copies shell from core, then processes content)
 ```
 
 ## Installation
 
-> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@spage/core` and `@spage/engine` automatically.
+> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@s-page/core` and `@s-page/engine` automatically.
 
 For manual setup or upgrading:
 
 ```bash
-npm install @spage/core @spage/engine
+npm install @s-page/core @s-page/engine
 ```
 
 ## Project Structure (User's Project)
@@ -56,12 +56,12 @@ my-blog/
 └── package.json        # scripts: { dev, build }
 ```
 
-All framework code is inside `node_modules/@spage/core` and `node_modules/@spage/engine`.
+All framework code is inside `node_modules/@s-page/core` and `node_modules/@s-page/engine`.
 
 ## Updating
 
 ```bash
-npm update @spage/core @spage/engine
+npm update @s-page/core @s-page/engine
 ```
 
 ## License
