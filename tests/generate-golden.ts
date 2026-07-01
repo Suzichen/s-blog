@@ -13,7 +13,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const BASEPATH_FIXTURES_DIR = path.join(__dirname, 'fixtures-basepath');
 const TMP_DIR = path.join(__dirname, '.tmp');
-const ENGINE_CLI = path.join(PROJECT_ROOT, 'crates', 's-blog-engine-napi', 'bin', 's-blog.cjs');
+const ENGINE_CLI = path.join(PROJECT_ROOT, 'crates', 'spage-engine-napi', 'bin', 'spage.cjs');
 
 function copyDirSync(src: string, dest: string): void {
   fs.mkdirSync(dest, { recursive: true });
@@ -56,13 +56,13 @@ function setupTmp(configDir: string): void {
   copyDirSync(path.join(FIXTURES_DIR, 'posts'), path.join(TMP_DIR, 'posts'));
   copyDirSync(path.join(FIXTURES_DIR, 'albums'), path.join(TMP_DIR, 'albums'));
 
-  const shellDir = path.join(TMP_DIR, 'node_modules', '@s-blog', 'core', 'dist', 'shell');
+  const shellDir = path.join(TMP_DIR, 'node_modules', '@s-page', 'core', 'dist', 'shell');
   fs.mkdirSync(shellDir, { recursive: true });
   fs.writeFileSync(path.join(shellDir, 'index.html'), SHELL_TEMPLATE, 'utf-8');
 }
 
 function runBuild(): boolean {
-  console.log('  Running s-blog build...');
+  console.log('  Running spage build...');
   try {
     const output = execSync(`node "${ENGINE_CLI}" build`, {
       cwd: TMP_DIR,

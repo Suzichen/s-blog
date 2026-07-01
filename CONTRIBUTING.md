@@ -1,10 +1,10 @@
-# Contributing to S-Blog
+# Contributing to spage
 
 ## 🎯 Project Vision & Boundaries
 
-**Vision:** S-Blog aims to explore the absolute extreme limits of pure static blogs—specifically focusing on Single Page Application (SPA) architecture, strict SEO-friendliness, and highly simplified configuration. Simultaneously, this project serves as an experiment to push the boundaries of 100% AI-driven programming.
+**Vision:** spage aims to explore the absolute extreme limits of pure static blogs—specifically focusing on Single Page Application (SPA) architecture, strict SEO-friendliness, and highly simplified configuration. Simultaneously, this project serves as an experiment to push the boundaries of 100% AI-driven programming.
 
-**Boundaries:** We exercise strict feature restraint. S-Blog will **never** include custom server-side logic (backend) and will **never** evolve into a centralized platform. While third-party client-side services (e.g., comment plugins) are permitted for necessary dynamic features, their integration must be kept strictly minimal.
+**Boundaries:** We exercise strict feature restraint. spage will **never** include custom server-side logic (backend) and will **never** evolve into a centralized platform. While third-party client-side services (e.g., comment plugins) are permitted for necessary dynamic features, their integration must be kept strictly minimal.
 
 ---
 

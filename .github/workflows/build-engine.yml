@@ -1,4 +1,4 @@
-name: Build & Publish s-blog-engine
+name: Build & Publish spage-engine
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        working-directory: crates/s-blog-engine-napi
+        working-directory: crates/spage-engine-napi
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: crates/s-blog-engine-napi/${{ matrix.npm-dir }}/index.*.node
+          path: crates/spage-engine-napi/${{ matrix.npm-dir }}/index.*.node
           if-no-files-found: error
 
   publish:
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: crates/s-blog-engine-napi
+        working-directory: crates/spage-engine-napi
     steps:
       - uses: actions/checkout@v4
 
@@ -83,7 +83,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: crates/s-blog-engine-napi/artifacts
+          path: crates/spage-engine-napi/artifacts
 
       - name: Move artifacts to platform packages
         shell: bash

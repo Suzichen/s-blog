@@ -4,9 +4,9 @@ import path from 'path';
 import fs from 'fs';
 
 // Plugin to serve albums and posts directly from the project root during development
-function serveSBlogData(): Plugin {
+function serveSpageData(): Plugin {
   return {
-    name: 'serve-sblog-data',
+    name: 'serve-spage-data',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url && (req.url.startsWith('/albums/') || req.url.startsWith('/posts/'))) {
@@ -27,11 +27,11 @@ function serveSBlogData(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), serveSBlogData()],
+  plugins: [react(), serveSpageData()],
   resolve: {
     alias: {
-      '@s-blog/core/style.css': path.resolve(__dirname, 'packages/core/dist/index.css'),
-      '@s-blog/core': path.resolve(__dirname, 'packages/core/src/index.tsx'),
+      '@s-page/core/style.css': path.resolve(__dirname, 'packages/core/dist/index.css'),
+      '@s-page/core': path.resolve(__dirname, 'packages/core/src/index.tsx'),
       '@': path.resolve(__dirname, 'packages/core/src'),
     },
   },

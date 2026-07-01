@@ -1,0 +1,71 @@
+[package]
+name = "spage-engine"
+version = "0.6.0"
+edition = "2021"
+description = "Core data engine for spage — Markdown parsing, image processing, SEO/feed generation"
+license = "MIT"
+
+[dependencies]
+# Regex
+regex = "1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+json_comments = "0.2"
+
+# Date / timezone
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+
+# Image processing
+image = "0.25"
+webp = "0.3"
+
+# EXIF
+kamadak-exif = "0.5"
+
+# Async runtime (sync feature for oneshot channels)
+tokio = { version = "1", features = ["sync", "rt-multi-thread", "net", "macros", "time"] }
+
+# Async stream utilities (buffer_unordered for concurrent S3 pulls)
+futures = "0.3"
+
+# HTTP server
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+http-body-util = "0.1"
+
+# Error handling
+thiserror = "2"
+anyhow = "1.0"
+
+# Markdown rendering (RSS full content)
+pulldown-cmark = "0.12"
+
+# Logging
+log = "0.4"
+
+# Hashing (SHA-256 for sync lock fingerprints)
+sha2 = "0.10"
+
+# S3-compatible storage client
+rust-s3 = { version = "0.35", default-features = false, features = ["tokio-rustls-tls"] }
+
+# Environment variable loading
+dotenvy = "0.15"
+
+# Ctrl+C signal handling
+ctrlc = "3.4"
+
+# NAPI (optional — only used for error conversion when building bindings)
+napi = { version = "2", default-features = false, features = ["napi4"], optional = true }
+
+[dev-dependencies]
+proptest = "1"
+tempfile = "3"
+
+[features]
+default = []
+napi = ["dep:napi"]

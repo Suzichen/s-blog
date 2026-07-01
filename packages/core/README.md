@@ -1,6 +1,13 @@
-# @s-blog/core
+> **IMPORTANT MIGRATION NOTICE**
+> 
+> This is the final release under the `@s-page/core` name. The package has been officially migrated and renamed to **@s-page/core**. 
+> Future updates will be published under the new `@s-page` npm organization. 
+> 
+> Please update your dependencies: [`@s-page/core`](https://www.npmjs.com/package/@s-page/core)
 
-The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
+# @s-page/core
+
+The pre-built App Shell and UI framework for [spage](https://spage.me).
 
 ## What This Package Provides
 
@@ -13,26 +20,26 @@ The pre-built App Shell and UI framework for [S-Blog](https://s-blog.me).
 
 ## How It Works
 
-`@s-blog/core` is the **frontend** half of S-Blog. It pairs with `@s-blog/engine` (the **build engine**) to form the complete system:
+`@s-page/core` is the **frontend** half of spage. It pairs with `@s-page/engine` (the **build engine**) to form the complete system:
 
-1. `@s-blog/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
-2. `@s-blog/core` provides the App Shell that loads and renders that content at runtime
+1. `@s-page/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
+2. `@s-page/core` provides the App Shell that loads and renders that content at runtime
 
 Users interact with both through simple npm scripts:
 
 ```bash
-npm run dev    # Start dev server (powered by @s-blog/engine)
+npm run dev    # Start dev server (powered by @s-page/engine)
 npm run build  # Full production build (engine copies shell from core, then processes content)
 ```
 
 ## Installation
 
-> **Recommended:** Use `npm create s-blog@latest` to scaffold a new project. It sets up both `@s-blog/core` and `@s-blog/engine` automatically.
+> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@s-page/core` and `@s-page/engine` automatically.
 
 For manual setup or upgrading:
 
 ```bash
-npm install @s-blog/core @s-blog/engine
+npm install @s-page/core @s-page/engine
 ```
 
 ## Project Structure (User's Project)
@@ -49,12 +56,12 @@ my-blog/
 └── package.json        # scripts: { dev, build }
 ```
 
-All framework code is inside `node_modules/@s-blog/core` and `node_modules/@s-blog/engine`.
+All framework code is inside `node_modules/@s-page/core` and `node_modules/@s-page/engine`.
 
 ## Updating
 
 ```bash
-npm update @s-blog/core @s-blog/engine
+npm update @s-page/core @s-page/engine
 ```
 
 ## License

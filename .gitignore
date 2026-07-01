@@ -38,7 +38,7 @@ tests/.tmp-test*
 
 # NAPI-RS native binaries (built by CI)
 *.node
-crates/s-blog-engine-napi/artifacts/
+crates/spage-engine-napi/artifacts/
 .cache
 
 # Environment secrets

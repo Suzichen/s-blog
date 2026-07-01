@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://unpkg.com/@s-blog/core/schemas/album.config.schema.json",
-  "title": "S-Blog Album Configuration",
-  "description": "Configuration schema for s-blog album/photo gallery settings",
+  "title": "spage Album Configuration",
+  "description": "Configuration schema for spage album/photo gallery settings",
   "type": "object",
   "required": ["enabled", "albums"],
   "properties": {

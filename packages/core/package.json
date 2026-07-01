@@ -1,6 +1,6 @@
 {
-  "name": "@s-blog/core",
-  "version": "0.5.4",
+  "name": "@s-page/core",
+  "version": "0.6.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -65,15 +65,15 @@
     "blog",
     "react",
     "vite",
-    "s-blog"
+    "spage"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Suzichen/s-blog.git"
+    "url": "https://github.com/Suzichen/spage.git"
   },
   "bugs": {
-    "url": "https://github.com/Suzichen/s-blog/issues"
+    "url": "https://github.com/Suzichen/spage/issues"
   },
-  "homepage": "https://s-blog.me"
+  "homepage": "https://spage.me"
 }

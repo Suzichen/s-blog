@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://unpkg.com/@s-blog/core/schemas/memo.config.schema.json",
-  "title": "S-Blog Memo Configuration",
-  "description": "Configuration schema for s-blog memo module (Ech0 integration)",
+  "title": "spage Memo Configuration",
+  "description": "Configuration schema for spage memo module (Ech0 integration)",
   "type": "object",
   "required": ["enabled", "provider", "serverUrl"],
   "properties": {

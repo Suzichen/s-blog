@@ -1,7 +1,7 @@
 /**
  * Rust engine regression tests (default basePath: "/").
  *
- * Runs `s-blog build` against test fixtures and compares output against golden files.
+ * Runs `spage build` against test fixtures and compares output against golden files.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'path';

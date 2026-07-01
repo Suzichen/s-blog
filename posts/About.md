@@ -21,10 +21,10 @@ If you are reading this on the live site, you are already looking at a real inst
 Create a new blog in one command:
 
 ```bash
-npm create s-blog@latest my-blog
+npm create spage@latest my-blog
 ```
 
-> You can also use `bun create s-blog@latest my-blog` or `pnpm create s-blog my-blog`.
+> You can also use `bun create spage@latest my-blog` or `pnpm create spage my-blog`.
 
 The CLI will walk you through a few prompts (project name, author, site URL for SEO, etc.) and set up everything automatically.
 
@@ -81,7 +81,7 @@ npm run build
 
 This single command (powered by the Rust build engine) handles the full pipeline:
 
-1. **App Shell** — copies the pre-built React frontend from `@s-blog/core`
+1. **App Shell** — copies the pre-built React frontend from `@s-page/core`
 2. **Posts** — parses frontmatter, generates manifest, copies Markdown files
 3. **Albums** — generates WebP thumbnails + EXIF metadata JSON
 4. **SEO** — generates per-post HTML pages, sitemap.xml, rss.xml, robots.txt
@@ -133,13 +133,13 @@ No Node.js runtime or backend required after build.
 
 ## Architecture
 
-S-Blog is published as three npm packages:
+spage is published as three npm packages:
 
 | Package | Purpose |
 |---------|---------|
-| `@s-blog/core` | Pre-built App Shell — UI components, routing, styles, JSON schemas |
-| `@s-blog/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
-| `create-s-blog` | CLI scaffolding tool — `npm create s-blog` |
+| `@s-page/core` | Pre-built App Shell — UI components, routing, styles, JSON schemas |
+| `@s-page/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
+| `create-spage` | CLI scaffolding tool — `npm create spage` |
 
 Your project only contains content and configuration:
 
@@ -156,7 +156,7 @@ my-blog/
 To update the framework:
 
 ```bash
-npm update @s-blog/core @s-blog/engine
+npm update @s-page/core @s-page/engine
 ```
 
 ---

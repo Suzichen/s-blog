@@ -1,0 +1,27 @@
+{
+  "name": "@s-page/engine-linux-x64-gnu",
+  "version": "0.6.0",
+  "description": "spage-engine native binding for Linux x64 (glibc)",
+  "license": "MIT",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "index.linux-x64-gnu.node",
+  "files": [
+    "index.linux-x64-gnu.node"
+  ],
+  "engines": {
+    "node": ">= 16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suzichen/spage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Suzichen/spage/issues"
+  },
+  "homepage": "https://spage.me"
+}

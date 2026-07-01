@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://unpkg.com/@s-blog/core/schemas/config.schema.json",
-  "title": "S-Blog Site Configuration",
-  "description": "Configuration schema for s-blog site settings",
+  "title": "spage Site Configuration",
+  "description": "Configuration schema for spage site settings",
   "type": "object",
   "required": ["title", "description", "logo", "favicon"],
   "properties": {

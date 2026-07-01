@@ -1,0 +1,27 @@
+{
+  "name": "@s-page/engine-darwin-arm64",
+  "version": "0.6.0",
+  "description": "spage-engine native binding for macOS ARM64 (Apple Silicon)",
+  "license": "MIT",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "index.darwin-arm64.node",
+  "files": [
+    "index.darwin-arm64.node"
+  ],
+  "engines": {
+    "node": ">= 16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suzichen/spage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Suzichen/spage/issues"
+  },
+  "homepage": "https://spage.me"
+}

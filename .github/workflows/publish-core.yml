@@ -1,4 +1,4 @@
-name: Publish @s-blog/core
+name: Publish @s-page/core
 
 on:
   workflow_dispatch:
