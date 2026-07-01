@@ -7,7 +7,7 @@
   "workspaces": ["packages/*", "crates/*"],
   "scripts": {
     "dev": "bun crates/spage-engine-napi/bin/spage.cjs serve",
-    "build:core": "bun run --filter @s-blog/core build:all",
+    "build:core": "bun run --filter @s-page/core build:all",
     "build": "bun run build:core && bun crates/spage-engine-napi/bin/spage.cjs build",
     "test": "vitest run --config vitest.config.ts",
     "test:golden": "bun tests/generate-golden.ts"
@@ -27,7 +27,7 @@
     "vite": "^8.0.16"
   },
   "dependencies": {
-    "@s-blog/core": "workspace:*",
+    "@s-page/core": "workspace:*",
     "@s-blog/engine": "0.5.7",
     "@types/github-slugger": "^1.3.0",
     "date-fns": "^4.1.0",

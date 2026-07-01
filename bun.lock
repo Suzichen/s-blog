@@ -5,8 +5,8 @@
     "": {
       "name": "new-blog",
       "dependencies": {
-        "@s-blog/core": "workspace:*",
         "@s-blog/engine": "0.5.7",
+        "@s-page/core": "workspace:*",
         "@types/github-slugger": "^1.3.0",
         "date-fns": "^4.1.0",
         "exifr": "^7.1.3",
@@ -40,8 +40,8 @@
       },
     },
     "crates/spage-engine-napi": {
-      "name": "@s-blog/engine",
-      "version": "0.5.7",
+      "name": "@s-page/engine",
+      "version": "0.6.0",
       "bin": {
         "spage": "./bin/spage.cjs",
         "s-blog": "./bin/spage.cjs",
@@ -50,14 +50,14 @@
         "@napi-rs/cli": "^2.18.4",
       },
       "optionalDependencies": {
-        "@s-blog/engine-darwin-arm64": "0.5.7",
-        "@s-blog/engine-linux-x64-gnu": "0.5.7",
-        "@s-blog/engine-win32-x64-msvc": "0.5.7",
+        "@s-page/engine-darwin-arm64": "0.6.0",
+        "@s-page/engine-linux-x64-gnu": "0.6.0",
+        "@s-page/engine-win32-x64-msvc": "0.6.0",
       },
     },
     "packages/core": {
-      "name": "@s-blog/core",
-      "version": "0.5.5",
+      "name": "@s-page/core",
+      "version": "0.6.0",
       "dependencies": {
         "@types/github-slugger": "^1.3.0",
         "date-fns": "^4.1.0",
@@ -97,11 +97,10 @@
       },
     },
     "packages/create-spage": {
-      "name": "create-s-blog",
-      "version": "0.5.5",
+      "name": "create-spage",
+      "version": "0.6.0",
       "bin": {
         "create-spage": "./dist/index.js",
-        "create-s-blog": "./dist/index.js",
       },
       "dependencies": {
         "kolorist": "^1.8.0",
@@ -116,9 +115,9 @@
         "typescript": "~5.9.3",
       },
       "optionalDependencies": {
-        "create-s-blog-darwin-arm64": "0.5.5",
-        "create-s-blog-linux-x64-gnu": "0.5.5",
-        "create-s-blog-win32-x64-msvc": "0.5.5",
+        "create-spage-darwin-arm64": "0.6.0",
+        "create-spage-linux-x64-gnu": "0.6.0",
+        "create-spage-win32-x64-msvc": "0.6.0",
       },
     },
   },
@@ -203,9 +202,17 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
 
-    "@s-blog/core": ["@s-blog/core@workspace:packages/core"],
+    "@s-blog/engine": ["@s-blog/engine@0.5.7", "", { "optionalDependencies": { "@s-blog/engine-darwin-arm64": "0.5.7", "@s-blog/engine-linux-x64-gnu": "0.5.7", "@s-blog/engine-win32-x64-msvc": "0.5.7" }, "bin": { "spage": "bin/spage.cjs", "s-blog": "bin/spage.cjs" } }, "sha512-XtsYX9lP83WTbkVxe2xCVhJkVlqbLshWDfbwfhxXrRXzu6QNwAc6UQcXBNstMbSeKYpKYJCnKSSOMmRuK1uldQ=="],
 
-    "@s-blog/engine": ["@s-blog/engine@workspace:crates/spage-engine-napi"],
+    "@s-blog/engine-darwin-arm64": ["@s-blog/engine-darwin-arm64@0.5.7", "", { "os": "darwin", "cpu": "arm64" }, "sha512-G4uoQbJPE3iCsIqMiWnJaXLL56q0eBxqsa98Sy5H9UeIN82981kN6IQC/qiGS1hoVdRmfGlHweXZX3ulcn+VIw=="],
+
+    "@s-blog/engine-linux-x64-gnu": ["@s-blog/engine-linux-x64-gnu@0.5.7", "", { "os": "linux", "cpu": "x64" }, "sha512-bUdq/eF4kD+FVM2aOwV0bwPBds4uJbUfYQq6up+7Ehox4EdklK1yacIOXL6gfZ/emFCoyLPO4tYOhzru2yR4iw=="],
+
+    "@s-blog/engine-win32-x64-msvc": ["@s-blog/engine-win32-x64-msvc@0.5.7", "", { "os": "win32", "cpu": "x64" }, "sha512-FWP4nueYgSXs+luD4jTuxf+G+pGMFJSFkyL2Pxbs8VsYEQ1OKFwuqDJxOULTAHyYk2meaXdpr9lHUPmsxMlcgA=="],
+
+    "@s-page/core": ["@s-page/core@workspace:packages/core"],
+
+    "@s-page/engine": ["@s-page/engine@workspace:crates/spage-engine-napi"],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
@@ -325,7 +332,7 @@
 
     "cookie": ["cookie@1.1.1", "", {}, "sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ=="],
 
-    "create-s-blog": ["create-s-blog@workspace:packages/create-spage"],
+    "create-spage": ["create-spage@workspace:packages/create-spage"],
 
     "css.escape": ["css.escape@1.5.1", "", {}, "sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg=="],
 
