@@ -29,7 +29,7 @@ pub struct ServeConfig {
     pub work_dir: PathBuf,
     /// Cache directory for generated data. Defaults to `".cache"`.
     pub cache_dir: PathBuf,
-    /// Path to the app shell directory. Defaults to `"node_modules/@s-blog/core/dist/shell"`.
+    /// Path to the app shell directory. Defaults to `"node_modules/@s-page/core/dist/shell"`.
     pub shell_dir: PathBuf,
     /// Port to bind the HTTP server on. Defaults to `3000`.
     pub port: u16,
@@ -40,7 +40,7 @@ impl Default for ServeConfig {
         Self {
             work_dir: PathBuf::from("."),
             cache_dir: PathBuf::from(".cache"),
-            shell_dir: PathBuf::from("node_modules/@s-blog/core/dist/shell"),
+            shell_dir: PathBuf::from("node_modules/@s-page/core/dist/shell"),
             port: 3000,
         }
     }

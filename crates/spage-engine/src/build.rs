@@ -22,7 +22,7 @@ pub struct BuildOptions {
     pub work_dir: PathBuf,
     /// Output directory for production artifacts. Defaults to `"dist"`.
     pub output_dir: PathBuf,
-    /// Path to the app shell directory. Defaults to `"node_modules/@s-blog/core/dist/shell"`.
+    /// Path to the app shell directory. Defaults to `"node_modules/@s-page/core/dist/shell"`.
     pub shell_dir: PathBuf,
 }
 
@@ -31,7 +31,7 @@ impl Default for BuildOptions {
         Self {
             work_dir: PathBuf::from("."),
             output_dir: PathBuf::from("dist"),
-            shell_dir: PathBuf::from("node_modules/@s-blog/core/dist/shell"),
+            shell_dir: PathBuf::from("node_modules/@s-page/core/dist/shell"),
         }
     }
 }
