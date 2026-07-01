@@ -1,6 +1,6 @@
 > *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
 
-# create-s-blog
+# create-spage
 
 The official scaffolding CLI for creating an [spage](https://spage.me) project.
 
@@ -61,8 +61,8 @@ my-blog/
     "build": "spage build"
   },
   "dependencies": {
-    "@s-blog/core": "^0.3.2",
-    "@s-blog/engine": "^0.3.7"
+    "@spage/core": "^0.3.2",
+    "@spage/engine": "^0.3.7"
   }
 }
 ```

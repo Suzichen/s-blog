@@ -1,13 +1,13 @@
 > *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
 
-# @s-blog/engine
+# @spage/engine
 
 Rust-powered build engine for [spage](https://spage.me) — handles Markdown parsing, image processing, SEO/feed generation, and development server with native performance.
 
 ## Install
 
 ```bash
-npm install @s-blog/engine
+npm install @spage/engine
 ```
 
 The correct native binary for your platform is installed automatically.
@@ -16,9 +16,9 @@ The correct native binary for your platform is installed automatically.
 
 | OS      | Arch  | Package                          |
 |---------|-------|----------------------------------|
-| Windows | x64   | `@s-blog/engine-win32-x64-msvc`  |
-| macOS   | ARM64 | `@s-blog/engine-darwin-arm64`    |
-| Linux   | x64   | `@s-blog/engine-linux-x64-gnu`   |
+| Windows | x64   | `@spage/engine-win32-x64-msvc`  |
+| macOS   | ARM64 | `@spage/engine-darwin-arm64`    |
+| Linux   | x64   | `@spage/engine-linux-x64-gnu`   |
 
 > macOS Intel users: the ARM64 binary runs seamlessly via Rosetta 2.
 
@@ -39,7 +39,7 @@ The package registers an `spage` binary. In a user project, this is invoked via 
 
 Runs the full production build pipeline:
 
-1. Copies the pre-built App Shell from `@s-blog/core`
+1. Copies the pre-built App Shell from `@spage/core`
 2. Generates posts manifest and copies Markdown files
 3. Processes album photos (WebP thumbnails + EXIF extraction)
 4. Generates SEO pages, sitemap.xml, rss.xml, robots.txt
@@ -78,7 +78,7 @@ const {
   generateRobots,
   buildCommand,
   serveCommand,
-} = require('@s-blog/engine')
+} = require('@spage/engine')
 ```
 
 ### `generatePostsData(postsDir, outputDir, configJson) → string`

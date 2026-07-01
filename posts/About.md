@@ -81,7 +81,7 @@ npm run build
 
 This single command (powered by the Rust build engine) handles the full pipeline:
 
-1. **App Shell** — copies the pre-built React frontend from `@s-blog/core`
+1. **App Shell** — copies the pre-built React frontend from `@spage/core`
 2. **Posts** — parses frontmatter, generates manifest, copies Markdown files
 3. **Albums** — generates WebP thumbnails + EXIF metadata JSON
 4. **SEO** — generates per-post HTML pages, sitemap.xml, rss.xml, robots.txt
@@ -137,9 +137,9 @@ spage is published as three npm packages:
 
 | Package | Purpose |
 |---------|---------|
-| `@s-blog/core` | Pre-built App Shell — UI components, routing, styles, JSON schemas |
-| `@s-blog/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
-| `create-s-blog` | CLI scaffolding tool — `npm create spage` |
+| `@spage/core` | Pre-built App Shell — UI components, routing, styles, JSON schemas |
+| `@spage/engine` | Rust-powered build engine — Markdown parsing, image processing, SEO generation, dev server |
+| `create-spage` | CLI scaffolding tool — `npm create spage` |
 
 Your project only contains content and configuration:
 
@@ -156,7 +156,7 @@ my-blog/
 To update the framework:
 
 ```bash
-npm update @s-blog/core @s-blog/engine
+npm update @spage/core @spage/engine
 ```
 
 ---

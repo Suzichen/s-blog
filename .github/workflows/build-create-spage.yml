@@ -29,7 +29,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        working-directory: packages/create-s-blog
+        working-directory: packages/create-spage
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: packages/create-s-blog/${{ matrix.npm-dir }}/create-s-blog.*.node
+          path: packages/create-spage/${{ matrix.npm-dir }}/create-s-blog.*.node
           if-no-files-found: error
 
   publish:
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/create-s-blog
+        working-directory: packages/create-spage
     steps:
       - uses: actions/checkout@v4
 
@@ -92,7 +92,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: packages/create-s-blog/artifacts
+          path: packages/create-spage/artifacts
 
       - name: Move artifacts to platform packages
         shell: bash

@@ -1,6 +1,6 @@
 > *Note: This is the original s-blog project, which has now been migrated and renamed to Spage.*
 
-# @s-blog/core
+# @spage/core
 
 The pre-built App Shell and UI framework for [spage](https://spage.me).
 
@@ -15,26 +15,26 @@ The pre-built App Shell and UI framework for [spage](https://spage.me).
 
 ## How It Works
 
-`@s-blog/core` is the **frontend** half of spage. It pairs with `@s-blog/engine` (the **build engine**) to form the complete system:
+`@spage/core` is the **frontend** half of spage. It pairs with `@spage/engine` (the **build engine**) to form the complete system:
 
-1. `@s-blog/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
-2. `@s-blog/core` provides the App Shell that loads and renders that content at runtime
+1. `@spage/engine` builds your content (Markdown → manifest, photos → thumbnails, SEO pages)
+2. `@spage/core` provides the App Shell that loads and renders that content at runtime
 
 Users interact with both through simple npm scripts:
 
 ```bash
-npm run dev    # Start dev server (powered by @s-blog/engine)
+npm run dev    # Start dev server (powered by @spage/engine)
 npm run build  # Full production build (engine copies shell from core, then processes content)
 ```
 
 ## Installation
 
-> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@s-blog/core` and `@s-blog/engine` automatically.
+> **Recommended:** Use `npm create spage@latest` to scaffold a new project. It sets up both `@spage/core` and `@spage/engine` automatically.
 
 For manual setup or upgrading:
 
 ```bash
-npm install @s-blog/core @s-blog/engine
+npm install @spage/core @spage/engine
 ```
 
 ## Project Structure (User's Project)
@@ -51,12 +51,12 @@ my-blog/
 └── package.json        # scripts: { dev, build }
 ```
 
-All framework code is inside `node_modules/@s-blog/core` and `node_modules/@s-blog/engine`.
+All framework code is inside `node_modules/@spage/core` and `node_modules/@spage/engine`.
 
 ## Updating
 
 ```bash
-npm update @s-blog/core @s-blog/engine
+npm update @spage/core @spage/engine
 ```
 
 ## License
