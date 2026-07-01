@@ -61,7 +61,7 @@ my-blog/
   },
   "dependencies": {
     "@s-page/core": "^0.6.1",
-    "@s-page/engine": "^0.6.2"
+    "@s-page/engine": "^0.6.3"
   }
 }
 ```

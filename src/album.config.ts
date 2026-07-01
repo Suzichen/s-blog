@@ -1,4 +1,4 @@
-import type { AlbumConfig } from '@s-blog/core';
+import type { AlbumConfig } from '@s-page/core';
 
 export const albumConfig: AlbumConfig = {
   enabled: true,

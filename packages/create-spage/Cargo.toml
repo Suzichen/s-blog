@@ -1,6 +1,6 @@
 [package]
 name = "create-s-blog"
-version = "0.6.1"
+version = "0.6.2"
 edition = "2021"
 description = "NAPI-RS bindings for spage-scaffold — exposes scaffold to Node.js"
 license = "MIT"
