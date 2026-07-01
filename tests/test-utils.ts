@@ -61,7 +61,7 @@ export function setupTmpDir(tmpDir: string, variant: 'default' | 'basepath' = 'd
   copyDirSync(path.join(FIXTURES_DIR, 'albums'), path.join(tmpDir, 'albums'));
 
   // Engine expects shell template at node_modules/@s-page/core/dist/shell/
-  const shellDir = path.join(tmpDir, 'node_modules', '@spage', 'core', 'dist', 'shell');
+  const shellDir = path.join(tmpDir, 'node_modules', '@s-page', 'core', 'dist', 'shell');
   fs.mkdirSync(shellDir, { recursive: true });
   fs.writeFileSync(path.join(shellDir, 'index.html'), SHELL_TEMPLATE, 'utf-8');
 

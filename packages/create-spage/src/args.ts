@@ -17,7 +17,7 @@ export interface CliArgs {
 }
 
 const HELP_TEXT = `
-Usage: create-s-blog [options]
+Usage: create-spage [options]
 
 Options:
   --name <name>           Project name (default: my-blog)
@@ -73,8 +73,8 @@ export function printVersion(): void {
   try {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const pkg = JSON.parse(readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'));
-    console.log(`create-s-blog v${pkg.version}`);
+    console.log(`create-spage v${pkg.version}`);
   } catch {
-    console.log('create-s-blog v0.2.0');
+    console.log('create-spage v0.6.0');
   }
 }

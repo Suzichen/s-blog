@@ -1,12 +1,3 @@
-> **IMPORTANT MIGRATION NOTICE**
-> 
-> This is the final release under the `create-spage` name. The package has been officially migrated and renamed to **create-spage**. 
-> 
-> Please update your tooling and use the new package: [`create-spage`](https://www.npmjs.com/package/create-spage)
-> 
-> ```bash
-> npm create spage@latest
-> ```
 
 # create-spage
 
@@ -69,8 +60,8 @@ my-blog/
     "build": "spage build"
   },
   "dependencies": {
-    "@s-page/core": "^0.3.2",
-    "@s-page/engine": "^0.3.7"
+    "@s-page/core": "^0.6.0",
+    "@s-page/engine": "^0.6.0"
   }
 }
 ```

@@ -12,7 +12,7 @@ path = "rust-src/lib.rs"
 
 [dependencies]
 spage-scaffold = { path = "../../crates/spage-scaffold" }
-napi = { version = "0.6.0", default-features = false, features = ["napi4"] }
+napi = { version = "2", default-features = false, features = ["napi4"] }
 napi-derive = "2"
 
 [build-dependencies]

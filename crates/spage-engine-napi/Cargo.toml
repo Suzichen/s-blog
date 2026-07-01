@@ -10,11 +10,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 spage-engine = { path = "../spage-engine", features = ["napi"] }
-napi = { version = "0.6.0", default-features = false, features = ["napi4"] }
+napi = { version = "2", default-features = false, features = ["napi4"] }
 napi-derive = "2"
 serde_json = "1.0"
 dotenvy = "0.15"
-tokio = { version = "0.6.0", features = ["rt", "signal"] }
+tokio = { version = "1", features = ["rt", "signal"] }
 
 [build-dependencies]
 napi-build = "2"

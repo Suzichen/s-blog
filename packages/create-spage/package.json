@@ -3,7 +3,6 @@
   "version": "0.6.0",
   "type": "module",
   "bin": {
-    "create-spage": "./dist/index.js",
     "create-spage": "./dist/index.js"
   },
   "files": [

@@ -56,7 +56,7 @@ function setupTmp(configDir: string): void {
   copyDirSync(path.join(FIXTURES_DIR, 'posts'), path.join(TMP_DIR, 'posts'));
   copyDirSync(path.join(FIXTURES_DIR, 'albums'), path.join(TMP_DIR, 'albums'));
 
-  const shellDir = path.join(TMP_DIR, 'node_modules', '@spage', 'core', 'dist', 'shell');
+  const shellDir = path.join(TMP_DIR, 'node_modules', '@s-page', 'core', 'dist', 'shell');
   fs.mkdirSync(shellDir, { recursive: true });
   fs.writeFileSync(path.join(shellDir, 'index.html'), SHELL_TEMPLATE, 'utf-8');
 }
