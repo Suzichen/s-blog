@@ -1,6 +1,6 @@
 [package]
 name = "spage-engine-napi"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 description = "NAPI-RS bindings for spage-engine — exposes the Rust engine to Node.js"
 license = "MIT"
