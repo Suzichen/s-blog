@@ -11,7 +11,7 @@ use include_dir::{include_dir, Dir};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-static TEMPLATE: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../packages/create-s-blog/template");
+static TEMPLATE: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../packages/create-spage/template");
 
 #[derive(Debug, Error)]
 pub enum ScaffoldError {
