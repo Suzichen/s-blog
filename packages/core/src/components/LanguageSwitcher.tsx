@@ -41,8 +41,8 @@ const LanguageSwitcher: React.FC = () => {
               <button
                 role="menuitem"
                 onClick={() => { i18n.changeLanguage(code); setOpen(false); }}
-                className={`block w-full text-left px-4 py-2 text-sm rounded transition-colors hover:bg-gray-100 hover:text-primary ${
-                  isActive(code) ? 'bg-gray-100 text-primary font-medium' : 'text-secondary'
+                className={`block w-full text-left px-4 py-2 text-sm rounded transition-colors hover:bg-bg-secondary-hover hover:text-primary ${
+                  isActive(code) ? 'bg-bg-secondary text-primary font-medium' : 'text-secondary'
                 }`}
                 aria-current={isActive(code) ? 'true' : undefined}
               >
