@@ -42,7 +42,42 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Pre-JS skeleton: matches Layout structure. Removed when React mounts. -->
+      <div id="spage-skeleton" style="display:flex;flex-direction:column;min-height:100vh;font-family:system-ui,sans-serif">
+        <header style="padding:1rem 2rem;border-bottom:1px solid var(--color-border,#e5e5e0);display:flex;align-items:center;gap:1rem">
+          <div style="width:80px;height:80px;border-radius:8px;background:var(--color-border,#e5e5e0);animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+          <div style="flex:1">
+            <div style="height:1.5rem;width:140px;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:6px;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:0.875rem;width:220px;background:var(--color-border,#e5e5e0);border-radius:4px;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+          </div>
+        </header>
+        <main style="flex:1;max-width:800px;width:100%;margin:0 auto;padding:2rem 1rem">
+          <div style="margin-bottom:3rem">
+            <div style="height:1.5rem;width:65%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.75rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:35%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:1rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:100%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.5rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:85%;background:var(--color-border,#e5e5e0);border-radius:4px;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+          </div>
+          <div style="margin-bottom:3rem">
+            <div style="height:1.5rem;width:55%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.75rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:30%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:1rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:100%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.5rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:75%;background:var(--color-border,#e5e5e0);border-radius:4px;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+          </div>
+          <div>
+            <div style="height:1.5rem;width:60%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.75rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:40%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:1rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:100%;background:var(--color-border,#e5e5e0);border-radius:4px;margin-bottom:0.5rem;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+            <div style="height:1rem;width:90%;background:var(--color-border,#e5e5e0);border-radius:4px;animation:spage-pulse 2s cubic-bezier(.4,0,.6,1) infinite"></div>
+          </div>
+        </main>
+      </div>
+      <style id="spage-skeleton-style">
+        @keyframes spage-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+      </style>
+    </div>
+    <div id="app" style="opacity:0"></div>
     <script type="module" src="./src/shell-entry.tsx"></script>
   </body>
 </html>

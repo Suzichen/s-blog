@@ -5,6 +5,8 @@ import { usePosts } from '@/hooks/usePosts';
 import type { PostMetadata } from '@/types/blog';
 import PostList from '@/components/PostList';
 import Sidebar from '@/components/Sidebar';
+import { PostListSkeleton } from '@/components/Skeleton';
+import { useSignalReady } from '@/AppReadyProvider';
 
 const TagDetail: React.FC = () => {
     const { t } = useTranslation();
@@ -16,8 +18,10 @@ const TagDetail: React.FC = () => {
             post.tags.some((t) => t.toLowerCase() === tag?.toLowerCase())
         ), [posts, tag]);
 
+    useSignalReady(!loading);
+
     if (loading) {
-        return <div className="w-full max-w-[800px] mx-auto py-8 text-center text-secondary">Loading...</div>;
+        return <PostListSkeleton />;
     }
 
     return (

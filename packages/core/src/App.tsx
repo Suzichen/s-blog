@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSiteConfig, useAlbumConfig, useMemoConfig } from './context';
 import Layout from './components/Layout';
+import { AppReadyProvider } from './AppReadyProvider';
 
 // Lazy-load route-level pages for code splitting
 const Home = React.lazy(() => import('./pages/Home'));
@@ -39,23 +40,25 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Layout>
-        <Suspense fallback={<div className="w-full max-w-[800px] mx-auto py-8 text-center text-secondary"></div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/page/:pageNum" element={<Home />} />
-            <Route path="/post/:slug" element={<PostDetail />} />
-            <Route path="/categories/:category" element={<CategoryDetail />} />
-            <Route path="/tags/:tag" element={<TagDetail />} />
-            <Route path="/archives" element={<Archives />} />
-            <Route path="/archives/:year" element={<Archives />} />
-            <Route path="/archives/:year/:month" element={<Archives />} />
-            <Route path="/albums" element={albumConfig.enabled ? <Albums /> : <Navigate to="/" replace />} />
-            <Route path="/albums/:dirname" element={albumConfig.enabled ? <AlbumDetail /> : <Navigate to="/" replace />} />
-            <Route path="/memo" element={memoConfig.enabled ? <Memo /> : <Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </Layout>
+      <AppReadyProvider>
+        <Layout>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/page/:pageNum" element={<Home />} />
+              <Route path="/post/:slug" element={<PostDetail />} />
+              <Route path="/categories/:category" element={<CategoryDetail />} />
+              <Route path="/tags/:tag" element={<TagDetail />} />
+              <Route path="/archives" element={<Archives />} />
+              <Route path="/archives/:year" element={<Archives />} />
+              <Route path="/archives/:year/:month" element={<Archives />} />
+              <Route path="/albums" element={albumConfig.enabled ? <Albums /> : <Navigate to="/" replace />} />
+              <Route path="/albums/:dirname" element={albumConfig.enabled ? <AlbumDetail /> : <Navigate to="/" replace />} />
+              <Route path="/memo" element={memoConfig.enabled ? <Memo /> : <Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </Layout>
+      </AppReadyProvider>
     </Router>
   );
 };

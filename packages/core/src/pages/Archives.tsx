@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { usePosts } from '@/hooks/usePosts';
 import PostList from '@/components/PostList';
 import ArchiveSidebar from '@/components/ArchiveSidebar';
+import { CompactListSkeleton } from '@/components/Skeleton';
+import { useSignalReady } from '@/AppReadyProvider';
 
 const Archives: React.FC = () => {
     const { t } = useTranslation();
@@ -30,8 +32,10 @@ const Archives: React.FC = () => {
         return t('common.allArchives', 'All Archives');
     }, [year, month, t]);
 
+    useSignalReady(!loading);
+
     if (loading) {
-        return <div className="w-full max-w-[800px] mx-auto py-8 text-center text-secondary">Loading...</div>;
+        return <CompactListSkeleton />;
     }
 
     return (
