@@ -31,15 +31,16 @@ const ShellApp: React.FC = () => {
   );
 };
 
-// Mount the application
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found. Please ensure your HTML has an element with id="root".');
+// Mount into #app (separate from #root which holds the skeleton)
+const appElement = document.getElementById('app');
+if (!appElement) {
+  throw new Error('App element not found. Please ensure your HTML has an element with id="app".');
 }
 
-const root = createRoot(rootElement);
+const root = createRoot(appElement);
 root.render(
   <React.StrictMode>
     <ShellApp />
   </React.StrictMode>
 );
+

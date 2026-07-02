@@ -166,18 +166,6 @@ async function fetchConfig<T>(
 }
 
 /**
- * Loading indicator component
- */
-const LoadingIndicator: React.FC = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div className="text-center">
-      <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p className="text-gray-600 dark:text-gray-400">Loading configuration...</p>
-    </div>
-  </div>
-);
-
-/**
  * Error display component
  */
 const ErrorDisplay: React.FC<{ error: ConfigError }> = ({ error }) => (
@@ -276,9 +264,9 @@ export const RuntimeConfigLoader: React.FC<RuntimeConfigLoaderProps> = ({
     };
   }, [configPath, albumConfigPath, memoConfigPath]);
 
-  // Show loading indicator
+  // During loading, return null — the HTML skeleton in #root remains visible
   if (state.status === 'loading') {
-    return <LoadingIndicator />;
+    return null;
   }
 
   // Show error message

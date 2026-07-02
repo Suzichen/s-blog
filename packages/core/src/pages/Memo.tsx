@@ -5,6 +5,8 @@ import { useMemos } from '../hooks/useMemos';
 import type { Ech0Comment, Ech0Item } from '../services/ech0';
 import { fetchEch0Comments, fetchGitHubRepo, type GitHubRepoData } from '../services/ech0';
 import PhotoViewer from '../components/PhotoViewer';
+import { TimelineSkeleton } from '../components/Skeleton';
+import { useSignalReady } from '../AppReadyProvider';
 import type { PhotoItem } from '../types/album';
 
 function formatRelativeTime(timestamp: number): string {
@@ -182,6 +184,16 @@ const Memo: React.FC = () => {
 
   const title = memoConfig.title || t('nav.memo');
   const isInitialLoad = loading && memos.length === 0;
+  useSignalReady(!isInitialLoad || !!error);
+
+  if (isInitialLoad && !error) {
+    return (
+      <div className="w-full max-w-[800px] mx-auto">
+        <h2 className="text-2xl font-light mb-8 text-primary">{title}</h2>
+        <TimelineSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-[800px] mx-auto">
@@ -194,10 +206,6 @@ const Memo: React.FC = () => {
             {t('memo.retry')}
           </button>
         </div>
-      )}
-
-      {isInitialLoad && !error && (
-        <div className="text-center py-12 text-secondary">{t('common.loading')}</div>
       )}
 
       {!loading && !error && memos.length === 0 && (
@@ -225,7 +233,11 @@ const Memo: React.FC = () => {
             className="text-sm px-6 py-2 border border-border rounded hover:bg-border transition-colors disabled:opacity-50"
           >
             {loading ? (
-              <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              <span className="inline-flex gap-1 items-center">
+                <span className="w-2 h-2 rounded-full bg-current animate-skeleton-pulse" />
+                <span className="w-2 h-2 rounded-full bg-current animate-skeleton-pulse" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full bg-current animate-skeleton-pulse" style={{ animationDelay: '300ms' }} />
+              </span>
             ) : (
               t('memo.loadMore')
             )}

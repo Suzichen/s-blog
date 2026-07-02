@@ -2,41 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAlbums } from '../hooks/useAlbums';
+import { AlbumGridSkeleton } from '../components/Skeleton';
+import { useSignalReady } from '../AppReadyProvider';
 
 const Albums: React.FC = () => {
   const { albums, loading, error } = useAlbums();
   const { t } = useTranslation();
 
+  useSignalReady(!loading);
+
   if (loading) {
     return (
       <div>
         <h2 className="text-2xl font-bold mb-6">{t('albums.title')}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl overflow-hidden"
-              style={{
-                background: 'var(--color-bg-alt)',
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              }}
-            >
-              <div className="aspect-[4/3]" />
-              <div className="p-3">
-                <div
-                  className="h-4 rounded"
-                  style={{ background: 'var(--color-border)', width: '60%' }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-        `}</style>
+        <AlbumGridSkeleton />
       </div>
     );
   }

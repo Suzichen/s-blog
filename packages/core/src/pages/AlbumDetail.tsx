@@ -3,12 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAlbum } from '../hooks/useAlbum';
 import PhotoViewer from '../components/PhotoViewer';
+import { PhotoGridSkeleton } from '../components/Skeleton';
+import { useSignalReady } from '../AppReadyProvider';
 
 const AlbumDetail: React.FC = () => {
   const { dirname } = useParams<{ dirname: string }>();
   const { album, loading, error } = useAlbum(dirname || '');
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const { t } = useTranslation();
+
+  useSignalReady(!loading);
 
   if (loading) {
     return (
@@ -18,25 +22,7 @@ const AlbumDetail: React.FC = () => {
             {t('albums.backToAlbums')}
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-square rounded-lg"
-              style={{
-                background: 'var(--color-bg-alt)',
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                animationDelay: `${i * 100}ms`,
-              }}
-            />
-          ))}
-        </div>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-        `}</style>
+        <PhotoGridSkeleton />
       </div>
     );
   }

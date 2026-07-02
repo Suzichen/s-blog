@@ -156,7 +156,7 @@ describe('RuntimeConfigLoader', () => {
   });
 
   describe('Loading State Display (Requirement 1.1.2)', () => {
-    it('should display loading indicator while fetching configurations', async () => {
+    it('should render nothing while fetching configurations (HTML skeleton stays visible)', async () => {
       // Arrange - create a delayed response
       let resolveConfig: (value: Response) => void;
       const configPromise = new Promise<Response>((resolve) => {
@@ -174,14 +174,14 @@ describe('RuntimeConfigLoader', () => {
       });
 
       // Act
-      render(
+      const { container } = render(
         <RuntimeConfigLoader>
           {() => <div data-testid="loaded">Loaded</div>}
         </RuntimeConfigLoader>
       );
 
-      // Assert - loading indicator should be visible
-      expect(screen.getByText('Loading configuration...')).toBeInTheDocument();
+      // Assert - nothing is rendered (null), HTML skeleton stays in place
+      expect(container.innerHTML).toBe('');
       expect(screen.queryByTestId('loaded')).not.toBeInTheDocument();
 
       // Resolve the config fetch
@@ -189,7 +189,6 @@ describe('RuntimeConfigLoader', () => {
 
       // Assert - loading should complete
       await waitFor(() => {
-        expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
         expect(screen.getByTestId('loaded')).toBeInTheDocument();
       });
     });

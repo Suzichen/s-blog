@@ -5,18 +5,21 @@ import PostList from '@/components/PostList';
 import Pagination from '@/components/Pagination';
 import Sidebar from '@/components/Sidebar';
 import RightSidebar from '@/components/RightSidebar';
+import { PostListSkeleton } from '@/components/Skeleton';
+import { useSignalReady } from '@/AppReadyProvider';
 
 const POSTS_PER_PAGE = 10;
 
 const Home: React.FC = () => {
   const { posts, loading } = usePosts();
   const { pageNum } = useParams<{ pageNum?: string }>();
+  useSignalReady(!loading);
 
   const currentPage = pageNum ? parseInt(pageNum, 10) : 1;
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
 
   if (loading) {
-    return <div className="w-full max-w-[800px] mx-auto py-8 text-center text-secondary">Loading...</div>;
+    return <PostListSkeleton />;
   }
 
   if (isNaN(currentPage) || currentPage < 1 || (totalPages > 0 && currentPage > totalPages)) {

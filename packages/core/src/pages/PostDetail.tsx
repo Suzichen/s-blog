@@ -13,6 +13,8 @@ import { usePost } from '@/hooks/usePost';
 import { restoreScrollForKey } from '@/hooks/useScrollToTop';
 import ImageWithCaption from '@/components/ImageWithCaption';
 import PhotoViewer from '@/components/PhotoViewer';
+import { ArticleSkeleton } from '@/components/Skeleton';
+import { useSignalReady } from '@/AppReadyProvider';
 import type { PhotoItem } from '@/types/album';
 
 const PostDetail: React.FC = () => {
@@ -92,13 +94,14 @@ const PostDetail: React.FC = () => {
     return () => observer.disconnect();
   }, [content]);
 
-  if (!post) {
-    if (loading) return <div>{t('common.loading')}</div>; 
-    return <div>{t('common.postNotFound')}</div>;
-  }
+  useSignalReady(!loading);
 
   if (loading) {
-    return <div>{t('common.loading')}</div>;
+    return <ArticleSkeleton />;
+  }
+
+  if (!post) {
+    return <div>{t('common.postNotFound')}</div>;
   }
 
   return (
