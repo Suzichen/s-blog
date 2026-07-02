@@ -70,9 +70,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </main>
         <footer className="py-8 text-center text-secondary text-sm border-t border-border">
-          <div className="xl:hidden mb-6 flex flex-col items-center gap-4">
-            <LinksSection />
-            <SocialLinksSection />
+          <div className="xl:hidden mb-6 flex flex-row items-start gap-8 px-4 text-left">
+            <div className="flex-1 min-w-0">
+              <LinksSection />
+            </div>
+            <div className="flex-1 min-w-0">
+              <SocialLinksSection />
+            </div>
           </div>
           <div>&copy; {new Date().getFullYear()} {siteConfig.title}</div>
           <div className="mt-1 opacity-60">
